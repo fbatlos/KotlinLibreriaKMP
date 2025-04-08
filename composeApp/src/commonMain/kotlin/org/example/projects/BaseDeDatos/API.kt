@@ -1,48 +1,57 @@
-package com.example.actapp.BaseDeDatos
+package org.example.projects.BaseDeDatos
 
-import com.example.actapp.BaseDeDatos.ErrorAPI.ApiError
-import okhttp3.ResponseBody
-import retrofit2.Converter
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
-import com.auth0.jwt.JWT
-import com.auth0.jwt.interfaces.DecodedJWT
+// commonMain/kotlin/com/example/actapp/BaseDeDatos/API.kt
+import io.ktor.client.*
+import io.ktor.client.call.body
+import io.ktor.client.engine.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.*
+import io.ktor.client.statement.HttpResponse
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
+import org.example.projects.BaseDeDatos.APIServiceImpl
+// commonMain/kotlin/com/example/actapp/BaseDeDatos/ErrorAPI/ApiError.kt
+import kotlinx.serialization.Serializable
 
 object API {
     private const val BASE_URL = "http://localhost:8080/"
 
-    private val retrofit: Retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+    // Configuración del JSON
+    private val jsonConfig = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        explicitNulls = false
     }
 
+    private val client: HttpClient by lazy {
+        HttpClient() {
+            defaultRequest {
+                url(BASE_URL)
+            }
+            install(ContentNegotiation) {
+                json(jsonConfig)
+            }
 
-    val retrofitService : APIService by lazy {
-        retrofit.create(APIService::class.java)
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30_000
+            }
+        }
     }
 
+    val apiService: APIService by lazy {
+        APIServiceImpl(client)
+    }
 
-    fun parseError(response: Response<*>): ApiError {
-        val converter: Converter<ResponseBody, ApiError> = retrofit.responseBodyConverter(ApiError::class.java, arrayOfNulls(0))
+    suspend fun parseError(response: HttpResponse): ApiError {
         return try {
-            //el mensaje vuelve nulo ?????
-            converter.convert(response.errorBody()!!) ?: ApiError("Unknown error")
-        } catch (e: IOException) {
-            ApiError("Error parsing error response" )
+            response.body<ApiError>() ?: ApiError("Unknown error")
+        } catch (e: Exception) {
+            ApiError("Error parsing error response: ${e.message}")
         }
     }
 }
 
 
-
-object JwtUtils {
-    fun getRoleFromToken(token: String): String {
-        val decoded: DecodedJWT = JWT.decode(token)
-        return decoded.getClaim("roles").asString() ?: "user"
-    }
-
-}
+@Serializable
+data class ApiError(val message: String)

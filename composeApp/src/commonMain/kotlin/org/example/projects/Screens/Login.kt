@@ -22,17 +22,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.actapp.BaseDeDatos.API
-import com.example.actapp.BaseDeDatos.API.retrofitService
-import com.example.actapp.BaseDeDatos.DTO.UsuarioDTO
-import com.example.actapp.BaseDeDatos.JwtUtils
-import com.example.actapp.BaseDeDatos.DTO.UsuarioLoginDTO
-import com.example.actapp.BaseDeDatos.Model.AuthResponse
 import com.example.actapp.componentes_login.BottonLogin
 import com.example.actapp.componentes_login.Contrasenia
 import com.example.actapp.componentes_login.ErrorDialog
 import com.example.actapp.componentes_login.Usuario
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import io.ktor.client.call.body
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +35,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.example.projects.BaseDeDatos.API
+import org.example.projects.BaseDeDatos.DTO.UsuarioDTO
+import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
+import org.example.projects.BaseDeDatos.Model.AuthResponse
 import org.example.projects.NavController.AppNavigator
 import org.example.projects.ViewModel.*
 
@@ -95,7 +94,7 @@ fun Login(modifier: Modifier, navController: AppNavigator, viewModel: SharedView
 
                     viewModel.onIsLoading(false)
                     if (login.first) {
-                        val auth = AuthResponse(login.second,UsuarioDTO(Usuario,JwtUtils.getRoleFromToken(token = login.second)))
+                        val auth = AuthResponse(login.second, UsuarioDTO(Usuario,"ROLE_USER"))
 
                         navController.navigateTo("detail" + "/${Json.encodeToString(auth)}")
                     }
@@ -152,10 +151,10 @@ fun validarUsuario(username: String, password: String): Deferred<Pair<Boolean,St
 
     return scope.async(Dispatchers.IO) {
         try {
-            val response = retrofitService.postLogin(usuarioLoginDTO)
-            if (response.isSuccessful) {
-                val tokenbd = response.body()?.token ?: ""
-                println("Token" + tokenbd.toString())
+            val response = API.apiService.postLogin(usuarioLoginDTO)
+            if (response.status.value == 200) {
+                val tokenbd = response.body<String>()
+                println("Token" + tokenbd)
                 return@async Pair(true,tokenbd)
             } else {
                 val error = API.parseError(response)

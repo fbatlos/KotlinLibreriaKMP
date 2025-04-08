@@ -1,6 +1,7 @@
-package com.example.actapp.BaseDeDatos.DTO
+package org.example.projects.BaseDeDatos.DTO
 
 import kotlinx.serialization.Serializable
+
 
 @Serializable
 data class UsuarioDTO(

@@ -1,7 +1,10 @@
-package com.example.actapp.BaseDeDatos.DTO
+package org.example.projects.BaseDeDatos.DTO
 
-import com.example.actapp.BaseDeDatos.Model.Direccion
 
+import kotlinx.serialization.Serializable
+import org.example.projects.BaseDeDatos.Model.Direccion
+
+@Serializable
 data class UsuarioRegisterDTO(
     val username: String,
     val email: String,

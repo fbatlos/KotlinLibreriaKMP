@@ -1,30 +1,21 @@
-package com.example.actapp.BaseDeDatos
+package org.example.projects.BaseDeDatos
 
-import com.example.actapp.BaseDeDatos.Model.AuthResponse
-import com.example.actapp.BaseDeDatos.Model.Token
-import com.example.actapp.BaseDeDatos.DTO.UsuarioLoginDTO
-import com.example.actapp.BaseDeDatos.DTO.UsuarioRegisterDTO
-import com.example.actapp.BaseDeDatos.Model.Tarea
-import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
+// commonMain/kotlin/com/example/actapp/BaseDeDatos/APIService.kt
 
+
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.*
+import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
+import org.example.projects.BaseDeDatos.DTO.UsuarioRegisterDTO
+import org.example.projects.BaseDeDatos.Model.AuthResponse
+import org.example.projects.BaseDeDatos.Model.Tarea
 
 interface APIService {
-
-    @POST("usuarios/login")
-    suspend fun postLogin(@Body usuarioLoginDTO: UsuarioLoginDTO):Response<Token>
-
-    @POST("usuarios/register")
-    suspend fun postRegister(@Body usuario: UsuarioRegisterDTO):Response<AuthResponse>
-
-    @GET("tareas/tareas")
-    suspend fun getTareas(@Header("Authorization") authHeader: String): Response<List<Tarea>>
-
-    @PUT("tareas/tarea/{id}")
-    suspend fun putTareas(@Header("Authorization") authHeader: String,@Path("id") id:String ,@Body tarea: Tarea): Response<Tarea>
+    suspend fun postLogin(usuarioLoginDTO: UsuarioLoginDTO): HttpResponse
+    suspend fun postRegister(usuario: UsuarioRegisterDTO): AuthResponse
+    suspend fun getTareas(authHeader: String): List<Tarea>
+    suspend fun putTareas(authHeader: String, id: String, tarea: Tarea): Tarea
 }

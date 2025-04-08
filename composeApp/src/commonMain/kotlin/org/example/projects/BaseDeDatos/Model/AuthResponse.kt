@@ -1,8 +1,7 @@
-package com.example.actapp.BaseDeDatos.Model
+package org.example.projects.BaseDeDatos.Model
 
-import com.example.actapp.BaseDeDatos.DTO.UsuarioDTO
-import com.example.actapp.BaseDeDatos.DTO.UsuarioLoginDTO
 import kotlinx.serialization.Serializable
+import org.example.projects.BaseDeDatos.DTO.UsuarioDTO
 
 @Serializable
 data class AuthResponse(

@@ -1,4 +1,4 @@
-package com.example.actapp.BaseDeDatos.Model
+package org.example.projects.BaseDeDatos.Model
 
 import java.util.Date
 
