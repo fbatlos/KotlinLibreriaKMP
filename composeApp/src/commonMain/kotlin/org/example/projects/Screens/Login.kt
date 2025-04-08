@@ -1,4 +1,4 @@
-package com.example.actapp.Screens
+package org.example.projects.Screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,10 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.*
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,11 +28,11 @@ import com.example.actapp.BaseDeDatos.DTO.UsuarioDTO
 import com.example.actapp.BaseDeDatos.JwtUtils
 import com.example.actapp.BaseDeDatos.DTO.UsuarioLoginDTO
 import com.example.actapp.BaseDeDatos.Model.AuthResponse
-import com.example.actapp.ViewModel.MyViewModel
 import com.example.actapp.componentes_login.BottonLogin
 import com.example.actapp.componentes_login.Contrasenia
 import com.example.actapp.componentes_login.ErrorDialog
 import com.example.actapp.componentes_login.Usuario
+import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -40,26 +41,26 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.example.projects.NavController.AppNavigator
+import org.example.projects.ViewModel.*
 
 
 @Composable
-fun login(modifier: Modifier, viewModel: MyViewModel, navController: AppNavigator) {
+fun Login(modifier: Modifier, navController: AppNavigator, viewModel: SharedViewModel) {
 
-    val Usuario by viewModel.username.observeAsState("")
-    val Contrasenia by viewModel.contrasenia.observeAsState("")
-    val IsEnable by viewModel.isLoginEnable.observeAsState(false)
-    val textError by viewModel.textError.observeAsState("Error al iniciar.")
+    val Usuario by viewModel.username.collectAsState()
+    val Contrasenia by viewModel.contrasenia.collectAsState()
+    val IsEnable by viewModel.isLoginEnable.collectAsState()
+    val textError by viewModel.textError.collectAsState()
     val scope = rememberCoroutineScope()
-    val showDialog by viewModel.showDialog.observeAsState(false)
-
+    val showDialog by viewModel.showDialog.collectAsState()
     val focusManager = LocalFocusManager.current
 
-    val isLoading by viewModel.isLoading.observeAsState(false)
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Column(
         modifier =modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Color.White)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
@@ -71,7 +72,7 @@ fun login(modifier: Modifier, viewModel: MyViewModel, navController: AppNavigato
 
     ) {
 
-        ErrorDialog(showDialog = showDialog, textError = textError){
+        ErrorDialog(showDialog = showDialog, textError = textError ?: "Error común"){
             viewModel.onShowDialog(it)
         }
 
@@ -79,11 +80,11 @@ fun login(modifier: Modifier, viewModel: MyViewModel, navController: AppNavigato
 
 
         Usuario(Usuario, cabecero = "Usuario"){
-            viewModel.onLogChange(username = it , contasenia = Contrasenia)
+            viewModel.onLogChange(username = it , contrasenia = Contrasenia)
         }
 
         Contrasenia(Contrasenia){
-            viewModel.onLogChange(username = Usuario , contasenia = it)
+            viewModel.onLogChange(username = Usuario , contrasenia = it)
         }
 
         BottonLogin(
@@ -96,13 +97,12 @@ fun login(modifier: Modifier, viewModel: MyViewModel, navController: AppNavigato
                     if (login.first) {
                         val auth = AuthResponse(login.second,UsuarioDTO(Usuario,JwtUtils.getRoleFromToken(token = login.second)))
 
-                        navController.navigate(AppScreen.pantallaMenu.router + "/${Json.encodeToString(auth)}")
+                        navController.navigateTo("detail" + "/${Json.encodeToString(auth)}")
                     }
                     else {
-                        Log.i("Token Trans",login.second)
                         viewModel.textErrorChange(login.second)
                         viewModel.onShowDialog(true)
-                        viewModel.onLogChange(username = "", contasenia = "")
+                        viewModel.onLogChange(username = "", contrasenia = "")
                     }
                 }
             },
@@ -126,19 +126,19 @@ fun LoadingOverlay(isLoading: Boolean) {
                     .background(Color.Black.copy(alpha = 0.5f)), // Fondo semitransparente
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(color = Color.Black)
             }
         }
     }
 }
 
 @Composable
-fun Resgistrarse(navController: NavController){
+fun Resgistrarse(navController: AppNavigator){
     Text(
         text = "No tengo cuenta." ,
-        color = azullogo,
+        color = Color.Cyan,
         modifier = Modifier.clickable {
-            navController.navigate(AppScreen.pantallaRegistro.router)
+            navController.goBack()
         }
 
     )
@@ -153,18 +153,15 @@ fun validarUsuario(username: String, password: String): Deferred<Pair<Boolean,St
     return scope.async(Dispatchers.IO) {
         try {
             val response = retrofitService.postLogin(usuarioLoginDTO)
-            Log.i("RESPUESTA", response.toString())
             if (response.isSuccessful) {
                 val tokenbd = response.body()?.token ?: ""
-                Log.i("Token", tokenbd)
+                println("Token" + tokenbd.toString())
                 return@async Pair(true,tokenbd)
             } else {
                 val error = API.parseError(response)
-                Log.e("Error controladoooo", "$error")
                 return@async Pair(false,error.message)
             }
         } catch (e: Exception) {
-            Log.e("Error", "Error cargando el usuario", e)
             return@async Pair(false,e.toString())
         }
     }

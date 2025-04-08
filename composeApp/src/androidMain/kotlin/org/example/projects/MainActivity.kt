@@ -18,6 +18,8 @@ import androidx.navigation.compose.rememberNavController
 import org.example.projects.Screens.DetailScreen
 import org.example.projects.Screens.HomeScreen
 import androidx.compose.material.MaterialTheme
+import org.example.projects.Screens.Login
+import org.example.projects.ViewModel.SharedViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +28,7 @@ class MainActivity : ComponentActivity() {
             MaterialTheme { // Reemplaza MyAppTheme con MaterialTheme
                 val navController = rememberNavController()
                 val navigator = remember { AndroidNavigator(navController) }
+                val viewModel = remember { SharedViewModel() }
 
                 Scaffold(
                     modifier = Modifier
@@ -39,16 +42,11 @@ class MainActivity : ComponentActivity() {
                         ) {
                             composable("home") { HomeScreen(navigator) }
                             composable("detail") { DetailScreen(navigator) }
+                            composable("login") { Login(Modifier,navigator,viewModel) }
                         }
                     }
                 )
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
 }

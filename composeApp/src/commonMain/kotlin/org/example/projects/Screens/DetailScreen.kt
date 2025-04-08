@@ -11,7 +11,7 @@ import org.example.projects.NavController.AppNavigator
 fun DetailScreen(navigator: AppNavigator) {
     Column {
         Text("Pantalla de Detalle (Common)")
-        Button(onClick = { navigator.goBack() }) {
+        Button(onClick = { navigator.navigateTo("login") }) {
             Text("Volver")
         }
     }
