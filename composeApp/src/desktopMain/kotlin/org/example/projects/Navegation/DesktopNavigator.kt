@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import org.example.projects.NavController.AppNavigator
 
 class DesktopNavigator : AppNavigator {
-    var currentScreen by mutableStateOf("home")
+    var currentScreen by mutableStateOf("login")
 
     override fun navigateTo(route: String) {
         currentScreen = route

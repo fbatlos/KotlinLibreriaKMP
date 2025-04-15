@@ -2,7 +2,7 @@ package org.example.projects.BaseDeDatos.DTO
 
 
 import kotlinx.serialization.Serializable
-import org.example.projects.BaseDeDatos.Model.Direccion
+import org.example.projects.BaseDeDatos.model.Direccion
 
 @Serializable
 data class UsuarioRegisterDTO(
@@ -11,5 +11,5 @@ data class UsuarioRegisterDTO(
     val password: String,
     val passwordRepeat: String,
     val rol: String? = "USER",
-    val direccion: Direccion
+    var direccion: MutableList<Direccion>
 )

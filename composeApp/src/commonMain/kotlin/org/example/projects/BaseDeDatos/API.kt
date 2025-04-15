@@ -7,7 +7,9 @@ import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.*
+import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.example.projects.BaseDeDatos.APIServiceImpl
@@ -17,25 +19,30 @@ import kotlinx.serialization.Serializable
 object API {
     private const val BASE_URL = "http://localhost:8080/"
 
-    // Configuración del JSON
     private val jsonConfig = Json {
         ignoreUnknownKeys = true
-        isLenient = true
         explicitNulls = false
+        isLenient = true
     }
 
     private val client: HttpClient by lazy {
         HttpClient() {
-            defaultRequest {
-                url(BASE_URL)
-            }
             install(ContentNegotiation) {
                 json(jsonConfig)
             }
 
             install(HttpTimeout) {
                 requestTimeoutMillis = 30_000
+                connectTimeoutMillis = 30_000
             }
+
+            defaultRequest {
+                header(HttpHeaders.Accept, "application/json")
+                header(HttpHeaders.ContentType, "application/json")
+                url(BASE_URL)
+            }
+
+            expectSuccess = false  // Permite manejar manualmente códigos de error
         }
     }
 

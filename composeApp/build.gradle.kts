@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    kotlin("plugin.serialization") version "1.9.0" // Usa tu versión de Kotlin
 }
 
 kotlin {
@@ -41,49 +42,38 @@ kotlin {
             implementation ("androidx.compose.material:material-icons-extended:1.7.4")
 
             implementation("io.ktor:ktor-client-android:2.3.5")
-            implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+
+            implementation("io.coil-kt:coil-compose:2.4.0")
         }
         commonMain.dependencies {
+            // Dependencias multiplataforma
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
             implementation(compose.ui)
 
-            // Coroutines para manejo asíncrono
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-
-            // Para MVVM multiplataforma
-            implementation("dev.icerock.moko:mvvm-core:0.16.1") // Para ViewModel, LiveData, etc.
-            implementation("dev.icerock.moko:mvvm-compose:0.16.1") // Soporte para Compose
-
-            // Serialización
+            implementation("dev.icerock.moko:mvvm-core:0.16.1")
+            implementation("dev.icerock.moko:mvvm-compose:0.16.1")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-
-            // HTTP (Ktor es más compatible con KMP)
             implementation("io.ktor:ktor-client-core:2.3.5")
             implementation("io.ktor:ktor-client-content-negotiation:2.3.5")
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
-
-
-            /* Retrofit con serialización Kotlin
-            implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-            implementation("com.squareup.retrofit2:retrofit:2.9.0")*/
+            implementation("media.kamel:kamel-image:0.7.2")
         }
 
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
-            implementation("com.squareup.retrofit2:retrofit:2.9.0")
-            implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.7.3")
+            implementation("io.ktor:ktor-client-cio:2.3.5") // Cliente HTTP para Desktop
+            implementation("media.kamel:kamel-image:0.7.2") // Para imágenes en Desktop
 
             implementation ("com.squareup.okhttp3:okhttp:4.9.0")
             implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.6")
-            implementation("io.coil-kt:coil-compose:2.0.0")
-
-            implementation("com.auth0:java-jwt:4.4.0")
-            implementation("io.ktor:ktor-client-cio:2.3.5")
+            implementation("media.kamel:kamel-image:0.7.1")
         }
     }
 }

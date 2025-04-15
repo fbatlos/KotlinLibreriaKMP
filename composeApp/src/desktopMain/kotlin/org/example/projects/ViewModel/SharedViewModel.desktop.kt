@@ -2,6 +2,7 @@
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.example.projects.BaseDeDatos.model.Libro
 
 actual class SharedViewModel actual constructor() {
 
@@ -34,6 +35,13 @@ actual class SharedViewModel actual constructor() {
 
     private val _showDialog = MutableStateFlow(false)
     actual val showDialog: StateFlow<Boolean> = _showDialog
+
+    private val _token = MutableStateFlow<String>("")
+    actual val token: StateFlow<String> = _token
+
+    private val _libros = MutableStateFlow<List<Libro>>(emptyList())
+    actual val libros: StateFlow<List<Libro>> = _libros
+
 
     actual fun onLogChange(username: String, contrasenia: String) {
         _username.value = username
@@ -77,6 +85,17 @@ actual class SharedViewModel actual constructor() {
 
     actual fun loginEnable(username: String, contrasenia: String): Boolean {
         return username.isNotEmpty() && contrasenia.length >= 3
+    }
+
+
+
+    actual fun getToken(token: String) {
+        _token.value = token
+    }
+
+
+    actual fun getLibros(librosList: List<Libro>) {
+        _libros.value = librosList
     }
 
 }

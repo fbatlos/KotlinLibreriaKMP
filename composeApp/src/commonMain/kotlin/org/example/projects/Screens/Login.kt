@@ -38,7 +38,7 @@ import kotlinx.serialization.json.Json
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.DTO.UsuarioDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
-import org.example.projects.BaseDeDatos.Model.AuthResponse
+import org.example.projects.BaseDeDatos.model.AuthResponse
 import org.example.projects.NavController.AppNavigator
 import org.example.projects.ViewModel.*
 
@@ -94,9 +94,8 @@ fun Login(modifier: Modifier, navController: AppNavigator, viewModel: SharedView
 
                     viewModel.onIsLoading(false)
                     if (login.first) {
-                        val auth = AuthResponse(login.second, UsuarioDTO(Usuario,"ROLE_USER"))
-
-                        navController.navigateTo("detail" + "/${Json.encodeToString(auth)}")
+                        viewModel.getToken(login.second)
+                        navController.navigateTo("detail")
                     }
                     else {
                         viewModel.textErrorChange(login.second)
@@ -148,14 +147,14 @@ fun Resgistrarse(navController: AppNavigator){
 fun validarUsuario(username: String, password: String): Deferred<Pair<Boolean,String>> {
     val scope = CoroutineScope(Dispatchers.IO)
     val usuarioLoginDTO = UsuarioLoginDTO(username = username, password = password)
-
+    println("Estoy en validar")
     return scope.async(Dispatchers.IO) {
         try {
             val response = API.apiService.postLogin(usuarioLoginDTO)
             if (response.status.value == 200) {
-                val tokenbd = response.body<String>()
+                val tokenbd = response.body<Map<String,String>>()
                 println("Token" + tokenbd)
-                return@async Pair(true,tokenbd)
+                return@async Pair(true,tokenbd.get("token") as String)
             } else {
                 val error = API.parseError(response)
                 return@async Pair(false,error.message)

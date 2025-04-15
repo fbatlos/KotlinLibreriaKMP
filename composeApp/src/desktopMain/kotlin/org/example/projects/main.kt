@@ -5,8 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import org.example.projects.Navegation.DesktopNavigator
-import org.example.projects.Screens.DetailScreen
-import org.example.projects.Screens.HomeScreen
+import org.example.projects.Screens.LibrosScreen
 import org.example.projects.Screens.Login
 import org.example.projects.ViewModel.SharedViewModel
 
@@ -18,8 +17,8 @@ fun main() = application {
 
     Window(onCloseRequest = ::exitApplication, title = "KMP Libreria") {
         when (navigator.currentScreen) {
-            "home" -> HomeScreen(navigator)
-            "detail" -> DetailScreen(navigator)
+            //Hacer object con las rutas para solo tener que cambiar una
+            "detail" -> LibrosScreen(navigator, viewModel = viewModel,)
             "login" -> Login(modifier = Modifier, navController = navigator, viewModel = viewModel)
         }
     }
