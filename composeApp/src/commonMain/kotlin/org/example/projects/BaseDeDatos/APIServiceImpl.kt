@@ -29,8 +29,22 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
     }
 
     override suspend fun listarLibros(token: String): List<Libro> {
-        println(token)
         val response = client.get("libros") {  // URL relativa a BASE_URL
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun filtrarLibros(token: String,query:String): List<Libro> {
+        val response = client.get("libros/buscar?query=$query") {  // URL relativa a BASE_URL
             header(HttpHeaders.Authorization, "Bearer $token")
         }
 

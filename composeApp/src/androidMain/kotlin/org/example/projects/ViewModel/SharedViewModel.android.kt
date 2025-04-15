@@ -44,6 +44,9 @@ actual class SharedViewModel actual constructor() : ViewModel() {
     private val _libros = MutableStateFlow<List<Libro>>(emptyList())
     actual val libros: StateFlow<List<Libro>> = _libros
 
+    private val _query = MutableStateFlow<String>("")
+    actual val query: StateFlow<String> = _query
+
     actual fun onLogChange(username: String, contrasenia: String) {
         viewModelScope.launch {
             _username.value = username
@@ -97,5 +100,9 @@ actual class SharedViewModel actual constructor() : ViewModel() {
 
     actual fun getToken(token: String) {
         _token.value = token
+    }
+
+    actual fun filtrarLibros(query: String) {
+        _query.value = query
     }
 }

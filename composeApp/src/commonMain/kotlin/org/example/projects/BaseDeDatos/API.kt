@@ -17,7 +17,7 @@ import org.example.projects.BaseDeDatos.APIServiceImpl
 import kotlinx.serialization.Serializable
 
 object API {
-    private const val BASE_URL = "http://localhost:8080/"
+    private const val BASE_URL = "https://api-tfg.onrender.com/"
 
     private val jsonConfig = Json {
         ignoreUnknownKeys = true

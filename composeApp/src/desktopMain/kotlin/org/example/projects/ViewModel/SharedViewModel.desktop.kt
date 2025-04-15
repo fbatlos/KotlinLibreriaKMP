@@ -42,6 +42,9 @@ actual class SharedViewModel actual constructor() {
     private val _libros = MutableStateFlow<List<Libro>>(emptyList())
     actual val libros: StateFlow<List<Libro>> = _libros
 
+    private val _query = MutableStateFlow<String>("")
+    actual val query: StateFlow<String> = _query
+
 
     actual fun onLogChange(username: String, contrasenia: String) {
         _username.value = username
@@ -96,6 +99,11 @@ actual class SharedViewModel actual constructor() {
 
     actual fun getLibros(librosList: List<Libro>) {
         _libros.value = librosList
+    }
+
+
+    actual fun filtrarLibros(query: String) {
+        _query.value = query
     }
 
 }

@@ -2,6 +2,7 @@ package org.example.projects.ViewModel
 
 import kotlinx.coroutines.flow.StateFlow
 import org.example.projects.BaseDeDatos.model.Libro
+import javax.management.Query
 
 expect class SharedViewModel() {
     // Reemplazamos LiveData con StateFlow diferencia importante respecto a Android
@@ -17,7 +18,7 @@ expect class SharedViewModel() {
     val isOpen: StateFlow<Boolean>
     val showDialog: StateFlow<Boolean>
     val token: StateFlow<String>
-
+    val query : StateFlow<String>
     val libros: StateFlow<List<Libro>>
 
     fun onLogChange(username: String, contrasenia: String)
@@ -39,4 +40,6 @@ expect class SharedViewModel() {
     fun getLibros(librosList: List<Libro>)
 
     fun loginEnable(username: String, contrasenia: String): Boolean
+
+    fun filtrarLibros(query: String)
 }
