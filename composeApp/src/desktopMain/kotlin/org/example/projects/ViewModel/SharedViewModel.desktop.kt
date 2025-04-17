@@ -1,7 +1,12 @@
 ﻿package org.example.projects.ViewModel
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Libro
 
 actual class SharedViewModel actual constructor() {
@@ -36,8 +41,11 @@ actual class SharedViewModel actual constructor() {
     private val _showDialog = MutableStateFlow(false)
     actual val showDialog: StateFlow<Boolean> = _showDialog
 
-    private val _token = MutableStateFlow<String>("")
-    actual val token: StateFlow<String> = _token
+    private val _token = MutableStateFlow<String?>(null)
+    actual val token: StateFlow<String?> = _token
+
+    private val _librosFavoritos = MutableStateFlow<List<String>>(emptyList())
+    actual val librosFavoritos: StateFlow<List<String>> = _librosFavoritos
 
     private val _libros = MutableStateFlow<List<Libro>>(emptyList())
     actual val libros: StateFlow<List<Libro>> = _libros
@@ -104,6 +112,22 @@ actual class SharedViewModel actual constructor() {
 
     actual fun filtrarLibros(query: String) {
         _query.value = query
+    }
+
+    actual fun loadFavoritos(token: String) {
+        val scope = CoroutineScope(Dispatchers.Default)
+        scope.async {
+            val favoritos = API.apiService.getLibrosfavoritos(token)
+            _librosFavoritos.value = favoritos
+        }
+    }
+
+    actual fun updateFavoritos(add: Boolean, libroId: String) {
+        _librosFavoritos.value = if (add) {
+            _librosFavoritos.value + libroId
+        } else {
+            _librosFavoritos.value.filter { it != libroId }
+        }
     }
 
 }

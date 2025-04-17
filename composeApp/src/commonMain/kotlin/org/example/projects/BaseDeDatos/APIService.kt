@@ -19,4 +19,8 @@ interface APIService {
     suspend fun postRegister(usuario: UsuarioRegisterDTO): AuthResponse
     suspend fun listarLibros(authHeader: String): List<Libro>
     suspend fun filtrarLibros(token: String,query:String): List<Libro>
+
+    suspend fun addLibroFavorito(token: String,idLibro: String): HttpResponse
+    suspend fun removeLibroFavorito(token: String,idLibro: String): HttpResponse
+    suspend fun getLibrosfavoritos(token: String): MutableList<String>
 }

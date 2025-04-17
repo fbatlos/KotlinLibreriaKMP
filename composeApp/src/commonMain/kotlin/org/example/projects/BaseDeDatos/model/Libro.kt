@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Libro(
+    val _id : String,
     var titulo: String? = null,
     var autores: List<String> = emptyList(),
     var precio: Double? = null,

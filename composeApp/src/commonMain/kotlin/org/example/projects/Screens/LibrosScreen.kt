@@ -58,10 +58,22 @@ fun LibrosScreen(
     val showDialog by viewModel.showDialog.collectAsState()
     val allLibros by viewModel.libros.collectAsState() // Todos los libros
     val query by viewModel.query.collectAsState()
-    val scope = rememberCoroutineScope()
+    val scope = CoroutineScope(Dispatchers.IO)
 
 
     val isFiltering = remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.onIsLoading(true)
+        try {
+            viewModel.loadFavoritos(token)
+            viewModel.getLibros(API.apiService.listarLibros(token))
+        } catch (e: Exception) {
+            viewModel.textErrorChange("Error al cargar libros: ${e.message}")
+        } finally {
+            viewModel.onIsLoading(false)
+        }
+    }
 
     val filteredLibros = remember(allLibros, query) {
         isFiltering.value = true
@@ -74,20 +86,7 @@ fun LibrosScreen(
                         libro.categorias.any { it.contains(query, ignoreCase = true) }
             }
         }
-
-
         result
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.onIsLoading(true)
-        try {
-            viewModel.getLibros(API.apiService.listarLibros(token))
-        } catch (e: Exception) {
-            viewModel.textErrorChange("Error al cargar libros: ${e.message}")
-        } finally {
-            viewModel.onIsLoading(false)
-        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -103,7 +102,7 @@ fun LibrosScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
-                scope.launch {
+                scope.async(Dispatchers.IO) {
                     delay(300)
                     viewModel.onIsLoading(false)
                 }
@@ -120,6 +119,9 @@ fun LibrosScreen(
 
 @Composable
 fun LibrosGrid(libros: List<Libro>, viewModel: SharedViewModel, showDialog: Boolean,textError: String) {
+
+    val librosFavoritos by viewModel.librosFavoritos.collectAsState()
+
     Box(modifier = Modifier.fillMaxSize()) {
         if (libros.isNullOrEmpty()) {
             Text(
@@ -128,12 +130,14 @@ fun LibrosGrid(libros: List<Libro>, viewModel: SharedViewModel, showDialog: Bool
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.fillMaxSize()
-            ) {
+            LazyVerticalGrid(columns = GridCells.Fixed(3)) {
                 items(libros) { libro ->
-                    TarjetaLibro(libro = libro)
+                    TarjetaLibro(
+                        libro = libro,
+                        onFavoritoClick = { add -> cambiarListaFavoritos(add, viewModel, libro._id) },
+                        token = viewModel.token.value,
+                        librosFavoritos = librosFavoritos
+                    )
                 }
             }
         }
@@ -145,21 +149,16 @@ fun LibrosGrid(libros: List<Libro>, viewModel: SharedViewModel, showDialog: Bool
     }
 }
 
-/*
-private fun filtrarLibros(token: String, viewModel:SharedViewModel ): Deferred<List<Libro>> {
+
+fun cambiarListaFavoritos(add: Boolean, viewModel: SharedViewModel, idLibro: String) {
     val scope = CoroutineScope(Dispatchers.IO)
-    val libros = scope.async(Dispatchers.IO){
-        try {
-
-            return@async API.apiService.listarLibros(token) // Llama a tu API Ktor
-
-        } catch (e: Exception) {
-            viewModel.textErrorChange("Error al cargar libros: ${e.message}")
-
-            return@async listOf()
-        } finally {
-            viewModel.onIsLoading(false)
+    scope.async {
+        if (add) {
+            API.apiService.addLibroFavorito(viewModel.token.value!!, idLibro)
+        } else {
+            API.apiService.removeLibroFavorito(viewModel.token.value!!, idLibro)
         }
+
+        viewModel.updateFavoritos(add, idLibro)
     }
-    return libros
-}*/
+}

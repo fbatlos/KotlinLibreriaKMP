@@ -30,7 +30,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
 
     override suspend fun listarLibros(token: String): List<Libro> {
         val response = client.get("libros") {  // URL relativa a BASE_URL
-            header(HttpHeaders.Authorization, "Bearer $token")
+            //header(HttpHeaders.Authorization, "Bearer $token")
         }
 
         return when (response.status) {
@@ -44,7 +44,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
     }
 
     override suspend fun filtrarLibros(token: String,query:String): List<Libro> {
-        val response = client.get("libros/buscar?query=$query") {  // URL relativa a BASE_URL
+        val response = client.get("libros/buscar?query=$query") {
             header(HttpHeaders.Authorization, "Bearer $token")
         }
 
@@ -58,22 +58,52 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
     }
 
-    /*
-        override suspend fun getTareas(authHeader: String): List<Tarea> {
-            return client.get("tareas/tareas") {
-                headers {
-                    append(HttpHeaders.Authorization, authHeader)
-                }
-            }.body()
+    override suspend fun addLibroFavorito(token: String, idLibro: String): HttpResponse {
+        val response = client.post("usuarios/favoritos/$idLibro") {
+            header(HttpHeaders.Authorization, "Bearer $token")
         }
 
-        override suspend fun putTareas(authHeader: String, id: String, tarea: Tarea): Tarea {
-            return client.put("tareas/tarea/$id") {
-                contentType(ContentType.Application.Json)
-                headers {
-                    append(HttpHeaders.Authorization, authHeader)
-                }
-                setBody(tarea)
-            }.body()
-        }*/
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun removeLibroFavorito(token: String, idLibro: String): HttpResponse {
+        val response = client.delete("usuarios/favoritos/$idLibro") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun getLibrosfavoritos(token: String): MutableList<String> {
+        val response = client.get("usuarios/favoritos") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
 }

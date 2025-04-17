@@ -1,14 +1,22 @@
 ﻿package org.example.projects.Screens.LibrosMostrar
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -21,8 +29,12 @@ expect fun ImagenDesdeUrl(libro: Libro)
 @Composable
 fun TarjetaLibro(
     libro: Libro,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFavoritoClick : (Boolean) -> Unit,
+    token: String?,
+    librosFavoritos: List<String>
 ) {
+    val esFavorito = librosFavoritos.contains(libro._id)
 
     Card(
         modifier = modifier
@@ -36,10 +48,29 @@ fun TarjetaLibro(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Imagen del libro (usando Coil para carga asíncrona)
 
             ImagenDesdeUrl(libro)
 
+            if (token != null) {
+                IconButton(
+                    onClick = {
+                        onFavoritoClick(!esFavorito)
+                    },
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(24.dp)
+                        .background(
+                            color = Color.White.copy(alpha = 0.6f),
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorito",
+                        tint = if (esFavorito) Color.Red else Color.Gray
+                    )
+                }
+            }
             // Título (truncado si es muy largo)
             Text(
                 text = libro.titulo ?: "Sin título",

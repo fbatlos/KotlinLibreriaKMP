@@ -17,9 +17,10 @@ expect class SharedViewModel() {
     val isLoading: StateFlow<Boolean>
     val isOpen: StateFlow<Boolean>
     val showDialog: StateFlow<Boolean>
-    val token: StateFlow<String>
+    val token: StateFlow<String?>
     val query : StateFlow<String>
     val libros: StateFlow<List<Libro>>
+    val librosFavoritos: StateFlow<List<String>>
 
     fun onLogChange(username: String, contrasenia: String)
 
@@ -42,4 +43,8 @@ expect class SharedViewModel() {
     fun loginEnable(username: String, contrasenia: String): Boolean
 
     fun filtrarLibros(query: String)
+
+    fun loadFavoritos(token: String)
+
+    fun updateFavoritos(add: Boolean, libroId: String)
 }

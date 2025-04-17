@@ -18,7 +18,7 @@ fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "KMP Libreria") {
         when (navigator.currentScreen) {
             //Hacer object con las rutas para solo tener que cambiar una
-            "detail" -> LibrosScreen(navigator, viewModel = viewModel,)
+            "detail" -> LibrosScreen(navigator, viewModel = viewModel)
             "login" -> Login(modifier = Modifier, navController = navigator, viewModel = viewModel)
         }
     }
