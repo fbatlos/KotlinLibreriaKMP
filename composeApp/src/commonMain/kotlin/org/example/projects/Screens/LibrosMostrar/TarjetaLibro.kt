@@ -2,6 +2,7 @@
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.example.projects.BaseDeDatos.model.Libro
+import org.example.projects.NavController.AppRoutes
+import org.example.projects.NavController.Navegator
+import org.example.projects.Utils.LibroSerializer
 
 @Composable
 expect fun ImagenDesdeUrl(libro: Libro)
@@ -31,8 +35,8 @@ fun TarjetaLibro(
     libro: Libro,
     modifier: Modifier = Modifier,
     onFavoritoClick : (Boolean) -> Unit,
-    token: String?,
-    librosFavoritos: List<String>
+    librosFavoritos: List<String>,
+    navigator: Navegator
 ) {
     val esFavorito = librosFavoritos.contains(libro._id)
 
@@ -40,7 +44,12 @@ fun TarjetaLibro(
         modifier = modifier
             .width(100.dp)  // Tamaño base adaptable
             .height(200.dp)
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable(
+                onClick = {
+                    navigator.navigateTo(AppRoutes.LibroDetail(libro))
+                }
+            ),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -51,26 +60,26 @@ fun TarjetaLibro(
 
             ImagenDesdeUrl(libro)
 
-            if (token != null) {
-                IconButton(
-                    onClick = {
-                        onFavoritoClick(!esFavorito)
-                    },
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .size(24.dp)
-                        .background(
-                            color = Color.White.copy(alpha = 0.6f),
-                            shape = CircleShape
-                        )
-                ) {
-                    Icon(
-                        imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorito",
-                        tint = if (esFavorito) Color.Red else Color.Gray
+
+            IconButton(
+                onClick = {
+                    onFavoritoClick(!esFavorito)
+                },
+                modifier = Modifier
+                    .padding(4.dp)
+                    .size(24.dp)
+                    .background(
+                        color = Color.White.copy(alpha = 0.6f),
+                        shape = CircleShape
                     )
-                }
+            ) {
+                Icon(
+                    imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = "Favorito",
+                    tint = if (esFavorito) Color.Red else Color.Gray
+                )
             }
+
             // Título (truncado si es muy largo)
             Text(
                 text = libro.titulo ?: "Sin título",
@@ -87,6 +96,7 @@ fun TarjetaLibro(
                 color = androidx.compose.ui.graphics.Color.Gray,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+
         }
     }
 }

@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,35 +23,23 @@ import com.example.actapp.componentes_login.BottonLogin
 import com.example.actapp.componentes_login.Contrasenia
 import com.example.actapp.componentes_login.ErrorDialog
 import com.example.actapp.componentes_login.Usuario
-import dev.icerock.moko.mvvm.viewmodel.ViewModel
-import io.ktor.client.call.body
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.example.projects.BaseDeDatos.API
-import org.example.projects.BaseDeDatos.DTO.UsuarioDTO
-import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
-import org.example.projects.BaseDeDatos.model.AuthResponse
-import org.example.projects.NavController.AppNavigator
+import kotlinx.coroutines.*
+import org.example.projects.NavController.AppRoutes
+import org.example.projects.NavController.Navegator
 import org.example.projects.ViewModel.*
 
-
 @Composable
-fun Login(modifier: Modifier, navController: AppNavigator, viewModel: SharedViewModel) {
+fun Login(modifier: Modifier, navController: Navegator, authViewModel: AuthViewModel, uiStateViewModel: UiStateViewModel, sharedViewModel: SharedViewModel) {
 
-    val Usuario by viewModel.username.collectAsState()
-    val Contrasenia by viewModel.contrasenia.collectAsState()
-    val IsEnable by viewModel.isLoginEnable.collectAsState()
-    val textError by viewModel.textError.collectAsState()
-    val scope = rememberCoroutineScope()
-    val showDialog by viewModel.showDialog.collectAsState()
+    val userName by authViewModel.username.collectAsState()
+    val contrasenia by authViewModel.contrasenia.collectAsState()
+    val isEnable by authViewModel.isLoginEnable.collectAsState()
+
+    val textError by uiStateViewModel.textError.collectAsState()
+    val showDialog by uiStateViewModel.showDialog.collectAsState()
+    val isLoading by uiStateViewModel.isLoading.collectAsState()
+
     val focusManager = LocalFocusManager.current
-
-    val isLoading by viewModel.isLoading.collectAsState()
 
     Column(
         modifier =modifier
@@ -72,39 +57,32 @@ fun Login(modifier: Modifier, navController: AppNavigator, viewModel: SharedView
     ) {
 
         ErrorDialog(showDialog = showDialog, textError = textError ?: "Error común"){
-            viewModel.onShowDialog(it)
+            uiStateViewModel.setShowDialog(it)
         }
 
         LoadingOverlay(isLoading)
 
-
-        Usuario(Usuario, cabecero = "Usuario"){
-            viewModel.onLogChange(username = it , contrasenia = Contrasenia)
+        Usuario(userName, cabecero = "Usuario"){
+            authViewModel.onLogChange(username = it , contrasenia = contrasenia)
         }
 
-        Contrasenia(Contrasenia){
-            viewModel.onLogChange(username = Usuario , contrasenia = it)
+        Contrasenia(contrasenia){
+            authViewModel.onLogChange(username = userName , contrasenia = it)
         }
 
         BottonLogin(
             onBotonChange = {
-                viewModel.onIsLoading(true)
-                scope.launch {
-                    val login = validarUsuario(viewModel.username.value ?: "", viewModel.contrasenia.value ?: "").await()
-
-                    viewModel.onIsLoading(false)
-                    if (login.first) {
-                        viewModel.getToken(login.second)
-                        navController.navigateTo("detail")
+                authViewModel.fetchLogin(username = userName, password = contrasenia, callback = {
+                    if (it == true) {
+                        navController.navigateTo(AppRoutes.LibroLista)
                     }
                     else {
-                        viewModel.textErrorChange(login.second)
-                        viewModel.onShowDialog(true)
-                        viewModel.onLogChange(username = "", contrasenia = "")
+                        authViewModel.onLogChange(username = "", contrasenia = "")
                     }
-                }
+                })
+
             },
-            enable = IsEnable
+            enable = isEnable
         )
 
         Spacer(Modifier.height(9.dp))
@@ -131,36 +109,14 @@ fun LoadingOverlay(isLoading: Boolean) {
 }
 
 @Composable
-fun Resgistrarse(navController: AppNavigator){
+fun Resgistrarse(navController: Navegator){
     Text(
         text = "No tengo cuenta." ,
         color = Color.Cyan,
         modifier = Modifier.clickable {
-            navController.goBack()
+            navController.popBackStack()
         }
 
     )
 }
 
-
-//Mirar muy bien lo de las corrutinas que es muy lioso y no sabes como funciona bien
-fun validarUsuario(username: String, password: String): Deferred<Pair<Boolean,String>> {
-    val scope = CoroutineScope(Dispatchers.IO)
-    val usuarioLoginDTO = UsuarioLoginDTO(username = username, password = password)
-    println("Estoy en validar")
-    return scope.async(Dispatchers.IO) {
-        try {
-            val response = API.apiService.postLogin(usuarioLoginDTO)
-            if (response.status.value == 200) {
-                val tokenbd = response.body<Map<String,String>>()
-                println("Token" + tokenbd)
-                return@async Pair(true,tokenbd.get("token") as String)
-            } else {
-                val error = API.parseError(response)
-                return@async Pair(false,error.message)
-            }
-        } catch (e: Exception) {
-            return@async Pair(false,e.toString())
-        }
-    }
-}

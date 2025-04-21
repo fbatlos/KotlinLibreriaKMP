@@ -60,6 +60,8 @@ kotlin {
             implementation("io.ktor:ktor-client-content-negotiation:2.3.5")
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
             implementation("media.kamel:kamel-image:0.7.2")
+
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
         }
 
         desktopMain.dependencies {
@@ -110,6 +112,8 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.compose.material)
     debugImplementation(compose.uiTooling)
 }
 
