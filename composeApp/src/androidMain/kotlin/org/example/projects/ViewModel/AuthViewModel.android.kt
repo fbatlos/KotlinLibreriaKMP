@@ -57,7 +57,7 @@ actual class AuthViewModel actual constructor(
 
     actual fun fetchLogin(username: String, password: String, callback: (Boolean) -> Unit) {
         uiStateViewModel.setLoading(true)
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             val result = try {
                 val loginResult = validarUsuario(username, password)
                 uiStateViewModel.setLoading(false)

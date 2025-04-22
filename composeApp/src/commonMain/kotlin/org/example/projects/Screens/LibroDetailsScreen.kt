@@ -61,7 +61,7 @@ fun LibroDetailScreen(libro: Libro,onBackPressed: () -> Unit) {
         // Precio
         Text(
             text = "${libro.precio?.toString() ?: "N/A"} ${libro.moneda ?: ""}",
-            style = MaterialTheme.typography.h2,
+            style = MaterialTheme.typography.h3,
             color = Color.Green
         )
 
@@ -71,7 +71,8 @@ fun LibroDetailScreen(libro: Libro,onBackPressed: () -> Unit) {
         libro.autores.takeIf { it.isNotEmpty() }?.let { autores ->
             Text(
                 text = autores.joinToString(", "),
-                style = MaterialTheme.typography.subtitle1,
+                style = MaterialTheme.typography.subtitle2,
+                color = Color.LightGray
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -88,7 +89,7 @@ fun LibroDetailScreen(libro: Libro,onBackPressed: () -> Unit) {
         libro.categorias.takeIf { it.isNotEmpty() }?.let { categorias ->
             Text(
                 text = "Te interesan estas categorías...",
-                style = MaterialTheme.typography.h2,
+                style = MaterialTheme.typography.h4,
                 fontWeight = FontWeight.Bold
             )
         }

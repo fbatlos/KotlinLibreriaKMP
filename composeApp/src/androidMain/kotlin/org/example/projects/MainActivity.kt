@@ -32,22 +32,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                val navHostController = rememberNavController()
-                val navigator = remember { Navigator(navHostController) }
+                val navController = rememberNavController()
+                val navigator = remember { Navigator(navController) }
                 val uiStateViewModel = remember { UiStateViewModel() }
                 val sharedViewModel = remember { SharedViewModel() }
                 val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
                 val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
 
-
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .systemBarsPadding(),
                     content = { innerPadding ->
                         NavHost(
-                            navController = navHostController,
+                            navController = navController,
                             startDestination = AppRoutes.Login.route,
                             modifier = Modifier.padding(innerPadding)
                         ) {
+                            // Pantalla de Login
                             composable(AppRoutes.Login.route) {
                                 Login(
                                     modifier = Modifier,
@@ -57,6 +59,8 @@ class MainActivity : ComponentActivity() {
                                     sharedViewModel = sharedViewModel
                                 )
                             }
+
+                            // Pantalla de Lista de Libros
                             composable(AppRoutes.LibroLista.route) {
                                 LibrosScreen(
                                     navigator = navigator,
@@ -64,10 +68,14 @@ class MainActivity : ComponentActivity() {
                                     librosViewModel = libroViewModel
                                 )
                             }
+
+                            // Pantalla de Detalle de Libro (CORREGIDO)
                             composable(
-                                route = AppRoutes.LibroDetail.route ,
+                                route = "libroDetail/{libroJson}",
                                 arguments = listOf(
-                                    navArgument("libroJson") { type = NavType.StringType }
+                                    navArgument("libroJson") {
+                                        type = NavType.StringType
+                                    }
                                 )
                             ) { backStackEntry ->
                                 val libroJson = URLDecoder.decode(
@@ -78,14 +86,15 @@ class MainActivity : ComponentActivity() {
                                 val libro = runCatching {
                                     libroJson.toLibro()
                                 }.getOrElse {
-                                    // Manejar error, quizás navegar de vuelta
+                                    // Manejo de error - volver atrás si falla
+                                    navController.popBackStack()
                                     null
                                 }
 
-                                if (libro != null) {
+                                libro?.let {
                                     LibroDetailScreen(
-                                        libro = libro,
-                                        onBackPressed = { navigator.popBackStack() }
+                                        libro = it,
+                                        onBackPressed = { navController.popBackStack() }
                                     )
                                 }
                             }

@@ -2,19 +2,16 @@
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.kamel.core.Resource
 import io.kamel.image.asyncPainterResource
-import org.example.projects.BaseDeDatos.model.Libro
+
 
 @Composable
 actual fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier: Modifier) {
@@ -35,7 +32,7 @@ actual fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier
 
         is Resource.Failure -> {
             Box(modifier = Modifier.size(200.dp)) {
-                // TODO: imagen alternativa o error UI
+                Text("Error al cargar la imagen", color = Color.Red)
             }
         }
     }
