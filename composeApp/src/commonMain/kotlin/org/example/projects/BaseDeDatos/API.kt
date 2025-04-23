@@ -1,6 +1,5 @@
 package org.example.projects.BaseDeDatos
 
-// commonMain/kotlin/com/example/actapp/BaseDeDatos/API.kt
 import io.ktor.client.*
 import io.ktor.client.call.body
 import io.ktor.client.engine.*

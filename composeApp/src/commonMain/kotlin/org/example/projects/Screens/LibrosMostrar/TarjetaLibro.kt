@@ -60,7 +60,6 @@ fun TarjetaLibro(
 
             ImagenDesdeUrl(libro)
 
-
             IconButton(
                 onClick = {
                     onFavoritoClick(!esFavorito)

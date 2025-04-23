@@ -17,7 +17,7 @@ import org.example.projects.BaseDeDatos.model.Libro
 interface APIService {
     suspend fun postLogin(usuarioLoginDTO: UsuarioLoginDTO): HttpResponse
     suspend fun postRegister(usuario: UsuarioRegisterDTO): AuthResponse
-    suspend fun listarLibros(authHeader: String): List<Libro>
+    suspend fun listarLibros(): List<Libro>
     suspend fun filtrarLibros(token: String,query:String): List<Libro>
 
     suspend fun addLibroFavorito(token: String,idLibro: String): HttpResponse

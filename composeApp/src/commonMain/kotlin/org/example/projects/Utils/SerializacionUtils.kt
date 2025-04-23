@@ -1,6 +1,6 @@
 ﻿package org.example.projects.Utils
 
-// commonMain/kotlin/util/SerializationUtil.kt
+
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -11,7 +11,9 @@ object LibroSerializer {
         return Json.encodeToString(this)
     }
 
-    fun String.toLibro(): Libro {
-        return Json.decodeFromString<Libro>(this)
-    }
+
+    private val json = Json { ignoreUnknownKeys = true }
+
+    fun String.toLibro(): Libro = json.decodeFromString(this)
+
 }

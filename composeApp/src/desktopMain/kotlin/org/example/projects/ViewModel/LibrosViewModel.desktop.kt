@@ -30,7 +30,7 @@ actual class LibrosViewModel actual constructor(
             // Realizamos la llamada a la API para obtener los libros
             val scope = CoroutineScope(Dispatchers.IO)
             scope.async {
-                val result = API.apiService.listarLibros(sharedViewModel.token.value!!)
+                val result = API.apiService.listarLibros()
                 _libros.value = result
             }
         } catch (e: Exception) {

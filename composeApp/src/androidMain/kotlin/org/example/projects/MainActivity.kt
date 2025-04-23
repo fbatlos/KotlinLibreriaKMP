@@ -1,6 +1,7 @@
 package org.example.projects
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +20,7 @@ import androidx.navigation.navArgument
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navigator
 import org.example.projects.Screens.LibroDetailScreen
-import org.example.projects.Screens.Login
+import org.example.projects.Screens.LoginScreen
 import org.example.projects.Utils.LibroSerializer.toLibro
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.LibrosViewModel
@@ -46,24 +47,23 @@ class MainActivity : ComponentActivity() {
                     content = { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = AppRoutes.Login.route,
+                            startDestination = AppRoutes.LibroLista.route,
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             // Pantalla de Login
                             composable(AppRoutes.Login.route) {
-                                Login(
+                                LoginScreen(
                                     modifier = Modifier,
                                     navController = navigator,
                                     authViewModel = authViewModel,
-                                    uiStateViewModel = uiStateViewModel,
-                                    sharedViewModel = sharedViewModel
+                                    uiStateViewModel = uiStateViewModel
                                 )
                             }
 
                             // Pantalla de Lista de Libros
                             composable(AppRoutes.LibroLista.route) {
                                 LibrosScreen(
-                                    navigator = navigator,
+                                    navController = navigator,
                                     uiStateViewModel = uiStateViewModel,
                                     librosViewModel = libroViewModel
                                 )
@@ -83,6 +83,8 @@ class MainActivity : ComponentActivity() {
                                     "UTF-8"
                                 )
 
+
+
                                 val libro = runCatching {
                                     libroJson.toLibro()
                                 }.getOrElse {
@@ -94,7 +96,7 @@ class MainActivity : ComponentActivity() {
                                 libro?.let {
                                     LibroDetailScreen(
                                         libro = it,
-                                        onBackPressed = { navController.popBackStack() }
+                                        navController = navigator
                                     )
                                 }
                             }

@@ -8,115 +8,173 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.actapp.componentes_login.BottonLogin
-import com.example.actapp.componentes_login.Contrasenia
 import com.example.actapp.componentes_login.ErrorDialog
-import com.example.actapp.componentes_login.Usuario
 import kotlinx.coroutines.*
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
+import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
+import org.example.projects.Screens.CommonParts.LayoutPrincipal
+import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.ViewModel.*
+import org.example.projects.componentes_login.CustomPasswordField
+import org.example.projects.componentes_login.CustomTextField
 
 @Composable
-fun Login(modifier: Modifier, navController: Navegator, authViewModel: AuthViewModel, uiStateViewModel: UiStateViewModel, sharedViewModel: SharedViewModel) {
-
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    navController: Navegator,
+    authViewModel: AuthViewModel,
+    uiStateViewModel: UiStateViewModel
+) {
     val userName by authViewModel.username.collectAsState()
     val contrasenia by authViewModel.contrasenia.collectAsState()
     val isEnable by authViewModel.isLoginEnable.collectAsState()
-
     val textError by uiStateViewModel.textError.collectAsState()
     val showDialog by uiStateViewModel.showDialog.collectAsState()
     val isLoading by uiStateViewModel.isLoading.collectAsState()
-
     val focusManager = LocalFocusManager.current
 
-    Column(
-        modifier =modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    focusManager.clearFocus()
-                })
-            }
-        ,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-
-    ) {
-
-        ErrorDialog(showDialog = showDialog, textError = textError ?: "Error común"){
-            uiStateViewModel.setShowDialog(it)
+    LayoutPrincipal(
+        headerContent = { drawerState,scope ->
+            HeaderConHamburguesa(
+                onMenuClick = { scope.launch { drawerState.open() } },
+                onSearch = { },
+                onSearchClick = {},
+                onCartClick = {},
+                navController = navController
+            )
+        },
+        drawerContent = {drawerState->
+            MenuBurger(drawerState,navController)
         }
-
-        LoadingOverlay(isLoading)
-
-        Usuario(userName, cabecero = "Usuario"){
-            authViewModel.onLogChange(username = it , contrasenia = contrasenia)
-        }
-
-        Contrasenia(contrasenia){
-            authViewModel.onLogChange(username = userName , contrasenia = it)
-        }
-
-        BottonLogin(
-            onBotonChange = {
-                authViewModel.fetchLogin(username = userName, password = contrasenia, callback = {
-                    if (it == true) {
-                        navController.navigateTo(AppRoutes.LibroLista)
-                    }
-                    else {
-                        authViewModel.onLogChange(username = "", contrasenia = "")
-                    }
-                })
-
-            },
-            enable = isEnable
-        )
-
-        Spacer(Modifier.height(9.dp))
-
-        Resgistrarse(navController)
-        
-    }
-}
-
-@Composable
-fun LoadingOverlay(isLoading: Boolean) {
-    if (isLoading) {
-        Dialog(onDismissRequest = {}) {
-            Box(
+    ) { paddingValues ->
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color(0xFFF5F5F5))
+                .padding(paddingValues)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { focusManager.clearFocus() })
+                }
+        ) {
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f)), // Fondo semitransparente
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                CircularProgressIndicator(color = Color.Black)
+                // Logo o título de la app
+                Text(
+                    text = "WostraLibros",
+                    style = MaterialTheme.typography.h4.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF4CAF50)
+                    ),
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        CustomTextField(
+                            value = userName,
+                            onValueChange = { authViewModel.onLogChange(it, contrasenia) },
+                            label = "Usuario",
+                            leadingIcon = Icons.Default.Person,
+                            isError = textError?.contains("usuario") == true
+                        )
+
+                        CustomPasswordField(
+                            value = contrasenia,
+                            onValueChange = { authViewModel.onLogChange(userName, it) },
+                            isError = textError?.contains("contraseña") == true
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        authViewModel.fetchLogin(
+                            username = userName,
+                            password = contrasenia,
+                            callback = { success ->
+                                if (success) {
+                                    navController.navigateTo(AppRoutes.LibroLista)
+                                }
+                            }
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    enabled = isEnable,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(0xFF4CAF50),
+                        disabledBackgroundColor = Color(0xFFA5D6A7)
+                    )
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            text = "Iniciar sesión",
+                            color = Color.White
+                        )
+                    }
+                }
+
+                Text(
+                    text = "¿No tienes cuenta? Regístrate",
+                    color = Color(0xFF4CAF50),
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.clickable {
+                        navController.navigateTo(AppRoutes.Registro)
+                    }
+                )
+            }
+
+            if (showDialog) {
+                ErrorDialog(
+                    textError = textError ?: "Error desconocido",
+                    onDismiss = { uiStateViewModel.setShowDialog(false) }
+                )
             }
         }
+
     }
 }
-
-@Composable
-fun Resgistrarse(navController: Navegator){
-    Text(
-        text = "No tengo cuenta." ,
-        color = Color.Cyan,
-        modifier = Modifier.clickable {
-            navController.popBackStack()
-        }
-
-    )
-}
-

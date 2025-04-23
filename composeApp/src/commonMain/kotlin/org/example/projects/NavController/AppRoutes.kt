@@ -9,6 +9,7 @@ import java.net.URLEncoder
 sealed class AppRoutes(val route: String) {
     object Login : AppRoutes("login")
     object LibroLista : AppRoutes("libroLista")
+    object Registro:AppRoutes("registro")
 
     data class LibroDetail(val libro: Libro) : AppRoutes("libroDetail/{libroJson}") {
         fun createRoute(): String {

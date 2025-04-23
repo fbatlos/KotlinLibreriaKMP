@@ -9,7 +9,7 @@ import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navigator
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LibrosScreen
-import org.example.projects.Screens.Login
+import org.example.projects.Screens.LoginScreen
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
@@ -26,24 +26,24 @@ fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "KMP Libreria") {
         MaterialTheme {
             when (val currentScreen = navigator.getCurrentRoute()) {
-                is AppRoutes.Login -> Login(
+                is AppRoutes.Login -> LoginScreen(
                     modifier = Modifier,
                     navController = navigator,
                     authViewModel = authViewModel,
-                    uiStateViewModel = uiStateViewModel,
-                    sharedViewModel = sharedViewModel
+                    uiStateViewModel = uiStateViewModel
                 )
                 is AppRoutes.LibroLista -> LibrosScreen(
-                    navigator = navigator,
+                    navController = navigator,
                     uiStateViewModel = uiStateViewModel,
                     librosViewModel = libroViewModel
                 )
                 is AppRoutes.LibroDetail -> {
                     LibroDetailScreen(
                         libro = currentScreen.libro,
-                        onBackPressed = { navigator.popBackStack() }
+                       navController = navigator
                     )
                 }
+                is AppRoutes.Registro -> {}
             }
         }
     }

@@ -1,6 +1,5 @@
 ﻿package org.example.projects.BaseDeDatos
 
-// commonMain/kotlin/com/example/actapp/BaseDeDatos/APIServiceImpl.kt
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -28,14 +27,11 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }.body()
     }
 
-    override suspend fun listarLibros(token: String): List<Libro> {
-        val response = client.get("libros") {  // URL relativa a BASE_URL
-            //header(HttpHeaders.Authorization, "Bearer $token")
-        }
+    override suspend fun listarLibros(): List<Libro> {
+        val response = client.get("libros")
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
-            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             else -> throw ApiException(
                 "Error ${response.status.value}: ${response.status.description}",
                 response.status

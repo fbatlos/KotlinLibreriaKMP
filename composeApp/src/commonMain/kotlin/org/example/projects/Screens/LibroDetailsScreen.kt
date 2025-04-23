@@ -17,8 +17,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.NavController.AppRoutes.LibroLista.route
+import org.example.projects.NavController.Navegator
+import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
+import org.example.projects.Screens.CommonParts.LayoutPrincipal
+import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.Utils.LibroSerializer.toLibro
 import java.awt.SystemColor.text
 import java.net.URLDecoder
@@ -27,71 +32,83 @@ import java.net.URLDecoder
 expect fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier: Modifier )
 
 @Composable
-fun LibroDetailScreen(libro: Libro,onBackPressed: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        IconButton(onClick = onBackPressed) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-        }
-
-        ImagenLibroDetails(
-            url = libro.imagen,
-            contentDescription = libro.titulo,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .clip(RoundedCornerShape(8.dp))
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Título
-        Text(
-            text = libro.titulo ?: "Sin título",
-            style = MaterialTheme.typography.h2,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Precio
-        Text(
-            text = "${libro.precio?.toString() ?: "N/A"} ${libro.moneda ?: ""}",
-            style = MaterialTheme.typography.h3,
-            color = Color.Green
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Autores
-        libro.autores.takeIf { it.isNotEmpty() }?.let { autores ->
-            Text(
-                text = autores.joinToString(", "),
-                style = MaterialTheme.typography.subtitle2,
-                color = Color.LightGray
+fun LibroDetailScreen(libro: Libro,navController: Navegator ) {
+    LayoutPrincipal(
+        headerContent = { drawerState,scope ->
+            HeaderConHamburguesa(
+                onMenuClick = { scope.launch { drawerState.open() } },
+                onSearch = { },
+                onSearchClick = {},
+                onCartClick = {},
+                navController = navController
             )
-            Spacer(modifier = Modifier.height(8.dp))
+        },
+        drawerContent = {drawerState->
+            MenuBurger(drawerState,navController)
         }
+    ) {paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+                .padding(paddingValues)
+        ) {
+            ImagenLibroDetails(
+                url = libro.imagen,
+                contentDescription = libro.titulo,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
 
-        // Descripción
-        Text(
-            text = libro.descripcion ?: "No hay descripción disponible",
-            style = MaterialTheme.typography.body1
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Categorías
-        libro.categorias.takeIf { it.isNotEmpty() }?.let { categorias ->
+            // Título
             Text(
-                text = "Te interesan estas categorías...",
-                style = MaterialTheme.typography.h4,
+                text = libro.titulo ?: "Sin título",
+                style = MaterialTheme.typography.h2,
                 fontWeight = FontWeight.Bold
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Precio
+            Text(
+                text = "${libro.precio?.toString() ?: "N/A"} ${libro.moneda ?: ""}",
+                style = MaterialTheme.typography.h3,
+                color = Color.Green
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Autores
+            libro.autores.takeIf { it.isNotEmpty() }?.let { autores ->
+                Text(
+                    text = autores.joinToString(", "),
+                    style = MaterialTheme.typography.subtitle2,
+                    color = Color.LightGray
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Descripción
+            Text(
+                text = libro.descripcion ?: "No hay descripción disponible",
+                style = MaterialTheme.typography.body1
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Categorías
+            libro.categorias.takeIf { it.isNotEmpty() }?.let { categorias ->
+                Text(
+                    text = "Te interesan estas categorías...",
+                    style = MaterialTheme.typography.h4,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

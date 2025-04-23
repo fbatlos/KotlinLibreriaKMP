@@ -13,9 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ErrorDialog(showDialog:Boolean, textError:String,onDismiss:(Boolean)->Unit) {
+fun ErrorDialog(textError:String,onDismiss:(Boolean)->Unit) {
 
-    if (showDialog) {
         AlertDialog(
             onDismissRequest = {
                 onDismiss(false)
@@ -47,5 +46,5 @@ fun ErrorDialog(showDialog:Boolean, textError:String,onDismiss:(Boolean)->Unit) 
                 }
             }
         )
-    }
+
 }
