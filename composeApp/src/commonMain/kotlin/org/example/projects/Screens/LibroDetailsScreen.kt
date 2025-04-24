@@ -33,6 +33,7 @@ expect fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier
 
 @Composable
 fun LibroDetailScreen(libro: Libro,navController: Navegator ) {
+    println(navController.getCurrentRoute().route)
     LayoutPrincipal(
         headerContent = { drawerState,scope ->
             HeaderConHamburguesa(
@@ -67,7 +68,7 @@ fun LibroDetailScreen(libro: Libro,navController: Navegator ) {
 
             // Título
             Text(
-                text = libro.titulo ?: "Sin título",
+                text = libro.titulo?.replace("+"," ") ?: "Sin título",
                 style = MaterialTheme.typography.h2,
                 fontWeight = FontWeight.Bold
             )
@@ -86,7 +87,7 @@ fun LibroDetailScreen(libro: Libro,navController: Navegator ) {
             // Autores
             libro.autores.takeIf { it.isNotEmpty() }?.let { autores ->
                 Text(
-                    text = autores.joinToString(", "),
+                    text = autores.joinToString(", ").replace("+"," "),
                     style = MaterialTheme.typography.subtitle2,
                     color = Color.LightGray
                 )
@@ -95,7 +96,7 @@ fun LibroDetailScreen(libro: Libro,navController: Navegator ) {
 
             // Descripción
             Text(
-                text = libro.descripcion ?: "No hay descripción disponible",
+                text = libro.descripcion?.replace("+"," ") ?: "No hay descripción disponible",
                 style = MaterialTheme.typography.body1
             )
 

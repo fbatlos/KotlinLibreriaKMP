@@ -31,30 +31,30 @@ fun CustomTextField(
         label = {
             Text(
                 text = label,
-                style = MaterialTheme.typography.body1
+                style = MaterialTheme.typography.body1,
+                color = AppColors.grey
             )
         },
         leadingIcon = {
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = label,
-                tint = if (isError) MaterialTheme.colors.error
-                else MaterialTheme.colors.primary
+                tint = if (isError) AppColors.error else AppColors.primary
             )
         },
         singleLine = true,
         isError = isError,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = TextFieldDefaults.textFieldColors(
-            textColor = MaterialTheme.colors.onSurface,
-            backgroundColor = MaterialTheme.colors.surface,
-            cursorColor = MaterialTheme.colors.primary,
-            focusedIndicatorColor = MaterialTheme.colors.primary,
-            unfocusedIndicatorColor = Color.Gray.copy(alpha = 0.5f),
-            errorIndicatorColor = MaterialTheme.colors.error,
-            focusedLabelColor = MaterialTheme.colors.primary,
-            unfocusedLabelColor = Color.Gray,
-            errorLabelColor = MaterialTheme.colors.error
+            textColor = AppColors.black,
+            backgroundColor = AppColors.silver,
+            cursorColor = AppColors.primary,
+            focusedIndicatorColor = AppColors.primary,
+            unfocusedIndicatorColor = AppColors.lightGrey,
+            errorIndicatorColor = AppColors.error,
+            focusedLabelColor = AppColors.primary,
+            unfocusedLabelColor = AppColors.grey,
+            errorLabelColor = AppColors.error
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -62,6 +62,7 @@ fun CustomTextField(
         shape = RoundedCornerShape(12.dp)
     )
 }
+
 
 @Composable
 fun CustomPasswordField(
@@ -78,44 +79,40 @@ fun CustomPasswordField(
         label = {
             Text(
                 text = label,
-                style = MaterialTheme.typography.body1
+                style = MaterialTheme.typography.body1,
+                color = AppColors.grey
             )
         },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Lock,
                 contentDescription = "Contraseña",
-                tint = if (isError) MaterialTheme.colors.error
-                else MaterialTheme.colors.primary
+                tint = if (isError) AppColors.error else AppColors.primary
             )
         },
         trailingIcon = {
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                 Icon(
-                    imageVector = if (passwordVisible) Icons.Default.Close
-                    else Icons.Default.Lock,
-                    contentDescription = if (passwordVisible) "Ocultar contraseña"
-                    else "Mostrar contraseña",
-                    tint = if (isError) MaterialTheme.colors.error
-                    else MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                    imageVector = if (passwordVisible) Icons.Default.Close else Icons.Default.Lock,
+                    contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                    tint = if (isError) AppColors.black else AppColors.black
                 )
             }
         },
-        visualTransformation = if (passwordVisible) VisualTransformation.None
-        else PasswordVisualTransformation(),
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         singleLine = true,
         isError = isError,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         colors = TextFieldDefaults.textFieldColors(
-            textColor = MaterialTheme.colors.onSurface,
-            backgroundColor = MaterialTheme.colors.surface,
-            cursorColor = MaterialTheme.colors.primary,
-            focusedIndicatorColor = MaterialTheme.colors.primary,
-            unfocusedIndicatorColor = Color.Gray.copy(alpha = 0.5f),
-            errorIndicatorColor = MaterialTheme.colors.error,
-            focusedLabelColor = MaterialTheme.colors.primary,
-            unfocusedLabelColor = Color.Gray,
-            errorLabelColor = MaterialTheme.colors.error
+            textColor = AppColors.black,
+            backgroundColor = AppColors.silver,
+            cursorColor = AppColors.primary,
+//            focusedIndicatorColor = AppColors.primary,
+//            unfocusedIndicatorColor = AppColors.lightGrey,
+//            errorIndicatorColor = AppColors.error,
+//            focusedLabelColor = AppColors.primary,
+//            unfocusedLabelColor = AppColors.grey,
+//            errorLabelColor = AppColors.error
         ),
         modifier = Modifier
             .fillMaxWidth()

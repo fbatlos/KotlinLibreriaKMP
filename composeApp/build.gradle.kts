@@ -44,6 +44,7 @@ kotlin {
             implementation("io.ktor:ktor-client-android:2.3.5")
 
             implementation("io.coil-kt:coil-compose:2.4.0")
+            implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
         }
         commonMain.dependencies {
             // Dependencias multiplataforma

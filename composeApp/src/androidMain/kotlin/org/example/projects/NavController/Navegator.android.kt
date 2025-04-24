@@ -8,11 +8,14 @@ class Navigator(
     private val navController: NavHostController
 ) : Navegator{
 
+
     override fun navigateTo(route: AppRoutes) {
         when (route) {
             is AppRoutes.Login -> navController.navigate(route.route)
             is AppRoutes.LibroLista -> navController.navigate(route.route)
-            is AppRoutes.LibroDetail -> navController.navigate(route.createRoute())
+            is AppRoutes.LibroDetail -> {
+                navController.navigate(route.createRoute())
+            }
             is AppRoutes.Registro -> {}
         }
     }

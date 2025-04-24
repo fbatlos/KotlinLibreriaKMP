@@ -11,22 +11,21 @@ sealed class AppRoutes(val route: String) {
     object LibroLista : AppRoutes("libroLista")
     object Registro:AppRoutes("registro")
 
-    data class LibroDetail(val libro: Libro) : AppRoutes("libroDetail/{libroJson}") {
+    data class LibroDetail(val libro: Libro) : AppRoutes("libroDetail") {
         fun createRoute(): String {
             val libroJson = URLEncoder.encode(libro.toJsonString(), "UTF-8")
-            return "libroDetail/$libroJson"
+            return "libroDetail?libroJson=$libroJson"
         }
     }
+
+
 
     companion object {
         fun fromString(route: String): AppRoutes {
             return when {
                 route == "login" -> Login
                 route == "libroLista" -> LibroLista
-                route.startsWith("libroDetail/") -> {
-                    val libroJson = URLDecoder.decode(route.substringAfter("libroDetail/"), "UTF-8")
-                    LibroDetail(libroJson.toLibro())
-                }
+                route.startsWith("libroDetail") -> LibroLista
                 else -> throw IllegalArgumentException("Unknown route: $route")
             }
         }

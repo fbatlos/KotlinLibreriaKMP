@@ -69,37 +69,26 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            // Pantalla de Detalle de Libro (CORREGIDO)
+                            // Pantalla de Detalle de Libro (No se si ahora furula)
                             composable(
-                                route = "libroDetail/{libroJson}",
+                                route = "libroDetail?libroJson={libroJson}",
                                 arguments = listOf(
                                     navArgument("libroJson") {
                                         type = NavType.StringType
+                                        nullable = true
                                     }
                                 )
                             ) { backStackEntry ->
-                                val libroJson = URLDecoder.decode(
-                                    backStackEntry.arguments?.getString("libroJson") ?: "",
-                                    "UTF-8"
+                                val libroJson = backStackEntry.arguments?.getString("libroJson") ?: ""
+                                val libro = libroJson.toLibro()
+
+                                LibroDetailScreen(
+                                    libro = libro,
+                                    navController = navigator
                                 )
-
-
-
-                                val libro = runCatching {
-                                    libroJson.toLibro()
-                                }.getOrElse {
-                                    // Manejo de error - volver atrás si falla
-                                    navController.popBackStack()
-                                    null
-                                }
-
-                                libro?.let {
-                                    LibroDetailScreen(
-                                        libro = it,
-                                        navController = navigator
-                                    )
-                                }
                             }
+
+
                         }
                     }
                 )

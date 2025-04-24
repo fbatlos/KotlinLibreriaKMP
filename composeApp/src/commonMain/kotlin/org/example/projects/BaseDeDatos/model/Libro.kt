@@ -15,4 +15,5 @@ data class Libro(
     var isbn13: String? = null,
     var categorias: List<String> = emptyList(),
     var stock: Stock
-)
+){
+}

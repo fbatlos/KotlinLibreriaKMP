@@ -1,5 +1,6 @@
 package org.example.projects.Screens
 
+import AppColors
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -8,7 +9,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.*
 import org.example.projects.BaseDeDatos.model.Libro
@@ -36,9 +36,6 @@ fun LibrosScreen(
     val query by librosViewModel.query.collectAsState()
 
     val scopeSec = CoroutineScope(Dispatchers.IO)
-
-    librosViewModel.loadFavoritos()
-    librosViewModel.fetchLibros()
 
     val filteredLibros by remember {
         derivedStateOf {
@@ -71,7 +68,10 @@ fun LibrosScreen(
     ) {paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    if (isLoading) {
+                    librosViewModel.loadFavoritos()
+                    librosViewModel.fetchLibros()
+
+                    if (isLoading || allLibros.isEmpty()) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center)
                         )
@@ -103,7 +103,7 @@ fun LibrosGrid(libros: List<Libro>, librosViewModel: LibrosViewModel,uiStateView
         if (libros.isNullOrEmpty()) {
             Text(
                 text = textError,
-                color = Color.Red,
+                color = AppColors.primary,
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {

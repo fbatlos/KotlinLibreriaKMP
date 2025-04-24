@@ -56,7 +56,7 @@ fun HeaderConHamburguesa(
     navController: Navegator,
     mostrarCarrito: Boolean = true
 ) {
-    var query by remember { mutableStateOf("Inicio") }
+    var query by remember { mutableStateOf("") }
 
     TopAppBar(
         title = {
@@ -100,7 +100,7 @@ fun HeaderConHamburguesa(
 
                 is AppRoutes.LibroDetail -> Row (modifier = Modifier.clickable{navController.popBackStack()}){
                     Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
+                        imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Volver",
                         tint = Color.White
                     )
@@ -208,7 +208,7 @@ fun MenuBurger(
                 Icon(
                     imageVector = icon,
                     contentDescription = item,
-                    tint = MaterialTheme.colors.primary,
+                    tint = Color(0xFF4CAF50),
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
