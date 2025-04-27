@@ -15,7 +15,6 @@ import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
 
-
 fun main() = application {
     val navigator = remember { Navigator() }
     val uiStateViewModel = remember { UiStateViewModel() }
@@ -35,15 +34,19 @@ fun main() = application {
                 is AppRoutes.LibroLista -> LibrosScreen(
                     navController = navigator,
                     uiStateViewModel = uiStateViewModel,
+                    authViewModel = authViewModel,
                     librosViewModel = libroViewModel
                 )
                 is AppRoutes.LibroDetail -> {
                     LibroDetailScreen(
                         libro = currentScreen.libro,
-                       navController = navigator
+                        navController = navigator,
+                        authViewModel = authViewModel
                     )
                 }
                 is AppRoutes.Registro -> {}
+
+                is AppRoutes.Cesta -> {}
             }
         }
     }

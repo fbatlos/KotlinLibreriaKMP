@@ -19,6 +19,7 @@ import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.Screens.LibrosMostrar.TarjetaLibro
 import org.example.projects.ViewModel.UiStateViewModel
 import org.example.projects.ViewModel.LibrosViewModel
+import org.example.projects.ViewModel.AuthViewModel
 
 
 
@@ -26,6 +27,7 @@ import org.example.projects.ViewModel.LibrosViewModel
 fun LibrosScreen(
     navController: Navegator,
     uiStateViewModel: UiStateViewModel,
+    authViewModel: AuthViewModel,
     librosViewModel: LibrosViewModel
 ) {
     val isLoading by uiStateViewModel.isLoading.collectAsState()
@@ -59,6 +61,7 @@ fun LibrosScreen(
                 onSearch = { query -> librosViewModel.filtrarLibros(query) },
                 onSearchClick = {},
                 onCartClick = {},
+                caritoItemsNum = authViewModel.cesta.value.size,
                 navController = navController
             )
         },

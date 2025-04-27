@@ -5,11 +5,13 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
+import org.example.projects.BaseDeDatos.DTO.UsuarioDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioRegisterDTO
 import org.example.projects.BaseDeDatos.ErrorAPI.ApiException
 import org.example.projects.BaseDeDatos.ErrorAPI.AuthException
 import org.example.projects.BaseDeDatos.model.AuthResponse
+import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.Libro
 
 class APIServiceImpl(private val client: HttpClient) : APIService {
@@ -25,6 +27,19 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             contentType(ContentType.Application.Json)
             setBody(usuario)
         }.body()
+    }
+
+    override suspend fun getUsuario(token: String): UsuarioDTO {
+        val response = client.get("usuarios/usuario")
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
     }
 
     override suspend fun listarLibros(): List<Libro> {
@@ -90,6 +105,71 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
     override suspend fun getLibrosfavoritos(token: String): MutableList<String> {
         val response = client.get("usuarios/favoritos") {
             header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun getCesta(token: String): MutableList<Libro> {
+        val response = client.get("usuarios/cesta") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun addCesta(token: String, idLibro: String): String {
+        val response = client.post("usuarios/cesta/${idLibro}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun removeLibroCesta(token: String, idLibro: String): HttpResponse {
+        val response = client.delete("usuarios/cesta/$idLibro") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun crearPago(compra: Compra): Map<String, String> {
+        val response = client.post("/compra/crear") {
+            //header(HttpHeaders.Authorization, "Bearer $token")
         }
 
         return when (response.status) {

@@ -63,6 +63,7 @@ fun LoginScreen(
                 onSearch = { },
                 onSearchClick = {},
                 onCartClick = {},
+                caritoItemsNum = authViewModel.cesta.value.size,
                 navController = navController
             )
         },
@@ -89,7 +90,7 @@ fun LoginScreen(
             ) {
                 // Logo o título de la app
                 Text(
-                    text = "WostraLibros",
+                    text = "MostraLibros",
                     style = MaterialTheme.typography.h4.copy(
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4CAF50)

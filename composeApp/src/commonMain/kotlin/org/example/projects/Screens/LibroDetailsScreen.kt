@@ -1,115 +1,286 @@
 ﻿package org.example.projects.Screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Libro
+import org.example.projects.BaseDeDatos.model.TipoStock
 import org.example.projects.NavController.AppRoutes.LibroLista.route
 import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
-import org.example.projects.Utils.LibroSerializer.toLibro
-import java.awt.SystemColor.text
-import java.net.URLDecoder
+import org.example.projects.ViewModel.AuthViewModel
 
 @Composable
 expect fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier: Modifier )
 
 @Composable
-fun LibroDetailScreen(libro: Libro,navController: Navegator ) {
-    println(navController.getCurrentRoute().route)
+fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:AuthViewModel){
+
     LayoutPrincipal(
-        headerContent = { drawerState,scope ->
+        headerContent = { drawerState, scope ->
             HeaderConHamburguesa(
                 onMenuClick = { scope.launch { drawerState.open() } },
-                onSearch = { },
+                onSearch = {},
                 onSearchClick = {},
-                onCartClick = {},
+                onCartClick = { },
+                caritoItemsNum = authViewModel.cesta.value.size,
                 navController = navController
             )
         },
-        drawerContent = {drawerState->
-            MenuBurger(drawerState,navController)
+        drawerContent = { drawerState ->
+            MenuBurger(drawerState, navController)
         }
-    ) {paddingValues ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
                 .padding(paddingValues)
         ) {
-            ImagenLibroDetails(
-                url = libro.imagen,
-                contentDescription = libro.titulo,
+            // Sección de imagen
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Título
-            Text(
-                text = libro.titulo?.replace("+"," ") ?: "Sin título",
-                style = MaterialTheme.typography.h2,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Precio
-            Text(
-                text = "${libro.precio?.toString() ?: "N/A"} ${libro.moneda ?: ""}",
-                style = MaterialTheme.typography.h3,
-                color = Color.Green
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Autores
-            libro.autores.takeIf { it.isNotEmpty() }?.let { autores ->
-                Text(
-                    text = autores.joinToString(", ").replace("+"," "),
-                    style = MaterialTheme.typography.subtitle2,
-                    color = Color.LightGray
+                    .height(280.dp)
+                    .background(AppColors.greyBlue.copy(alpha = 0.1f))
+            ) {
+                ImagenLibroDetails(
+                    url = libro.imagen,
+                    contentDescription = libro.titulo,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                        .align(Alignment.TopCenter)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+
+                // Estado del libro (Nuevo, Popular, etc.)
+                libro.stock.tipo?.let { estado ->
+                    Box(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .background(
+                                color = when (estado) {
+                                    TipoStock.EN_STOCK -> AppColors.success.copy(alpha = 0.9f)
+                                    TipoStock.PREVENTA -> AppColors.warning.copy(alpha = 0.9f)
+                                    TipoStock.AGOTADO -> AppColors.error.copy(alpha = 0.9f)
+                                    else -> AppColors.primary.copy(alpha = 0.9f)
+                                },
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .align(Alignment.TopStart)
+                    ) {
+                        Text(
+                            text = estado.toString(),
+                            color = AppColors.white,
+                            style = MaterialTheme.typography.caption,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
 
-            // Descripción
-            Text(
-                text = libro.descripcion?.replace("+"," ") ?: "No hay descripción disponible",
-                style = MaterialTheme.typography.body1
-            )
+            // Contenido principal
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                // Título y precio
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = libro.titulo?.replace("+", " ") ?: "Sin título",
+                        style = MaterialTheme.typography.h4,
+                        fontWeight = FontWeight.Bold,
+                        color = AppColors.black,
+                        modifier = Modifier.weight(0.7f)
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "${libro.precio?.toString() ?: "N/A"} ${libro.moneda ?: ""}",
+                        style = MaterialTheme.typography.h5,
+                        color = AppColors.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
-            // Categorías
-            libro.categorias.takeIf { it.isNotEmpty() }?.let { categorias ->
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Autores
+                libro.autores.takeIf { it.isNotEmpty() }?.let { autores ->
+                    Text(
+                        text = autores.joinToString(", ").replace("+", " "),
+                        style = MaterialTheme.typography.subtitle1,
+                        color = AppColors.black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+
+                // Botón de añadir a la cesta
+                Button(
+                    onClick = {
+                        authViewModel.addLibrocesta("sdadas")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = AppColors.white
+                    )
+                ) {
+                    Text(
+                        "Añadir a la cesta",
+                        modifier = Modifier.padding(4.dp)
+                    )
+                }
+
+                // Descripción
                 Text(
-                    text = "Te interesan estas categorías...",
-                    style = MaterialTheme.typography.h4,
-                    fontWeight = FontWeight.Bold
+                    text = "Descripción",
+                    style = MaterialTheme.typography.subtitle1,
+                    fontWeight = FontWeight.Bold,
+                    color = AppColors.black,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
+
+                Text(
+                    text = libro.descripcion?.replace("+", " ") ?: "No hay descripción disponible",
+                    style = MaterialTheme.typography.body1,
+                    color = AppColors.black
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Categorías relacionadas
+                libro.categorias.takeIf { it.isNotEmpty() }?.let { categorias ->
+                    Text(
+                        text = "Te interesan estas categorías...",
+                        style = MaterialTheme.typography.subtitle1,
+                        fontWeight = FontWeight.Bold,
+                        color = AppColors.black,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Grid de categorías
+                    LazyHorizontalGrid(
+                        rows = GridCells.Fixed(2),
+                        modifier = Modifier.height(150.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(categorias) { categoria ->
+                            CategoryChip(
+                                category = categoria.replace("+", " "),
+                                onClick = { /* Navegar a categoría */ }
+                            )
+                        }
+                    }
+
+                }
             }
         }
+    }
+}
+
+// Componente para mostrar categorías
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun CategoryChip(category: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = AppColors.primary.copy(alpha = 0.1f),
+        border = BorderStroke(1.dp, AppColors.primary)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = category,
+                style = MaterialTheme.typography.body2,
+                color = AppColors.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
+        }
+    }
+}
+
+// Componente para libros relacionados
+@Composable
+fun RelatedBookItem(libro: Libro, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .width(120.dp)
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ImagenLibroDetails(
+            url = libro.imagen,
+            contentDescription = libro.titulo,
+            modifier = Modifier
+                .size(120.dp, 160.dp)
+                .clip(RoundedCornerShape(8.dp))
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = libro.titulo?.replace("+", " ") ?: "",
+            style = MaterialTheme.typography.caption,
+            color = AppColors.black,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Text(
+            text = "${libro.precio?.toString() ?: ""} ${libro.moneda ?: ""}",
+            style = MaterialTheme.typography.caption,
+            color = AppColors.primary,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

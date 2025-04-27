@@ -10,6 +10,7 @@ sealed class AppRoutes(val route: String) {
     object Login : AppRoutes("login")
     object LibroLista : AppRoutes("libroLista")
     object Registro:AppRoutes("registro")
+    object Cesta : AppRoutes("cesta")
 
     data class LibroDetail(val libro: Libro) : AppRoutes("libroDetail") {
         fun createRoute(): String {

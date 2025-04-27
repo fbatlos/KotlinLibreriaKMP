@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
+import org.example.projects.BaseDeDatos.model.Libro
+import org.example.projects.BaseDeDatos.model.Stock
+import org.example.projects.BaseDeDatos.model.TipoStock
 
 actual class AuthViewModel actual constructor(
     private val uiStateViewModel: UiStateViewModel,
@@ -26,6 +29,9 @@ actual class AuthViewModel actual constructor(
 
     private var _provincia = MutableStateFlow<String>("")
     actual val provincia: StateFlow<String> = _provincia
+
+    private var _cesta = MutableStateFlow<MutableList<Libro>>(mutableListOf())
+    actual val cesta:StateFlow<MutableList<Libro>> = _cesta
 
     private var _isLoginEnabled = MutableStateFlow(false)
     actual val isLoginEnable: StateFlow<Boolean> = _isLoginEnabled
@@ -57,13 +63,14 @@ actual class AuthViewModel actual constructor(
 
     actual fun fetchLogin(username: String, password: String, callback: (Boolean) -> Unit) {
         uiStateViewModel.setLoading(true)
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val result = try {
                 val loginResult = validarUsuario(username, password)
                 uiStateViewModel.setLoading(false)
 
                 if (loginResult.first) {
                     sharedViewModel.setToken(loginResult.second)
+                    fetchCesta(loginResult.second)
                     true
                 } else {
                     uiStateViewModel.setTextError(loginResult.second)
@@ -79,11 +86,34 @@ actual class AuthViewModel actual constructor(
             callback(result)
         }
     }
+
+    actual fun fetchUsuario(username: String) {
+    }
+
+    actual fun fetchCesta(token:String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = API.apiService.getCesta(token)
+                _cesta.value = response
+
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            }
+        }
+    }
+
+    actual fun addLibrocesta(libroId: String) {
+        _cesta.value.add(Libro("s",null,null, listOf(),null,null,null,null,null,
+            listOf(), Stock(TipoStock.EN_STOCK,23)))
+    }
+
+    actual fun deleteLibroCesta(libroId: String) {
+    }
+
 }
 
 private suspend fun validarUsuario(username: String, password: String): Pair<Boolean, String> {
-    println(username)
-    println(password)
     return withContext(Dispatchers.IO) {
         try {
             val usuarioLoginDTO = UsuarioLoginDTO(username, password)
