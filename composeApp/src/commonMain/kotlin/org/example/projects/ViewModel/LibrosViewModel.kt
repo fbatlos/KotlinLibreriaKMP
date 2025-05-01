@@ -10,6 +10,7 @@ expect class LibrosViewModel(
 ) : ViewModel {
     val libros: StateFlow<List<Libro>>
     val librosFavoritos: StateFlow<List<String>>
+    val librosSugeridosCategorias:StateFlow<List<Libro>>
     val query: StateFlow<String>
 
 
@@ -20,5 +21,7 @@ expect class LibrosViewModel(
 
     fun addLibroFavorito(idLibro: String)
     fun removeLibroFavorito(idLibro: String)
+
+    fun getLibrosByCategorias(categoria:String)
 
 }

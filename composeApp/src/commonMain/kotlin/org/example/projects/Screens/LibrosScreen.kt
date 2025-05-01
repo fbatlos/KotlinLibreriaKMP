@@ -61,8 +61,8 @@ fun LibrosScreen(
                 onSearch = { query -> librosViewModel.filtrarLibros(query) },
                 onSearchClick = {},
                 onCartClick = {},
-                caritoItemsNum = authViewModel.cesta.value.size,
-                navController = navController
+                navController = navController,
+                authViewModel = authViewModel
             )
         },
         drawerContent = {drawerState->
@@ -116,7 +116,7 @@ fun LibrosGrid(libros: List<Libro>, librosViewModel: LibrosViewModel,uiStateView
                         libro = libro,
                         onFavoritoClick = { add -> cambiarListaFavoritos(add, librosViewModel, libro._id) },
                         librosFavoritos = librosFavoritos,
-                        navigator = navigator
+                        navController = navigator
                     )
                 }
             }

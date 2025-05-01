@@ -63,8 +63,8 @@ fun LoginScreen(
                 onSearch = { },
                 onSearchClick = {},
                 onCartClick = {},
-                caritoItemsNum = authViewModel.cesta.value.size,
-                navController = navController
+                navController = navController,
+                authViewModel = authViewModel
             )
         },
         drawerContent = {drawerState->

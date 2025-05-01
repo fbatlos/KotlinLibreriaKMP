@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
+import org.example.projects.ViewModel.AuthViewModel
 
 @Composable
 fun LayoutPrincipal(
@@ -59,11 +60,11 @@ fun HeaderConHamburguesa(
     onCartClick: () -> Unit = {},
     onSearch: (String) -> Unit,
     navController: Navegator,
-    caritoItemsNum : Int,
+    authViewModel:AuthViewModel,
     mostrarCarrito: Boolean = true
 ) {
     var query by remember { mutableStateOf("") }
-
+    val cestaSize by authViewModel.cesta.collectAsState()
     TopAppBar(
         title = {
             when(navController.getCurrentRoute() ) {
@@ -133,7 +134,7 @@ fun HeaderConHamburguesa(
                     Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito")
                 }
 
-                if (caritoItemsNum > 0) {
+                if (cestaSize.size > 0) {
                     Box(
                         modifier = Modifier
                             .size(22.dp)
@@ -142,8 +143,7 @@ fun HeaderConHamburguesa(
                         contentAlignment = Alignment.TopCenter
                     ) {
                         Text(
-                            //textAlign = TextAlign.Center,
-                            text = if (caritoItemsNum > 9) "9+" else "$caritoItemsNum",
+                            text = if (cestaSize.size > 9) "9+" else "${cestaSize.size}",
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold

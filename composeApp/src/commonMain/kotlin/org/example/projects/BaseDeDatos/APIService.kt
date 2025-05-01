@@ -22,7 +22,7 @@ interface APIService {
     suspend fun postRegister(usuario: UsuarioRegisterDTO): AuthResponse
     suspend fun getUsuario(token: String): UsuarioDTO
 
-    suspend fun listarLibros(): List<Libro>
+    suspend fun listarLibros(categoria:String?,autor: String?): List<Libro>
     suspend fun filtrarLibros(token: String,query:String): List<Libro>
 
     suspend fun addLibroFavorito(token: String,idLibro: String): HttpResponse

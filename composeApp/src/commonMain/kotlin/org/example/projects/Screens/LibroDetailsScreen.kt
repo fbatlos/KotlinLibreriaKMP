@@ -22,6 +22,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,18 +39,27 @@ import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.TipoStock
+import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.AppRoutes.LibroLista.route
 import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.ViewModel.AuthViewModel
+import org.example.projects.ViewModel.LibrosViewModel
 
 @Composable
 expect fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier: Modifier )
 
 @Composable
-fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:AuthViewModel){
+fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:AuthViewModel, librosViewModel:LibrosViewModel){
+    val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
+
+    LaunchedEffect(libro.categorias) {
+        libro.categorias.takeIf { it.isNotEmpty() }?.let { categorias ->
+            librosViewModel.getLibrosByCategorias(categorias.random())
+        }
+    }
 
     LayoutPrincipal(
         headerContent = { drawerState, scope ->
@@ -57,8 +68,8 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                 onSearch = {},
                 onSearchClick = {},
                 onCartClick = { },
-                caritoItemsNum = authViewModel.cesta.value.size,
-                navController = navController
+                navController = navController,
+                authViewModel = authViewModel
             )
         },
         drawerContent = { drawerState ->
@@ -157,7 +168,7 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                 // Botón de añadir a la cesta
                 Button(
                     onClick = {
-                        authViewModel.addLibrocesta("sdadas")
+                        authViewModel.addLibrocesta(libro)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -165,7 +176,8 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = AppColors.white
-                    )
+                    ),
+                    enabled = if (libro.stock.tipo == TipoStock.AGOTADO){false}else{true}
                 ) {
                     Text(
                         "Añadir a la cesta",
@@ -196,62 +208,31 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                         text = "Te interesan estas categorías...",
                         style = MaterialTheme.typography.subtitle1,
                         fontWeight = FontWeight.Bold,
-                        color = AppColors.black,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
-                    // Grid de categorías
                     LazyHorizontalGrid(
-                        rows = GridCells.Fixed(2),
-                        modifier = Modifier.height(150.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        rows = GridCells.Fixed(1),
+                        modifier = Modifier.height(150.dp)
                     ) {
-                        items(categorias) { categoria ->
-                            CategoryChip(
-                                category = categoria.replace("+", " "),
-                                onClick = { /* Navegar a categoría */ }
+                        items(librosSugeridos) { libro ->
+                            LibroSugeridoItem(
+                                libro = libro,
+                                onClick = {
+                                    navController.navigateTo(AppRoutes.LibroDetail(libro))
+                                }
                             )
                         }
                     }
-
                 }
             }
         }
     }
 }
 
-// Componente para mostrar categorías
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun CategoryChip(category: String, onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp),
-        shape = RoundedCornerShape(8.dp),
-        color = AppColors.primary.copy(alpha = 0.1f),
-        border = BorderStroke(1.dp, AppColors.primary)
-    ) {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = category,
-                style = MaterialTheme.typography.body2,
-                color = AppColors.primary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            )
-        }
-    }
-}
-
 // Componente para libros relacionados
 @Composable
-fun RelatedBookItem(libro: Libro, onClick: () -> Unit) {
+fun LibroSugeridoItem(libro: Libro, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .width(120.dp)

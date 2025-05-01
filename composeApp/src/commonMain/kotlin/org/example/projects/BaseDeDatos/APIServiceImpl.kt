@@ -13,6 +13,7 @@ import org.example.projects.BaseDeDatos.ErrorAPI.AuthException
 import org.example.projects.BaseDeDatos.model.AuthResponse
 import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.Libro
+import java.net.URLEncoder
 
 class APIServiceImpl(private val client: HttpClient) : APIService {
     override suspend fun postLogin(usuarioLoginDTO: UsuarioLoginDTO): HttpResponse {
@@ -42,8 +43,23 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
     }
 
-    override suspend fun listarLibros(): List<Libro> {
-        val response = client.get("libros")
+    override suspend fun listarLibros(categoria: String?,autor:String?): List<Libro> {
+        val query = mutableListOf<String>().apply {
+            if (!categoria.isNullOrBlank()) {
+                add("categoria=${URLEncoder.encode(categoria, "UTF-8")}")
+            }
+            if (!autor.isNullOrBlank()) {
+                add("autor=${URLEncoder.encode(autor, "UTF-8")}")
+            }
+        }
+
+        val url = if (query.isNotEmpty()) {
+            "libros?${query.joinToString("&")}"
+        } else {
+            "libros"
+        }
+
+        val response = client.get(url)
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()

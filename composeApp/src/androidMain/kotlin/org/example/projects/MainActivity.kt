@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity() {
                                 LibrosScreen(
                                     navController = navigator,
                                     uiStateViewModel = uiStateViewModel,
+                                    authViewModel = authViewModel,
                                     librosViewModel = libroViewModel
                                 )
                             }
@@ -84,7 +85,9 @@ class MainActivity : ComponentActivity() {
 
                                 LibroDetailScreen(
                                     libro = libro,
-                                    navController = navigator
+                                    navController = navigator,
+                                    authViewModel = authViewModel,
+                                    librosViewModel = libroViewModel
                                 )
                             }
 

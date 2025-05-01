@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Libro
 
@@ -22,7 +23,10 @@ actual class LibrosViewModel actual constructor(
 
     private val _query = MutableStateFlow<String>("")
     actual val query: StateFlow<String> = _query
-    
+
+    private val _librosSugeridosCategorias = MutableStateFlow<List<Libro>>(emptyList())
+    actual val librosSugeridosCategorias: StateFlow<List<Libro>> = _librosSugeridosCategorias
+
 
     actual fun fetchLibros() {
         uiStateViewModel.setLoading(true)
@@ -30,7 +34,7 @@ actual class LibrosViewModel actual constructor(
             // Realizamos la llamada a la API para obtener los libros
             val scope = CoroutineScope(Dispatchers.IO)
             scope.async {
-                val result = API.apiService.listarLibros()
+                val result = API.apiService.listarLibros(null,null)
                 _libros.value = result
             }
         } catch (e: Exception) {
@@ -89,4 +93,18 @@ actual class LibrosViewModel actual constructor(
         uiStateViewModel.setLoading(false)
     }
 
+    actual fun getLibrosByCategorias(categoria: String) {
+        viewModelScope.launch { // Usa el viewModelScope de Moko-MVVM
+            uiStateViewModel.setLoading(true)
+            try {
+                val result = API.apiService.listarLibros(categoria = categoria, null)
+                _librosSugeridosCategorias.value = result
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al cargar libros: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
+        }
+    }
 }

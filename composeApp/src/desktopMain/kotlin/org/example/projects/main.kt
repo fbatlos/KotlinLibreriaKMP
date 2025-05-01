@@ -41,7 +41,8 @@ fun main() = application {
                     LibroDetailScreen(
                         libro = currentScreen.libro,
                         navController = navigator,
-                        authViewModel = authViewModel
+                        authViewModel = authViewModel,
+                        librosViewModel = libroViewModel
                     )
                 }
                 is AppRoutes.Registro -> {}

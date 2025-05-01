@@ -33,7 +33,7 @@ expect class AuthViewModel(
 
     fun fetchCesta(token: String)
 
-    fun addLibrocesta(libroId:String)
+    fun addLibrocesta(libro:Libro)
 
     fun deleteLibroCesta(libroId:String)
 }
