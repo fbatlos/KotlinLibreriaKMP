@@ -2,15 +2,13 @@
 
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.Utils.LibroSerializer.toJsonString
-import org.example.projects.Utils.LibroSerializer.toLibro
-import java.net.URLDecoder
 import java.net.URLEncoder
 
 sealed class AppRoutes(val route: String) {
     object Login : AppRoutes("login")
     object LibroLista : AppRoutes("libroLista")
     object Registro:AppRoutes("registro")
-    object Cesta : AppRoutes("cesta")
+    object Carrito : AppRoutes("carrito")
 
     data class LibroDetail(val libro: Libro) : AppRoutes("libroDetail") {
         fun createRoute(): String {
@@ -26,6 +24,7 @@ sealed class AppRoutes(val route: String) {
             return when {
                 route == "login" -> Login
                 route == "libroLista" -> LibroLista
+                route == "carrito" -> Carrito
                 route.startsWith("libroDetail") -> LibroLista
                 else -> throw IllegalArgumentException("Unknown route: $route")
             }

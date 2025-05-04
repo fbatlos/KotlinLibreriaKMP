@@ -25,13 +25,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
 import org.example.projects.ViewModel.AuthViewModel
+import org.example.projects.ViewModel.CarritoViewModel
 
 @Composable
 fun LayoutPrincipal(
@@ -57,14 +57,15 @@ fun LayoutPrincipal(
 fun HeaderConHamburguesa(
     onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
-    onCartClick: () -> Unit = {},
     onSearch: (String) -> Unit,
     navController: Navegator,
     authViewModel:AuthViewModel,
+    carritoViewModel: CarritoViewModel,
     mostrarCarrito: Boolean = true
 ) {
     var query by remember { mutableStateOf("") }
-    val cestaSize by authViewModel.cesta.collectAsState()
+    val cestaSize by carritoViewModel.cestaSize.collectAsState()
+
     TopAppBar(
         title = {
             when(navController.getCurrentRoute() ) {
@@ -130,11 +131,14 @@ fun HeaderConHamburguesa(
         },
         actions = {
             if (mostrarCarrito) {
-                IconButton(onClick = onCartClick) {
+                IconButton(onClick = {
+                    println(AppRoutes.Carrito)
+                    navController.navigateTo(AppRoutes.Carrito)
+                } ) {
                     Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito")
                 }
 
-                if (cestaSize.size > 0) {
+                if (cestaSize > 0) {
                     Box(
                         modifier = Modifier
                             .size(22.dp)
@@ -143,7 +147,7 @@ fun HeaderConHamburguesa(
                         contentAlignment = Alignment.TopCenter
                     ) {
                         Text(
-                            text = if (cestaSize.size > 9) "9+" else "${cestaSize.size}",
+                            text = if (cestaSize > 9) "9+" else "${cestaSize}",
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold

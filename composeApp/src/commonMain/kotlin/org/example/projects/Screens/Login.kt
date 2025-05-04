@@ -46,6 +46,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     navController: Navegator,
     authViewModel: AuthViewModel,
+    carritoViewModel: CarritoViewModel,
     uiStateViewModel: UiStateViewModel
 ) {
     val userName by authViewModel.username.collectAsState()
@@ -62,9 +63,9 @@ fun LoginScreen(
                 onMenuClick = { scope.launch { drawerState.open() } },
                 onSearch = { },
                 onSearchClick = {},
-                onCartClick = {},
                 navController = navController,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                carritoViewModel = carritoViewModel
             )
         },
         drawerContent = {drawerState->

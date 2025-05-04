@@ -20,7 +20,7 @@ import org.example.projects.Screens.LibrosMostrar.TarjetaLibro
 import org.example.projects.ViewModel.UiStateViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.AuthViewModel
-
+import org.example.projects.ViewModel.CarritoViewModel
 
 
 @Composable
@@ -28,7 +28,8 @@ fun LibrosScreen(
     navController: Navegator,
     uiStateViewModel: UiStateViewModel,
     authViewModel: AuthViewModel,
-    librosViewModel: LibrosViewModel
+    librosViewModel: LibrosViewModel,
+    carritoViewModel: CarritoViewModel
 ) {
     val isLoading by uiStateViewModel.isLoading.collectAsState()
     val textError by uiStateViewModel.textError.collectAsState()
@@ -60,9 +61,9 @@ fun LibrosScreen(
                 onMenuClick = { scope.launch { drawerState.open() } },
                 onSearch = { query -> librosViewModel.filtrarLibros(query) },
                 onSearchClick = {},
-                onCartClick = {},
                 navController = navController,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                carritoViewModel = carritoViewModel
             )
         },
         drawerContent = {drawerState->

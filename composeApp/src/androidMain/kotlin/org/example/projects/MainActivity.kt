@@ -1,7 +1,6 @@
 package org.example.projects
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,14 +18,15 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navigator
+import org.example.projects.Screens.CarritoScreen
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LoginScreen
 import org.example.projects.Utils.LibroSerializer.toLibro
 import org.example.projects.ViewModel.AuthViewModel
+import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
-import java.net.URLDecoder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
                 val sharedViewModel = remember { SharedViewModel() }
                 val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
                 val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
+                val carritoViewModel = remember { CarritoViewModel() }
 
                 Scaffold(
                     modifier = Modifier
@@ -56,7 +57,8 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier,
                                     navController = navigator,
                                     authViewModel = authViewModel,
-                                    uiStateViewModel = uiStateViewModel
+                                    uiStateViewModel = uiStateViewModel,
+                                    carritoViewModel = carritoViewModel
                                 )
                             }
 
@@ -66,7 +68,8 @@ class MainActivity : ComponentActivity() {
                                     navController = navigator,
                                     uiStateViewModel = uiStateViewModel,
                                     authViewModel = authViewModel,
-                                    librosViewModel = libroViewModel
+                                    librosViewModel = libroViewModel,
+                                    carritoViewModel = carritoViewModel
                                 )
                             }
 
@@ -87,7 +90,16 @@ class MainActivity : ComponentActivity() {
                                     libro = libro,
                                     navController = navigator,
                                     authViewModel = authViewModel,
-                                    librosViewModel = libroViewModel
+                                    librosViewModel = libroViewModel,
+                                    carritoViewModel = carritoViewModel
+                                )
+                            }
+
+                            composable(AppRoutes.Carrito.route){
+                                CarritoScreen(
+                                    navController = navigator,
+                                    authViewModel = authViewModel,
+                                    carritoViewModel
                                 )
                             }
 

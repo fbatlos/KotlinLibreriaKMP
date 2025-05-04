@@ -1,8 +1,6 @@
 ﻿package org.example.projects.NavController
 
-import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 
 class Navigator(
     private val navController: NavHostController
@@ -17,7 +15,7 @@ class Navigator(
                 navController.navigate(route.createRoute())
             }
             is AppRoutes.Registro -> {}
-            is AppRoutes.Cesta -> {}
+            is AppRoutes.Carrito -> {navController.navigate(route.route)}
         }
     }
 

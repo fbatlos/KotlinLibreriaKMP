@@ -102,19 +102,6 @@ actual class AuthViewModel actual constructor(
             }
         }
     }
-
-    actual fun addLibrocesta(libro: Libro) {
-        viewModelScope.launch {
-            _cesta.value.add(libro)
-        }
-    }
-
-    actual fun deleteLibroCesta(libroId: String) {
-        viewModelScope.launch {
-            _cesta.value.filter { it._id != libroId }
-        }
-    }
-
 }
 
 private suspend fun validarUsuario(username: String, password: String): Pair<Boolean, String> {

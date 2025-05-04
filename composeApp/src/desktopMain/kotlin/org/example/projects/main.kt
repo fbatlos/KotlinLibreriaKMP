@@ -7,10 +7,12 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navigator
+import org.example.projects.Screens.CarritoScreen
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LibrosScreen
 import org.example.projects.Screens.LoginScreen
 import org.example.projects.ViewModel.AuthViewModel
+import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
@@ -21,6 +23,7 @@ fun main() = application {
     val sharedViewModel = remember { SharedViewModel() }
     val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
     val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
+    val carritoViewModel = remember { CarritoViewModel() }
 
     Window(onCloseRequest = ::exitApplication, title = "KMP Libreria") {
         MaterialTheme {
@@ -29,25 +32,34 @@ fun main() = application {
                     modifier = Modifier,
                     navController = navigator,
                     authViewModel = authViewModel,
-                    uiStateViewModel = uiStateViewModel
+                    uiStateViewModel = uiStateViewModel,
+                    carritoViewModel = carritoViewModel
                 )
                 is AppRoutes.LibroLista -> LibrosScreen(
                     navController = navigator,
                     uiStateViewModel = uiStateViewModel,
                     authViewModel = authViewModel,
-                    librosViewModel = libroViewModel
+                    librosViewModel = libroViewModel,
+                    carritoViewModel = carritoViewModel
                 )
                 is AppRoutes.LibroDetail -> {
                     LibroDetailScreen(
                         libro = currentScreen.libro,
                         navController = navigator,
                         authViewModel = authViewModel,
-                        librosViewModel = libroViewModel
+                        librosViewModel = libroViewModel,
+                        carritoViewModel = carritoViewModel
                     )
                 }
                 is AppRoutes.Registro -> {}
 
-                is AppRoutes.Cesta -> {}
+                is AppRoutes.Carrito -> {
+                    CarritoScreen(
+                        navController = navigator,
+                        authViewModel = authViewModel,
+                        carritoViewModel = carritoViewModel
+                    )
+                }
             }
         }
     }

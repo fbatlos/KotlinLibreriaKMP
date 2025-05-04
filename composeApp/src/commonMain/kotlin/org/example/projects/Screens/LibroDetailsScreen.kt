@@ -46,14 +46,20 @@ import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.ViewModel.AuthViewModel
+import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 
 @Composable
 expect fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier: Modifier )
 
 @Composable
-fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:AuthViewModel, librosViewModel:LibrosViewModel){
-
+fun LibroDetailScreen(
+    libro: Libro,
+    navController: Navegator,
+    authViewModel:AuthViewModel,
+    librosViewModel:LibrosViewModel,
+    carritoViewModel: CarritoViewModel
+){
     val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
 
     LaunchedEffect(libro.categorias) {
@@ -69,9 +75,9 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                 onMenuClick = { scope.launch { drawerState.open() } },
                 onSearch = {},
                 onSearchClick = {},
-                onCartClick = { },
                 authViewModel = authViewModel,
-                navController = navController
+                navController = navController,
+                carritoViewModel = carritoViewModel
             )
         },
         drawerContent = { drawerState ->
@@ -170,7 +176,7 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                 // Botón de añadir a la cesta
                 Button(
                     onClick = {
-                        authViewModel.addLibrocesta(libro)
+                        carritoViewModel.agregarLibro(libro)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
