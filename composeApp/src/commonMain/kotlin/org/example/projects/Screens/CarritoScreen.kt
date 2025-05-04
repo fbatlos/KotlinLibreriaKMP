@@ -47,6 +47,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.ViewModel.*
 
+
+
 @Composable
 fun CarritoScreen(
     navController: Navegator,
@@ -224,7 +226,7 @@ private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
 }
 
 @Composable
-private fun CartItem(
+fun CartItem(
     libro: Libro,
     cantidad: Int,
     onRemove: () -> Unit,
@@ -234,27 +236,29 @@ private fun CartItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(12.dp)
             .background(AppColors.white, RoundedCornerShape(8.dp))
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(12.dp),
+        verticalAlignment = Alignment.Top
     ) {
         // Imagen del libro
         ImagenLibroDetails(
             url = libro.imagen,
             contentDescription = libro.titulo,
             modifier = Modifier
-                .fillMaxWidth(0.3f)
-                .fillMaxHeight(0.5f)
+                .width(80.dp)
+                .height(120.dp)
                 .clip(RoundedCornerShape(4.dp))
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
             Text(
                 text = libro.titulo?.replace("+", " ") ?: "Libro sin título",
-                style = MaterialTheme.typography.subtitle1,
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -265,7 +269,6 @@ private fun CartItem(
             libro.autores.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     text = it.joinToString(", ").replace("+", " "),
-                    style = MaterialTheme.typography.caption,
                     color = AppColors.grey
                 )
             }
@@ -274,37 +277,38 @@ private fun CartItem(
 
             Text(
                 text = "$${"%.2f".format((libro.precio?.toDouble() ?: 0.0) * cantidad)}",
-                style = MaterialTheme.typography.body1,
                 color = AppColors.primary,
                 fontWeight = FontWeight.Bold
             )
 
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Selector de cantidad
             QuantitySelector(
                 cantidad = cantidad,
                 onIncrement = { onQuantityChange(cantidad + 1) },
-                onDecrement = { onQuantityChange(cantidad - 1) },
-                modifier = Modifier.padding(horizontal = 8.dp)
+                onDecrement = { if (cantidad > 1) onQuantityChange(cantidad - 1) },
+                modifier = Modifier.padding(vertical = 4.dp)
             )
 
-            // Botón de eliminar
+            Spacer(modifier = Modifier.height(4.dp))
+
             IconButton(
                 onClick = onRemove,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(32.dp)
             ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Eliminar",
-                tint = AppColors.error
-            )
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = AppColors.error
+                )
             }
         }
     }
 }
 
+
 @Composable
-private fun QuantitySelector(
+fun QuantitySelector(
     cantidad: Int,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
@@ -313,30 +317,32 @@ private fun QuantitySelector(
     Row(
         modifier = modifier
             .border(1.dp, AppColors.greyBlue, RoundedCornerShape(4.dp))
-            .height(32.dp),
+            .height(36.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(
             onClick = onDecrement,
-            modifier = Modifier.size(32.dp))
-        {
-            Icon(Icons.Default.Delete, contentDescription = "decrementar")
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(Icons.Default.ArrowForward, contentDescription = "Decrementar")
         }
 
         Text(
             text = "$cantidad",
-            modifier = Modifier.width(24.dp),
-            textAlign = TextAlign.Center
+            modifier = Modifier.width(32.dp),
+            textAlign = TextAlign.Center,
         )
 
         IconButton(
             onClick = onIncrement,
-            modifier = Modifier.size(32.dp))
-        {
+            modifier = Modifier.size(36.dp)
+        ) {
             Icon(Icons.Default.Add, contentDescription = "Aumentar")
         }
     }
 }
+
+
 
 @Composable
 private fun EmptyCartView(navController: Navegator) {
