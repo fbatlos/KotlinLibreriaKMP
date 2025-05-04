@@ -103,12 +103,16 @@ actual class AuthViewModel actual constructor(
         }
     }
 
-    actual fun addLibrocesta(libroId: String) {
-        _cesta.value.add(Libro("s",null,null, listOf(),null,null,null,null,null,
-            listOf(), Stock(TipoStock.EN_STOCK,23)))
+    actual fun addLibrocesta(libro: Libro) {
+        viewModelScope.launch {
+            _cesta.value.add(libro)
+        }
     }
 
     actual fun deleteLibroCesta(libroId: String) {
+        viewModelScope.launch {
+            _cesta.value.filter { it._id != libroId }
+        }
     }
 
 }

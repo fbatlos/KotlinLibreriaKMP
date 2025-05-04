@@ -94,7 +94,7 @@ actual class LibrosViewModel actual constructor(
     }
 
     actual fun getLibrosByCategorias(categoria: String) {
-        viewModelScope.launch { // Usa el viewModelScope de Moko-MVVM
+        viewModelScope.launch {
             uiStateViewModel.setLoading(true)
             try {
                 val result = API.apiService.listarLibros(categoria = categoria, null)

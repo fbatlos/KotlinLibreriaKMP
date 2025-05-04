@@ -53,11 +53,13 @@ expect fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier
 
 @Composable
 fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:AuthViewModel, librosViewModel:LibrosViewModel){
+
     val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
 
     LaunchedEffect(libro.categorias) {
-        libro.categorias.takeIf { it.isNotEmpty() }?.let { categorias ->
-            librosViewModel.getLibrosByCategorias(categorias.random())
+        libro.categorias.firstOrNull()?.let { categoria ->
+            println(categoria.replace("³","").replace("+"," "))
+            librosViewModel.getLibrosByCategorias(categoria.replace("³","").replace("+"," "))
         }
     }
 
@@ -68,8 +70,8 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                 onSearch = {},
                 onSearchClick = {},
                 onCartClick = { },
-                navController = navController,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                navController = navController
             )
         },
         drawerContent = { drawerState ->
@@ -208,13 +210,19 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                         text = "Te interesan estas categorías...",
                         style = MaterialTheme.typography.subtitle1,
                         fontWeight = FontWeight.Bold,
+                        color = AppColors.black,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
+                    // Grid de categorías
                     LazyHorizontalGrid(
                         rows = GridCells.Fixed(1),
-                        modifier = Modifier.height(150.dp)
+                        modifier = Modifier.height(150.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+
+                        println(librosSugeridos)
                         items(librosSugeridos) { libro ->
                             LibroSugeridoItem(
                                 libro = libro,
@@ -224,6 +232,7 @@ fun LibroDetailScreen(libro: Libro, navController: Navegator, authViewModel:Auth
                             )
                         }
                     }
+
                 }
             }
         }

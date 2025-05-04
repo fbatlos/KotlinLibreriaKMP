@@ -17,6 +17,7 @@ class Navigator(
                 navController.navigate(route.createRoute())
             }
             is AppRoutes.Registro -> {}
+            is AppRoutes.Cesta -> {}
         }
     }
 
