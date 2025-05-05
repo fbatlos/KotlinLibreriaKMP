@@ -247,18 +247,7 @@ fun MenuBurger(
 
                 if (item == "Catálogo") {
                     Spacer(modifier = Modifier.weight(1f))
-                    /* Está bien para notificar nuevos
-                    Text(
-                        text = "Nuevo",
-                        style = MaterialTheme.typography.caption,
-                        color = MaterialTheme.colors.primary,
-                        modifier = Modifier
-                            .background(
-                                MaterialTheme.colors.primary.copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    )*/
+
                 }
             }
         }

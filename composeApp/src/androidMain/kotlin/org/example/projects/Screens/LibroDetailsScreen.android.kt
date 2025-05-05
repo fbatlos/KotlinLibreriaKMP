@@ -32,9 +32,7 @@ actual fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier
             .crossfade(500)
             .build(),
         contentDescription = "Portada del libro",
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
+        modifier = modifier
             .clip(RoundedCornerShape(8.dp)),
         contentScale = ContentScale.FillWidth,
         filterQuality = FilterQuality.High

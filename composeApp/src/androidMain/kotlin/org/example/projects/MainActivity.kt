@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                 val sharedViewModel = remember { SharedViewModel() }
                 val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
                 val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
-                val carritoViewModel = remember { CarritoViewModel() }
+                val carritoViewModel = remember { CarritoViewModel(uiStateViewModel) }
 
                 Scaffold(
                     modifier = Modifier
@@ -99,6 +99,7 @@ class MainActivity : ComponentActivity() {
                                 CarritoScreen(
                                     navController = navigator,
                                     authViewModel = authViewModel,
+                                    sharedViewModel,
                                     carritoViewModel
                                 )
                             }

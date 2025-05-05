@@ -184,6 +184,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
     }
 
     override suspend fun crearPago(compra: Compra): Map<String, String> {
+        //TODO token
         val response = client.post("/compra/crear") {
             //header(HttpHeaders.Authorization, "Bearer $token")
         }
@@ -192,6 +193,41 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun checkout(compra: Compra,token: String): Map<String, String> {
+        //TODO token
+        val response = client.post("/compra/checkout") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody(compra)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun obtenerEstadoPago(sessionId: String,token: String): Map<String, String> {
+        //TODO token
+        val response = client.post("/compra/estado/$sessionId"){
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.InternalServerError -> throw ApiException("Error ${response.status.description}",response.status)
+            HttpStatusCode.Unauthorized -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
             else -> throw ApiException(
                 "Error ${response.status.value}: ${response.status.description}",
                 response.status

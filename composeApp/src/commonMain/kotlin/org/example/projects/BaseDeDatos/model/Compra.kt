@@ -1,23 +1,15 @@
 ﻿package org.example.projects.BaseDeDatos.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Compra(
-    val usuarioId: String,
-    val items: List<CompraItem>,
-    val metodoDePago: MetodoDePago
+    val usuarioName: String,
+    val items: List<ItemCompra>
 )
 
-
-data class CompraItem(
-    val libroId: String,
-    val precio: Double,
-    val type: TipoStock
+@Serializable
+data class ItemCompra(
+    val libro: Libro,
+    val cantidad: Int
 )
-
-
-data class MetodoDePago(
-    val token: String,
-    val tipo: TipoDePago
-)
-enum class TipoDePago {
-    STRIPE_CARD, GOOGLE_PAY, APPLE_PAY
-}

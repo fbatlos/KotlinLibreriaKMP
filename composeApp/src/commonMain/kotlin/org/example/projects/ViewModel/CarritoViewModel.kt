@@ -1,53 +1,117 @@
 package org.example.projects.ViewModel
 
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.example.projects.BaseDeDatos.API
+import org.example.projects.BaseDeDatos.model.Compra
+import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 
-class CarritoViewModel : ViewModel() {
-    private val _items = MutableStateFlow<Map<Libro, Int>>(emptyMap())
-    val items: StateFlow<Map<Libro, Int>> = _items
+expect fun openUrl(url: String)
 
-    private var _cestaSize = MutableStateFlow(0)
-    val cestaSize: StateFlow<Int> = _cestaSize
+//todo a lo mejor no se usa
+expect fun registerDeepLinkHandler(onDeepLinkReceived: (String) -> Unit)
+
+
+class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewModel() {
+    private val _items = MutableStateFlow<List<ItemCompra>>(emptyList())
+    val items: StateFlow<List<ItemCompra>> = _items
+
+    val cestaSize: StateFlow<Int> = _items.map { items ->
+        items.sumOf { it.cantidad }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
+    private var _sessionUrl = MutableStateFlow<String?>(null)
+
+    private val _sessionId = MutableStateFlow<String?>(null)
+
+    private val _pagoEstado = MutableStateFlow<String?>(null)
+    val pagoEstado = _pagoEstado
 
     fun agregarLibro(libro: Libro) {
         _items.update { current ->
-            current.toMutableMap().apply {
-                this[libro] = (this[libro] ?: 0) + 1
-                _cestaSize.value += 1
+            val index = current.indexOfFirst { it.libro == libro }
+            if (index != -1) {
+                current.toMutableList().apply {
+                    this[index] = this[index].copy(cantidad = this[index].cantidad + 1)
+                }
+            } else {
+                current + ItemCompra(libro, 1)
             }
         }
     }
 
     fun actualizarCantidad(libro: Libro, nuevaCantidad: Int) {
         _items.update { current ->
-            if (nuevaCantidad <= 0) {
-                current - libro
-            } else {
-                current.toMutableMap().apply {
-                    this[libro] = nuevaCantidad
-                    _cestaSize.value -= 1
+            val index = current.indexOfFirst { it.libro == libro }
+            if (index != -1) {
+                if (nuevaCantidad <= 0) {
+                    current.toMutableList().apply { removeAt(index) }
+                } else {
+                    current.toMutableList().apply {
+                        this[index] = this[index].copy(cantidad = nuevaCantidad)
+                    }
                 }
+            } else {
+                current
             }
         }
-
-        _items.value.values.map { _cestaSize.value = it }
     }
 
     fun eliminarLibro(libro: Libro) {
-        _items.update { it - libro }
-        _cestaSize.value = _items.value.size
+        _items.update { current ->
+            current.filterNot { it.libro == libro }
+        }
     }
 
-    val total: StateFlow<Double> = _items.map { items ->
-        items.entries.sumOf { (libro, cantidad) ->
-            (libro.precio?.toDouble() ?: 0.0) * cantidad
+    fun checkout(compra: Compra, token: String) {
+        uiStateViewModel.setLoading(true)
+        viewModelScope.launch {
+
+            val response = API.apiService.checkout(compra, token)
+            withContext(Dispatchers.Main) {
+                _sessionUrl.value = response["url"]
+                _sessionId.value = response["sessionId"]
+                openUrl(_sessionUrl.value!!)
+                startPollingEstadoPago(token)
+            }
         }
+        uiStateViewModel.setLoading(false)
+    }
+
+    private var pollingJob: Job? = null
+
+    fun startPollingEstadoPago(token: String) {
+        pollingJob?.cancel()
+        pollingJob = viewModelScope.launch {
+            while (true) {
+                delay(3000) // 3 segundos
+                val estado = API.apiService.obtenerEstadoPago(_sessionId.value!!,token)
+                println(estado)
+                withContext(Dispatchers.Main) {
+                    when (estado["status"]) {
+                        "paid" -> {
+                            _pagoEstado.value = "exitoso"
+                            pollingJob?.cancel()
+                        }
+                        "unpaid", "no_payment_required" -> { /* nada */ }
+                        else -> {
+                            _pagoEstado.value = "error"
+                            pollingJob?.cancel()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    val total: StateFlow<Double> = _items.map { items ->
+        items.sumOf { it.libro.precio?.toDouble()?.times(it.cantidad) ?: 0.0 }
     }.stateIn(viewModelScope, SharingStarted.Lazily, 0.0)
 }

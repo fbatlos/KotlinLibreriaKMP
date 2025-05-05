@@ -62,43 +62,48 @@ actual class AuthViewModel actual constructor(
     }
 
     actual fun fetchLogin(username: String, password: String, callback: (Boolean) -> Unit) {
-        uiStateViewModel.setLoading(true)
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
             val result = try {
                 val loginResult = validarUsuario(username, password)
-                uiStateViewModel.setLoading(false)
-
-                if (loginResult.first) {
-                    sharedViewModel.setToken(loginResult.second)
-                    fetchCesta(loginResult.second)
-                    true
-                } else {
-                    uiStateViewModel.setTextError(loginResult.second)
-                    uiStateViewModel.setShowDialog(true)
-                    false
+                withContext(Dispatchers.Main) {
+                    uiStateViewModel.setLoading(false)
+                    if (loginResult.first) {
+                        sharedViewModel.setToken(loginResult.second)
+                        fetchCesta(loginResult.second)
+                        true
+                    } else {
+                        uiStateViewModel.setTextError(loginResult.second)
+                        uiStateViewModel.setShowDialog(true)
+                        false
+                    }
                 }
             } catch (e: Exception) {
-                uiStateViewModel.setLoading(false)
-                uiStateViewModel.setTextError("Error: ${e.message}")
-                uiStateViewModel.setShowDialog(true)
+                withContext(Dispatchers.Main) {
+                    uiStateViewModel.setLoading(false)
+                    uiStateViewModel.setTextError("Error: ${e.message}")
+                    uiStateViewModel.setShowDialog(true)
+                }
                 false
             }
             callback(result)
         }
     }
 
+
     actual fun fetchUsuario(username: String) {
     }
 
-    actual fun fetchCesta(token:String) {
-        CoroutineScope(Dispatchers.IO).launch {
+    actual fun fetchCesta(token: String) {
+        viewModelScope.launch {
             try {
-                val response = API.apiService.getCesta(token)
+                val response = withContext(Dispatchers.IO) { API.apiService.getCesta(token) }
                 _cesta.value = response
-
             } catch (e: Exception) {
-                uiStateViewModel.setTextError("Error: ${e.message}")
-                uiStateViewModel.setShowDialog(true)
+                withContext(Dispatchers.Main) {
+                    uiStateViewModel.setTextError("Error: ${e.message}")
+                    uiStateViewModel.setShowDialog(true)
+                }
             }
         }
     }

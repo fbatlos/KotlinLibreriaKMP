@@ -23,7 +23,7 @@ fun main() = application {
     val sharedViewModel = remember { SharedViewModel() }
     val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
     val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
-    val carritoViewModel = remember { CarritoViewModel() }
+    val carritoViewModel = remember { CarritoViewModel(uiStateViewModel) }
 
     Window(onCloseRequest = ::exitApplication, title = "KMP Libreria") {
         MaterialTheme {
@@ -57,6 +57,7 @@ fun main() = application {
                     CarritoScreen(
                         navController = navigator,
                         authViewModel = authViewModel,
+                        sharedViewModel = sharedViewModel,
                         carritoViewModel = carritoViewModel
                     )
                 }
