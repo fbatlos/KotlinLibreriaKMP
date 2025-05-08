@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
+import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.Stock
 import org.example.projects.BaseDeDatos.model.TipoStock
@@ -30,8 +31,8 @@ actual class AuthViewModel actual constructor(
     private var _provincia = MutableStateFlow<String>("")
     actual val provincia: StateFlow<String> = _provincia
 
-    private var _cesta = MutableStateFlow<MutableList<Libro>>(mutableListOf())
-    actual val cesta:StateFlow<MutableList<Libro>> = _cesta
+    private var _cesta = MutableStateFlow<MutableList<ItemCompra>>(mutableListOf())
+    actual val cesta:StateFlow<MutableList<ItemCompra>> = _cesta
 
     private var _isLoginEnabled = MutableStateFlow(false)
     actual val isLoginEnable: StateFlow<Boolean> = _isLoginEnabled

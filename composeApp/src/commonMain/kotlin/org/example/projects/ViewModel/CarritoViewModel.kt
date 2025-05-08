@@ -39,11 +39,13 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
             if (index != -1) {
                 current.toMutableList().apply {
                     this[index] = this[index].copy(cantidad = this[index].cantidad + 1)
+
                 }
             } else {
                 current + ItemCompra(libro, 1)
             }
         }
+
     }
 
     fun actualizarCantidad(libro: Libro, nuevaCantidad: Int) {
@@ -77,9 +79,10 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
             withContext(Dispatchers.Main) {
                 _sessionUrl.value = response["url"]
                 _sessionId.value = response["sessionId"]
+                println(response["sessionId"])
                 openUrl(_sessionUrl.value!!)
-                startPollingEstadoPago(token)
             }
+            startPollingEstadoPago(token)
         }
         uiStateViewModel.setLoading(false)
     }

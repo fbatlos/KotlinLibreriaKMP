@@ -2,6 +2,7 @@
 
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.StateFlow
+import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 
 expect class AuthViewModel(
@@ -13,7 +14,7 @@ expect class AuthViewModel(
     val contrasenia: StateFlow<String>
     val municipio: StateFlow<String>
     val provincia: StateFlow<String>
-    val cesta : StateFlow<MutableList<Libro>>
+    val cesta : StateFlow<MutableList<ItemCompra>>
     val isLoginEnable: StateFlow<Boolean>
 
     fun onLogChange(username: String, contrasenia: String)

@@ -12,6 +12,7 @@ import org.example.projects.BaseDeDatos.ErrorAPI.ApiException
 import org.example.projects.BaseDeDatos.ErrorAPI.AuthException
 import org.example.projects.BaseDeDatos.model.AuthResponse
 import org.example.projects.BaseDeDatos.model.Compra
+import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 import java.net.URLEncoder
 
@@ -134,7 +135,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
     }
 
-    override suspend fun getCesta(token: String): MutableList<Libro> {
+    override suspend fun getCesta(token: String): MutableList<ItemCompra> {
         val response = client.get("usuarios/cesta") {
             header(HttpHeaders.Authorization, "Bearer $token")
         }
@@ -150,9 +151,10 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
     }
 
-    override suspend fun addCesta(token: String, idLibro: String): String {
-        val response = client.post("usuarios/cesta/${idLibro}") {
+    override suspend fun addCesta(token: String,  itemCompra: ItemCompra): String {
+        val response = client.post("usuarios/cesta") {
             header(HttpHeaders.Authorization, "Bearer $token")
+            setBody(itemCompra)
         }
 
         return when (response.status) {

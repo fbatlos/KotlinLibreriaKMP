@@ -14,6 +14,7 @@ import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioRegisterDTO
 import org.example.projects.BaseDeDatos.model.AuthResponse
 import org.example.projects.BaseDeDatos.model.Compra
+import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 
 interface APIService {
@@ -29,8 +30,8 @@ interface APIService {
     suspend fun removeLibroFavorito(token: String,idLibro: String): HttpResponse
     suspend fun getLibrosfavoritos(token: String): MutableList<String>
 
-    suspend fun getCesta(token: String):MutableList<Libro>
-    suspend fun addCesta(token: String, idLibro: String):String
+    suspend fun getCesta(token: String):MutableList<ItemCompra>
+    suspend fun addCesta(token: String, itemCompra: ItemCompra):String
     suspend fun removeLibroCesta(token: String, idLibro: String):HttpResponse
 
     suspend fun crearPago(compra: Compra): Map<String, String>
