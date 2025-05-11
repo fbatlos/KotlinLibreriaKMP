@@ -11,9 +11,11 @@ expect class LibrosViewModel(
     val libros: StateFlow<List<Libro>>
     val librosFavoritos: StateFlow<List<String>>
     val librosSugeridosCategorias:StateFlow<List<Libro>>
+    val libroSelected:StateFlow<Libro?>
     val query: StateFlow<String>
 
 
+    fun putLibroSelected(libro: Libro)
     fun fetchLibros()
     fun filtrarLibros(query: String)
     fun loadFavoritos()

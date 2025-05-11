@@ -1,5 +1,6 @@
 package org.example.projects
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,11 +18,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import org.example.projects.NavController.AppRoutes
+import org.example.projects.NavController.NavigationHandleDeepLink
 import org.example.projects.NavController.Navigator
 import org.example.projects.Screens.CarritoScreen
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LoginScreen
 import org.example.projects.Utils.LibroSerializer.toLibro
+import org.example.projects.ViewModel.AppContextProvider
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
@@ -31,10 +34,17 @@ import org.example.projects.ViewModel.UiStateViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        AppContextProvider.context = applicationContext
+
+        AppContextProvider.handleDeepLink(intent)
+
         setContent {
             MaterialTheme {
                 val navController = rememberNavController()
                 val navigator = remember { Navigator(navController) }
+                NavigationHandleDeepLink.navigator = navigator
+
                 val uiStateViewModel = remember { UiStateViewModel() }
                 val sharedViewModel = remember { SharedViewModel() }
                 val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
@@ -75,19 +85,9 @@ class MainActivity : ComponentActivity() {
 
                             // Pantalla de Detalle de Libro (No se si ahora furula)
                             composable(
-                                route = "libroDetail?libroJson={libroJson}",
-                                arguments = listOf(
-                                    navArgument("libroJson") {
-                                        type = NavType.StringType
-                                        nullable = true
-                                    }
-                                )
-                            ) { backStackEntry ->
-                                val libroJson = backStackEntry.arguments?.getString("libroJson") ?: ""
-                                val libro = libroJson.toLibro()
-
+                                route = AppRoutes.LibroDetalles.route,
+                            ) {
                                 LibroDetailScreen(
-                                    libro = libro,
                                     navController = navigator,
                                     authViewModel = authViewModel,
                                     librosViewModel = libroViewModel,
@@ -98,9 +98,11 @@ class MainActivity : ComponentActivity() {
                             composable(AppRoutes.Carrito.route){
                                 CarritoScreen(
                                     navController = navigator,
+                                    uiStateViewModel = uiStateViewModel,
                                     authViewModel = authViewModel,
-                                    sharedViewModel,
-                                    carritoViewModel
+                                    sharedViewModel = sharedViewModel,
+                                    librosViewModel = libroViewModel,
+                                    carritoViewModel = carritoViewModel
                                 )
                             }
 
@@ -111,4 +113,10 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onNewIntent(intent:Intent) {
+        super.onNewIntent(intent)
+        AppContextProvider.handleDeepLink(intent)
+    }
+
 }

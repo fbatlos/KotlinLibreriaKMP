@@ -106,7 +106,7 @@ fun HeaderConHamburguesa(
 
                 is AppRoutes.Login -> {}
 
-                is AppRoutes.LibroDetail -> Row (modifier = Modifier.clickable{navController.popBackStack()}){
+                is AppRoutes.LibroDetalles -> Row (modifier = Modifier.clickable{navController.popBackStack()}){
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Volver",

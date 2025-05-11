@@ -1,5 +1,6 @@
 package org.example.projects.ViewModel
 
+import com.es.aplicacion.dto.LibroDTO
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,7 +34,7 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
     private val _pagoEstado = MutableStateFlow<String?>(null)
     val pagoEstado = _pagoEstado
 
-    fun agregarLibro(libro: Libro) {
+    fun agregarLibro(libro: LibroDTO) {
         _items.update { current ->
             val index = current.indexOfFirst { it.libro == libro }
             if (index != -1) {
@@ -48,7 +49,7 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
 
     }
 
-    fun actualizarCantidad(libro: Libro, nuevaCantidad: Int) {
+    fun actualizarCantidad(libro: LibroDTO, nuevaCantidad: Int) {
         _items.update { current ->
             val index = current.indexOfFirst { it.libro == libro }
             if (index != -1) {
@@ -65,7 +66,7 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
         }
     }
 
-    fun eliminarLibro(libro: Libro) {
+    fun eliminarLibro(libro: LibroDTO) {
         _items.update { current ->
             current.filterNot { it.libro == libro }
         }
@@ -82,7 +83,10 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
                 println(response["sessionId"])
                 openUrl(_sessionUrl.value!!)
             }
-            startPollingEstadoPago(token)
+
+            withContext(Dispatchers.IO){
+                startPollingEstadoPago(token)
+            }
         }
         uiStateViewModel.setLoading(false)
     }

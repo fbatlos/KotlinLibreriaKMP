@@ -3,6 +3,9 @@ package org.example.projects
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import org.example.projects.NavController.AppRoutes
@@ -16,6 +19,8 @@ import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
+import java.awt.Toolkit
+import javax.swing.ImageIcon
 
 fun main() = application {
     val navigator = remember { Navigator() }
@@ -25,7 +30,7 @@ fun main() = application {
     val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
     val carritoViewModel = remember { CarritoViewModel(uiStateViewModel) }
 
-    Window(onCloseRequest = ::exitApplication, title = "KMP Libreria") {
+    Window(onCloseRequest = ::exitApplication, title = "LeafRead" , icon = BitmapPainter(useResource("logo_libreria.png", ::loadImageBitmap))) {
         MaterialTheme {
             when (val currentScreen = navigator.getCurrentRoute()) {
                 is AppRoutes.Login -> LoginScreen(
@@ -42,9 +47,8 @@ fun main() = application {
                     librosViewModel = libroViewModel,
                     carritoViewModel = carritoViewModel
                 )
-                is AppRoutes.LibroDetail -> {
+                is AppRoutes.LibroDetalles -> {
                     LibroDetailScreen(
-                        libro = currentScreen.libro,
                         navController = navigator,
                         authViewModel = authViewModel,
                         librosViewModel = libroViewModel,
@@ -56,8 +60,10 @@ fun main() = application {
                 is AppRoutes.Carrito -> {
                     CarritoScreen(
                         navController = navigator,
+                        uiStateViewModel = uiStateViewModel,
                         authViewModel = authViewModel,
                         sharedViewModel = sharedViewModel,
+                        librosViewModel = libroViewModel,
                         carritoViewModel = carritoViewModel
                     )
                 }

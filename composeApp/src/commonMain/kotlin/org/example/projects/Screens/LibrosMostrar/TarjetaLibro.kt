@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
+import org.example.projects.ViewModel.*
 
 @Composable
 expect fun ImagenDesdeUrl(libro: Libro)
@@ -32,6 +33,7 @@ fun TarjetaLibro(
     modifier: Modifier = Modifier,
     onFavoritoClick : (Boolean) -> Unit,
     librosFavoritos: List<String>,
+    librosViewModel:LibrosViewModel,
     navController: Navegator
 ) {
     val esFavorito = librosFavoritos.contains(libro._id)
@@ -43,7 +45,8 @@ fun TarjetaLibro(
             .padding(8.dp)
             .clickable(
                 onClick = {
-                    navController.navigateTo(AppRoutes.LibroDetail(libro))
+                    librosViewModel.putLibroSelected(libro)
+                    navController.navigateTo(AppRoutes.LibroDetalles)
                 }
             ),
         shape = RoundedCornerShape(12.dp)

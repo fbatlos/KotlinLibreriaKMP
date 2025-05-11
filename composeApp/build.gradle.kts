@@ -45,6 +45,7 @@ kotlin {
 
             implementation("io.coil-kt:coil-compose:2.4.0")
             implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+            implementation ("androidx.browser:browser:1.8.0")
 
             //implementation ("com.stripe:stripe-android:22.0.0")
         }

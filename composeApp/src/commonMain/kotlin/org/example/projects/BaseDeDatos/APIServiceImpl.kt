@@ -221,7 +221,6 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
     }
 
     override suspend fun obtenerEstadoPago(sessionId: String,token: String): Map<String, String> {
-        //TODO token
         val response = client.post("/compra/estado/$sessionId"){
             header(HttpHeaders.Authorization, "Bearer $token")
         }

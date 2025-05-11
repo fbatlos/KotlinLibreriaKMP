@@ -41,29 +41,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.es.aplicacion.dto.LibroDTO
 import kotlinx.coroutines.FlowPreview
 import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.ViewModel.*
 
-
+fun obtenerLibro(idLibro:String? , libros:List<Libro>):Libro = libros.filter { it._id == idLibro }.first()
 
 @Composable
 fun CarritoScreen(
     navController: Navegator,
+    uiStateViewModel:UiStateViewModel,
     authViewModel: AuthViewModel,
+    librosViewModel:LibrosViewModel,
     sharedViewModel:SharedViewModel,
+
     carritoViewModel: CarritoViewModel
 ) {
     val items by carritoViewModel.items.collectAsState()
     val total by carritoViewModel.total.collectAsState()
     val pagoEstado by carritoViewModel.pagoEstado.collectAsState()
 
+    val libros by librosViewModel.libros.collectAsState()
+
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var libroToDelete by remember { mutableStateOf<Libro?>(null) }
+    val isLoading by uiStateViewModel.isLoading.collectAsState()
+    var libroToDelete by remember { mutableStateOf<LibroDTO?>(null) }
 
     LayoutPrincipal(
         headerContent = { drawerState, scope ->
@@ -93,16 +101,17 @@ fun CarritoScreen(
                 LazyColumn(
                     modifier = Modifier.weight(1f)
                 ) {
-                    items(items.toList()) { (libro, cantidad) ->
+                    items(items.toList()) { (libroDto,cantidad) ->
                         CartItem(
-                            libro = libro,
+                            libro = libroDto,
+                            libros = libros,
                             cantidad = cantidad,
                             onRemove = {
-                                libroToDelete = libro
+                                libroToDelete = libroDto
                                 showDeleteDialog = true
                             },
                             onQuantityChange = { nuevaCantidad ->
-                                carritoViewModel.actualizarCantidad(libro, nuevaCantidad)
+                                carritoViewModel.actualizarCantidad(libroDto, nuevaCantidad)
                             }
                         )
                         Divider(color = AppColors.greyBlue, thickness = 0.5.dp)
@@ -127,6 +136,13 @@ fun CarritoScreen(
                         navController.navigateTo(AppRoutes.Login)
                     }
                 })
+            }
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
             }
         }
     }
@@ -246,12 +262,15 @@ private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
 
 @Composable
 fun CartItem(
-    libro: Libro,
+    libro: LibroDTO,
+    libros: List<Libro>,
     cantidad: Int,
     onRemove: () -> Unit,
     onQuantityChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val libroDetalles = obtenerLibro(idLibro = libro._id,libros)
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -262,7 +281,7 @@ fun CartItem(
     ) {
         // Imagen del libro
         ImagenLibroDetails(
-            url = libro.imagen,
+            url = libroDetalles.imagen,
             contentDescription = libro.titulo,
             modifier = Modifier
                 .width(80.dp)
@@ -285,7 +304,7 @@ fun CartItem(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            libro.autores.takeIf { it.isNotEmpty() }?.let {
+            libroDetalles.autores.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     text = it.joinToString(", ").replace("+", " "),
                     color = AppColors.grey
@@ -359,7 +378,6 @@ fun QuantitySelector(
         }
     }
 }
-
 
 
 @Composable

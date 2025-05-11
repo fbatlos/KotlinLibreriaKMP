@@ -1,5 +1,6 @@
 ﻿package org.example.projects.BaseDeDatos.model
 
+import com.es.aplicacion.dto.LibroDTO
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,6 +11,6 @@ data class Compra(
 
 @Serializable
 data class ItemCompra(
-    val libro: Libro,
+    val libro: LibroDTO,
     val cantidad: Int
 )

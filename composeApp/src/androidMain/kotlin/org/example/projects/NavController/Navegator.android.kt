@@ -11,9 +11,7 @@ class Navigator(
         when (route) {
             is AppRoutes.Login -> navController.navigate(route.route)
             is AppRoutes.LibroLista -> navController.navigate(route.route)
-            is AppRoutes.LibroDetail -> {
-                navController.navigate(route.createRoute())
-            }
+            is AppRoutes.LibroDetalles -> navController.navigate(route.route)
             is AppRoutes.Registro -> {}
             is AppRoutes.Carrito -> {navController.navigate(route.route)}
         }

@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.es.aplicacion.dto.LibroDTO
 import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Libro
@@ -45,6 +46,7 @@ import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
+import org.example.projects.Utils.Utils
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
@@ -54,16 +56,16 @@ expect fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier
 
 @Composable
 fun LibroDetailScreen(
-    libro: Libro,
     navController: Navegator,
     authViewModel:AuthViewModel,
     librosViewModel:LibrosViewModel,
     carritoViewModel: CarritoViewModel
 ){
     val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
+    val librosSelected by librosViewModel.libroSelected.collectAsState()
 
-    LaunchedEffect(libro.categorias) {
-        libro.categorias.firstOrNull()?.let { categoria ->
+    LaunchedEffect(librosSelected?.categorias) {
+        librosSelected?.categorias?.firstOrNull()?.let { categoria ->
             println(categoria.replace("³","").replace("+"," "))
             librosViewModel.getLibrosByCategorias(categoria.replace("³","").replace("+"," "))
         }
@@ -98,8 +100,8 @@ fun LibroDetailScreen(
                     .background(AppColors.greyBlue.copy(alpha = 0.1f))
             ) {
                 ImagenLibroDetails(
-                    url = libro.imagen,
-                    contentDescription = libro.titulo,
+                    url = librosSelected?.imagen,
+                    contentDescription = librosSelected?.titulo,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(250.dp)
@@ -108,7 +110,7 @@ fun LibroDetailScreen(
                 )
 
                 // Estado del libro (Nuevo, Popular, etc.)
-                libro.stock.tipo?.let { estado ->
+                librosSelected?.stock?.tipo?.let { estado ->
                     Box(
                         modifier = Modifier
                             .padding(12.dp)
@@ -145,7 +147,7 @@ fun LibroDetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = libro.titulo?.replace("+", " ") ?: "Sin título",
+                        text = librosSelected?.titulo?.replace("+", " ") ?: "Sin título",
                         style = MaterialTheme.typography.h4,
                         fontWeight = FontWeight.Bold,
                         color = AppColors.black,
@@ -153,7 +155,7 @@ fun LibroDetailScreen(
                     )
 
                     Text(
-                        text = "${libro.precio?.toString() ?: "N/A"} ${libro.moneda ?: ""}",
+                        text = "${librosSelected?.precio?.toString() ?: "N/A"} ${librosSelected?.moneda ?: ""}",
                         style = MaterialTheme.typography.h5,
                         color = AppColors.primary,
                         fontWeight = FontWeight.Bold
@@ -163,7 +165,7 @@ fun LibroDetailScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Autores
-                libro.autores.takeIf { it.isNotEmpty() }?.let { autores ->
+                librosSelected?.autores.takeIf { it?.isNotEmpty()  == true}?.let { autores ->
                     Text(
                         text = autores.joinToString(", ").replace("+", " "),
                         style = MaterialTheme.typography.subtitle1,
@@ -176,7 +178,7 @@ fun LibroDetailScreen(
                 // Botón de añadir a la cesta
                 Button(
                     onClick = {
-                        carritoViewModel.agregarLibro(libro)
+                        carritoViewModel.agregarLibro(Utils.castearLibroToLibroDTO(librosSelected ?: throw Exception("No se puede añadir un libro no existente.")) )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -185,7 +187,7 @@ fun LibroDetailScreen(
                     colors = ButtonDefaults.buttonColors(
                         contentColor = AppColors.white
                     ),
-                    enabled = if (libro.stock.tipo == TipoStock.AGOTADO){false}else{true}
+                    enabled = if (librosSelected?.stock?.tipo == TipoStock.AGOTADO){false}else{true}
                 ) {
                     Text(
                         "Añadir a la cesta",
@@ -203,7 +205,7 @@ fun LibroDetailScreen(
                 )
 
                 Text(
-                    text = libro.descripcion?.replace("+", " ") ?: "No hay descripción disponible",
+                    text = librosSelected?.descripcion?.replace("+", " ") ?: "No hay descripción disponible",
                     style = MaterialTheme.typography.body1,
                     color = AppColors.black
                 )
@@ -211,7 +213,7 @@ fun LibroDetailScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Categorías relacionadas
-                libro.categorias.takeIf { it.isNotEmpty() }?.let { categorias ->
+                librosSelected?.categorias.takeIf { it?.isNotEmpty() == true }?.let { categorias ->
                     Text(
                         text = "Te interesan estas categorías...",
                         style = MaterialTheme.typography.subtitle1,
@@ -233,7 +235,8 @@ fun LibroDetailScreen(
                             LibroSugeridoItem(
                                 libro = libro,
                                 onClick = {
-                                    navController.navigateTo(AppRoutes.LibroDetail(libro))
+                                    librosViewModel.putLibroSelected(libro)
+                                    navController.navigateTo(AppRoutes.LibroDetalles)
                                 }
                             )
                         }

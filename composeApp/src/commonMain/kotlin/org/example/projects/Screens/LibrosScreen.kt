@@ -117,6 +117,7 @@ fun LibrosGrid(libros: List<Libro>, librosViewModel: LibrosViewModel,uiStateView
                         libro = libro,
                         onFavoritoClick = { add -> cambiarListaFavoritos(add, librosViewModel, libro._id) },
                         librosFavoritos = librosFavoritos,
+                        librosViewModel = librosViewModel,
                         navController = navigator
                     )
                 }

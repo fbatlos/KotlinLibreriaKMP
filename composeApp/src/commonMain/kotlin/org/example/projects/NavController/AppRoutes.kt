@@ -9,13 +9,15 @@ sealed class AppRoutes(val route: String) {
     object LibroLista : AppRoutes("libroLista")
     object Registro:AppRoutes("registro")
     object Carrito : AppRoutes("carrito")
+    object LibroDetalles: AppRoutes("libroDetalles")
 
+    /*
     data class LibroDetail(val libro: Libro) : AppRoutes("libroDetail") {
         fun createRoute(): String {
             val libroJson = URLEncoder.encode(libro.toJsonString(), "UTF-8")
             return "libroDetail?libroJson=$libroJson"
         }
-    }
+    }*/
 
 
 
@@ -25,7 +27,7 @@ sealed class AppRoutes(val route: String) {
                 route == "login" -> Login
                 route == "libroLista" -> LibroLista
                 route == "carrito" -> Carrito
-                route.startsWith("libroDetail") -> LibroLista
+                route == "libroDetalles" -> LibroDetalles
                 else -> throw IllegalArgumentException("Unknown route: $route")
             }
         }

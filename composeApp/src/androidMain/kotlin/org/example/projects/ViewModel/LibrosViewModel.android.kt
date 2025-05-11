@@ -27,6 +27,9 @@ actual class LibrosViewModel actual constructor(
     private val _librosSugeridosCategorias = MutableStateFlow<List<Libro>>(emptyList())
     actual val librosSugeridosCategorias: StateFlow<List<Libro>> = _librosSugeridosCategorias
 
+    private val _librosSelected = MutableStateFlow<Libro?>(null)
+    actual val libroSelected: StateFlow<Libro?> = _librosSelected
+
 
     actual fun fetchLibros() {
         uiStateViewModel.setLoading(true)
@@ -94,7 +97,7 @@ actual class LibrosViewModel actual constructor(
     }
 
     actual fun getLibrosByCategorias(categoria: String) {
-        viewModelScope.launch {
+        viewModelScope.launch { // Usa el viewModelScope de Moko-MVVM
             uiStateViewModel.setLoading(true)
             try {
                 val result = API.apiService.listarLibros(categoria = categoria, null)
@@ -106,5 +109,10 @@ actual class LibrosViewModel actual constructor(
                 uiStateViewModel.setLoading(false)
             }
         }
+    }
+
+
+    actual fun putLibroSelected(libro: Libro) {
+        _librosSelected.value = libro
     }
 }

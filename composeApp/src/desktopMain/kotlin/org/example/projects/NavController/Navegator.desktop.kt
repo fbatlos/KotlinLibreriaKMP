@@ -16,7 +16,7 @@ class Navigator: Navegator{
 
     override fun popBackStack() {
         currentScreen = when (currentScreen) {
-            is AppRoutes.LibroDetail -> AppRoutes.LibroLista
+            is AppRoutes.LibroDetalles -> AppRoutes.LibroLista
             else -> AppRoutes.Login
         }
     }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
+import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.Stock
 import org.example.projects.BaseDeDatos.model.TipoStock
@@ -30,8 +31,8 @@ actual class AuthViewModel actual constructor(
     private var _provincia = MutableStateFlow<String>("")
     actual val provincia: StateFlow<String> = _provincia
 
-    private var _cesta = MutableStateFlow<MutableList<Libro>>(mutableListOf())
-    actual val cesta:StateFlow<MutableList<Libro>> = _cesta
+    private var _cesta = MutableStateFlow<MutableList<ItemCompra>>(mutableListOf())
+    actual val cesta:StateFlow<MutableList<ItemCompra>> = _cesta
 
     private var _isLoginEnabled = MutableStateFlow(false)
     actual val isLoginEnable: StateFlow<Boolean> = _isLoginEnabled
@@ -62,21 +63,29 @@ actual class AuthViewModel actual constructor(
     }
 
     actual fun fetchLogin(username: String, password: String, callback: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            uiStateViewModel.setLoading(true)
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) {
+                uiStateViewModel.setLoading(true)
+            }
             val result = try {
                 val loginResult = validarUsuario(username, password)
+
                 withContext(Dispatchers.Main) {
                     uiStateViewModel.setLoading(false)
-                    if (loginResult.first) {
+                }
+
+                if (loginResult.first) {
+                    withContext(Dispatchers.Main) {
                         sharedViewModel.setToken(loginResult.second)
-                        fetchCesta(loginResult.second)
-                        true
-                    } else {
+                    }
+                    fetchCesta(loginResult.second)
+                    true
+                } else {
+                    withContext(Dispatchers.Main) {
                         uiStateViewModel.setTextError(loginResult.second)
                         uiStateViewModel.setShowDialog(true)
-                        false
                     }
+                    false
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -86,7 +95,9 @@ actual class AuthViewModel actual constructor(
                 }
                 false
             }
-            callback(result)
+            withContext(Dispatchers.Main) {
+                callback(result)
+            }
         }
     }
 
@@ -94,16 +105,15 @@ actual class AuthViewModel actual constructor(
     actual fun fetchUsuario(username: String) {
     }
 
-    actual fun fetchCesta(token: String) {
-        viewModelScope.launch {
+    actual fun fetchCesta(token:String) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = withContext(Dispatchers.IO) { API.apiService.getCesta(token) }
+                val response = API.apiService.getCesta(token)
                 _cesta.value = response
+
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    uiStateViewModel.setTextError("Error: ${e.message}")
-                    uiStateViewModel.setShowDialog(true)
-                }
+                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
             }
         }
     }
