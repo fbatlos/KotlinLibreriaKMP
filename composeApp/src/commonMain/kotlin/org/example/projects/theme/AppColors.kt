@@ -12,12 +12,12 @@ object AppColors {
     val white = Color(0xFFFFFFFF)
 
     // Primary Colors
-    val primary = Color(0xFF4CAF50) // Nota: Este color tiene solo 5 dígitos, debería ser 6 u 8
+    val primary = Color(21,148,68)//Color(0xFF4CAF50) // Nota: Este color tiene solo 5 dígitos, debería ser 6 u 8
     val secondary = Color(0xFF263238)
     val info = Color(0xFF219413)
 
     // Primary Shades
-    val shade1 = Color(0xFF43A04B)
+    val shade1 = Color(21,148,68)
     val shade2 = Color(0xFF38BE3B)
     val shade3 = Color(0xFF237D31)
     val shade4 = Color(0xFF1B5E1F) // Corregido de #IBSEIF a valor válido

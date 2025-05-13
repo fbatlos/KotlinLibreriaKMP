@@ -14,7 +14,8 @@
         <activity
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
-            android:name=".MainActivity">
+            android:name=".MainActivity"
+            android:launchMode="singleTop">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,8 +26,10 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" />
+                <data android:scheme="leafread" />
             </intent-filter>
+
+
         </activity>
     </application>
 </manifest>

@@ -15,16 +15,16 @@ object AppContextProvider {
     lateinit var context: Context
 
      fun handleDeepLink(intent: Intent?) {
-        val data = intent?.data
+         val data = intent?.data?.toString()
         data?.let {
-            when (it.toString()) {
-                "https://leafread/pago_exitoso" -> {
+            when  {
+                it.contains("/pago_exitoso") -> {
                     Log.d("DeepLink", "Pago exitoso")
                     Toast.makeText(context, "Pago exitoso", Toast.LENGTH_LONG).show()
                     NavigationHandleDeepLink.navigator.navigateTo(AppRoutes.LibroLista)
 
                 }
-                "https://leafread/pago_cancelado" -> {
+                it.contains("/pago_candelado") -> {
                     Log.d("DeepLink", "Pago cancelado")
                     Toast.makeText(context, "Pago cancelado", Toast.LENGTH_LONG).show()
                     NavigationHandleDeepLink.navigator.navigateTo(AppRoutes.Carrito)

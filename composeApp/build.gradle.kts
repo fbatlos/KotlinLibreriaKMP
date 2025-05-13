@@ -47,7 +47,7 @@ kotlin {
             implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
             implementation ("androidx.browser:browser:1.8.0")
 
-            //implementation ("com.stripe:stripe-android:22.0.0")
+            implementation ("com.stripe:stripe-android:20.3.0")
         }
         commonMain.dependencies {
             // Dependencias multiplataforma
