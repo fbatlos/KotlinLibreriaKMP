@@ -107,12 +107,12 @@ fun CustomPasswordField(
             textColor = AppColors.black,
             backgroundColor = AppColors.silver,
             cursorColor = AppColors.primary,
-//            focusedIndicatorColor = AppColors.primary,
-//            unfocusedIndicatorColor = AppColors.lightGrey,
-//            errorIndicatorColor = AppColors.error,
-//            focusedLabelColor = AppColors.primary,
-//            unfocusedLabelColor = AppColors.grey,
-//            errorLabelColor = AppColors.error
+            focusedIndicatorColor = AppColors.primary,
+            unfocusedIndicatorColor = AppColors.lightGrey,
+            errorIndicatorColor = AppColors.error,
+            focusedLabelColor = AppColors.primary,
+            unfocusedLabelColor = AppColors.grey,
+            errorLabelColor = AppColors.error
         ),
         modifier = Modifier
             .fillMaxWidth()

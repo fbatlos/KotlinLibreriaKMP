@@ -127,7 +127,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         authViewModel.fetchLogin(
-                            username = userName,
+                            username = userName.replace(" ",""),
                             password = contrasenia,
                             callback = { success ->
                                 if (success) {

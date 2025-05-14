@@ -28,7 +28,7 @@ fun main() = application {
     val sharedViewModel = remember { SharedViewModel() }
     val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
     val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
-    val carritoViewModel = remember { CarritoViewModel(uiStateViewModel) }
+    val carritoViewModel = remember { CarritoViewModel(uiStateViewModel,sharedViewModel) }
 
     Window(onCloseRequest = ::exitApplication, title = "LeafRead" , icon = BitmapPainter(useResource("logo_libreria.png", ::loadImageBitmap))) {
         MaterialTheme {
@@ -67,6 +67,8 @@ fun main() = application {
                         carritoViewModel = carritoViewModel
                     )
                 }
+
+                is AppRoutes.HistorialCompra -> {}
             }
         }
     }

@@ -227,7 +227,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
-            HttpStatusCode.InternalServerError -> throw ApiException("Error ${response.status.description}",response.status)
+            HttpStatusCode.InternalServerError -> throw ApiException("Error ${response.status.description}, ${response.body<String>()}",response.status)
             HttpStatusCode.Unauthorized -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
             else -> throw ApiException(
                 "Error ${response.status.value}: ${response.status.description}",

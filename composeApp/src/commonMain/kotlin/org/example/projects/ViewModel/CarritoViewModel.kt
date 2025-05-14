@@ -19,7 +19,10 @@ expect fun openUrl(url: String)
 expect fun registerDeepLinkHandler(onDeepLinkReceived: (String) -> Unit)
 
 
-class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewModel() {
+class CarritoViewModel(
+    private val uiStateViewModel:UiStateViewModel,
+    private val sharedViewModel: SharedViewModel
+) : ViewModel() {
     private val _items = MutableStateFlow<List<ItemCompra>>(emptyList())
     val items: StateFlow<List<ItemCompra>> = _items
 
@@ -31,8 +34,6 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
 
     private val _sessionId = MutableStateFlow<String?>(null)
 
-    private val _pagoEstado = MutableStateFlow<String?>(null)
-    val pagoEstado = _pagoEstado
 
     fun agregarLibro(libro: LibroDTO) {
         _items.update { current ->
@@ -40,7 +41,6 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
             if (index != -1) {
                 current.toMutableList().apply {
                     this[index] = this[index].copy(cantidad = this[index].cantidad + 1)
-
                 }
             } else {
                 current + ItemCompra(libro, 1)
@@ -83,40 +83,23 @@ class CarritoViewModel(private val uiStateViewModel:UiStateViewModel) : ViewMode
                 println(response["sessionId"])
                 openUrl(_sessionUrl.value!!)
             }
-
-            withContext(Dispatchers.IO){
-                startPollingEstadoPago(token)
-            }
         }
         uiStateViewModel.setLoading(false)
     }
 
-    private var pollingJob: Job? = null
-
-    fun startPollingEstadoPago(token: String) {
-        pollingJob?.cancel()
-        pollingJob = viewModelScope.launch {
-            while (true) {
-                delay(3000) // 3 segundos
-                val estado = API.apiService.obtenerEstadoPago(_sessionId.value!!,token)
-                println(estado)
-                withContext(Dispatchers.Main) {
-                    when (estado["status"]) {
-                        "paid" -> {
-                            _pagoEstado.value = "exitoso"
-                            pollingJob?.cancel()
-                        }
-                        "unpaid", "no_payment_required" -> { /* nada */ }
-                        else -> {
-                            _pagoEstado.value = "error"
-                            pollingJob?.cancel()
-                        }
-                    }
-                }
-            }
+    fun verEstadoPago(pagado:Boolean){
+        if (pagado){
+            //TODO API PARA CREAR EL TICKET
+            _items.value = emptyList()
+            addTicketCompra()
         }
     }
 
+    fun addTicketCompra(){
+        viewModelScope.launch {
+
+        }
+    }
 
     val total: StateFlow<Double> = _items.map { items ->
         items.sumOf { it.libro.precio?.toDouble()?.times(it.cantidad) ?: 0.0 }

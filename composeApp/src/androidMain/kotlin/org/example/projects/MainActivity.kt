@@ -37,8 +37,6 @@ class MainActivity : ComponentActivity() {
 
         AppContextProvider.context = applicationContext
 
-        AppContextProvider.handleDeepLink(intent)
-
         setContent {
             MaterialTheme {
                 val navController = rememberNavController()
@@ -49,7 +47,9 @@ class MainActivity : ComponentActivity() {
                 val sharedViewModel = remember { SharedViewModel() }
                 val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
                 val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
-                val carritoViewModel = remember { CarritoViewModel(uiStateViewModel) }
+                val carritoViewModel = remember { CarritoViewModel(uiStateViewModel, sharedViewModel = sharedViewModel) }
+
+                NavigationHandleDeepLink.carritoViewModel = carritoViewModel
 
                 Scaffold(
                     modifier = Modifier

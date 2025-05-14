@@ -1,5 +1,6 @@
 ﻿package org.example.projects.Screens.CommonParts
 
+import AppColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -118,7 +119,7 @@ fun HeaderConHamburguesa(
                 else -> {}
             }
         },
-        backgroundColor = Color(0xFF4CAF50),
+        backgroundColor = AppColors.primary,
         contentColor = Color.White,
         elevation = 4.dp,
         navigationIcon = {
