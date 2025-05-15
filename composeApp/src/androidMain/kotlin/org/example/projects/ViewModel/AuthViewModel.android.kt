@@ -106,7 +106,7 @@ actual class AuthViewModel actual constructor(
     }
 
     actual fun fetchCesta(token:String) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             try {
                 val response = API.apiService.getCesta(token)
                 _cesta.value = response

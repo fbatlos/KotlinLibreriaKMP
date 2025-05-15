@@ -52,7 +52,6 @@ import org.example.projects.NavController.AppRoutes
 import org.example.projects.ViewModel.*
 
 fun obtenerLibro(idLibro:String? , libros:List<Libro>):Libro = libros.filter { it._id == idLibro }.first()
-
 @Composable
 fun CarritoScreen(
     navController: Navegator,
@@ -65,8 +64,6 @@ fun CarritoScreen(
 ) {
     val items by carritoViewModel.items.collectAsState()
     val total by carritoViewModel.total.collectAsState()
-    val pagoEstado by carritoViewModel.pagoEstado.collectAsState()
-
     val libros by librosViewModel.libros.collectAsState()
 
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -123,15 +120,6 @@ fun CarritoScreen(
                     // Lógica para proceder al pago
                     if (sharedViewModel.token.value != null){
                         carritoViewModel.checkout(Compra(authViewModel.username.value!!,items),sharedViewModel.token.value!!)
-                        when (pagoEstado) {
-                            "exitoso" -> {
-                                // TODO Navega a pantalla de confirmación
-                                navController.navigateTo(AppRoutes.Registro)
-                            }
-                            "error" -> {
-                                //TODO Muestra error
-                            }
-                        }
                     }else{
                         navController.navigateTo(AppRoutes.Login)
                     }

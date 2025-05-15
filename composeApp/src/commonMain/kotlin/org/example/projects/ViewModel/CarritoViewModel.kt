@@ -21,19 +21,23 @@ expect fun registerDeepLinkHandler(onDeepLinkReceived: (String) -> Unit)
 
 class CarritoViewModel(
     private val uiStateViewModel:UiStateViewModel,
+    private val authViewModel: AuthViewModel,
     private val sharedViewModel: SharedViewModel
 ) : ViewModel() {
-    private val _items = MutableStateFlow<List<ItemCompra>>(emptyList())
+    private val _items = MutableStateFlow<List<ItemCompra>>(
+        emptyList()
+    )
     val items: StateFlow<List<ItemCompra>> = _items
+
+    private val _tickets = MutableStateFlow<List<Compra>>(emptyList())
+    val tickets: StateFlow<List<Compra>> = _tickets
 
     val cestaSize: StateFlow<Int> = _items.map { items ->
         items.sumOf { it.cantidad }
     }.stateIn(viewModelScope, SharingStarted.Lazily, 0)
 
     private var _sessionUrl = MutableStateFlow<String?>(null)
-
     private val _sessionId = MutableStateFlow<String?>(null)
-
 
     fun agregarLibro(libro: LibroDTO) {
         _items.update { current ->
@@ -44,6 +48,15 @@ class CarritoViewModel(
                 }
             } else {
                 current + ItemCompra(libro, 1)
+            }
+        }
+
+        viewModelScope.launch {
+            try {
+                API.apiService.addCesta(sharedViewModel.token.value!!,ItemCompra(libro, 1))
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
             }
         }
 
@@ -69,6 +82,15 @@ class CarritoViewModel(
     fun eliminarLibro(libro: LibroDTO) {
         _items.update { current ->
             current.filterNot { it.libro == libro }
+        }
+
+        viewModelScope.launch {
+            try {
+                API.apiService.removeLibroCesta(sharedViewModel.token.value!!,libro._id!!)
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            }
         }
     }
 
@@ -96,8 +118,31 @@ class CarritoViewModel(
     }
 
     fun addTicketCompra(){
-        viewModelScope.launch {
+        viewModelScope.launch { // Usa el viewModelScope de Moko-MVVM
+            uiStateViewModel.setLoading(true)
+            try {
+                API.apiService.addTicket(Compra(authViewModel.username.value!!,_items.value), token = sharedViewModel.token.value!!)
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al subir el ticket: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
+        }
+    }
 
+    fun getTicketsCompra(){
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            try {
+                val response = API.apiService.getTicketCompra(token = sharedViewModel.token.value!!)
+                _tickets.value = response
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al cargar los tickets: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
         }
     }
 
