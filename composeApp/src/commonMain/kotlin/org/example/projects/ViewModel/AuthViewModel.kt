@@ -36,7 +36,7 @@ class AuthViewModel (
     val isLoginEnable: StateFlow<Boolean> = _isLoginEnabled
 
     fun onLogChange(username: String, contrasenia: String) {
-        _username.value = username
+        _username.value = username.replace(" ","")
         _contrasenia.value = contrasenia
         _isLoginEnabled.value = loginEnable(username, contrasenia)
     }

@@ -91,7 +91,7 @@ fun LoginScreen(
             ) {
                 // Logo o título de la app
                 Text(
-                    text = "MostraLibros",
+                    text = "LeafRead",
                     style = MaterialTheme.typography.h4.copy(
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4CAF50)

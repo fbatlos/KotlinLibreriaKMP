@@ -1,47 +1,32 @@
 ﻿package org.example.projects.Screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.es.aplicacion.dto.LibroDTO
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.TipoStock
 import org.example.projects.NavController.AppRoutes
-import org.example.projects.NavController.AppRoutes.LibroLista.route
 import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
@@ -52,22 +37,23 @@ import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 
 @Composable
-expect fun ImagenLibroDetails(url: String?, contentDescription: String?,modifier: Modifier )
+expect fun ImagenLibroDetails(url: String?, contentDescription: String?, modifier: Modifier)
 
 @Composable
 fun LibroDetailScreen(
     navController: Navegator,
-    authViewModel:AuthViewModel,
-    librosViewModel:LibrosViewModel,
+    authViewModel: AuthViewModel,
+    librosViewModel: LibrosViewModel,
     carritoViewModel: CarritoViewModel
-){
+) {
     val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
     val librosSelected by librosViewModel.libroSelected.collectAsState()
+    var rating by remember { mutableStateOf(0) }
+    var comentario by remember { mutableStateOf("") }
 
     LaunchedEffect(librosSelected?.categorias) {
         librosSelected?.categorias?.firstOrNull()?.let { categoria ->
-            println(categoria.replace("³","").replace("+"," "))
-            librosViewModel.getLibrosByCategorias(categoria.replace("³","").replace("+"," "))
+            librosViewModel.getLibrosByCategorias(categoria.replace("³", "").replace("+", " "))
         }
     }
 
@@ -91,46 +77,44 @@ fun LibroDetailScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
+                .background(AppColors.silver)
         ) {
-            // Sección de imagen
+            // Imagen con proporción ajustada para no deformar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(280.dp)
-                    .background(AppColors.greyBlue.copy(alpha = 0.1f))
+                    .aspectRatio(0.65f) // Ajusta según proporción real de tus imágenes
+                    .background(AppColors.white, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                    .shadow(6.dp, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             ) {
                 ImagenLibroDetails(
                     url = librosSelected?.imagen,
                     contentDescription = librosSelected?.titulo,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                        .align(Alignment.TopCenter)
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
                 )
 
-                // Estado del libro (Nuevo, Popular, etc.)
                 librosSelected?.stock?.tipo?.let { estado ->
                     Box(
                         modifier = Modifier
-                            .padding(12.dp)
+                            .padding(16.dp)
                             .background(
                                 color = when (estado) {
-                                    TipoStock.EN_STOCK -> AppColors.success.copy(alpha = 0.9f)
-                                    TipoStock.PREVENTA -> AppColors.warning.copy(alpha = 0.9f)
-                                    TipoStock.AGOTADO -> AppColors.error.copy(alpha = 0.9f)
-                                    else -> AppColors.primary.copy(alpha = 0.9f)
+                                    TipoStock.EN_STOCK -> AppColors.success.copy(alpha = 0.85f)
+                                    TipoStock.PREVENTA -> AppColors.warning.copy(alpha = 0.85f)
+                                    TipoStock.AGOTADO -> AppColors.error.copy(alpha = 0.85f)
+                                    else -> AppColors.primary.copy(alpha = 0.85f)
                                 },
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(12.dp)
                             )
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .padding(horizontal = 14.dp, vertical = 8.dp)
                             .align(Alignment.TopStart)
                     ) {
                         Text(
                             text = estado.toString(),
                             color = AppColors.white,
-                            style = MaterialTheme.typography.caption,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.SemiBold)
                         )
                     }
                 }
@@ -138,9 +122,10 @@ fun LibroDetailScreen(
 
             // Contenido principal
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .fillMaxWidth()
             ) {
-                // Título y precio
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -148,89 +133,85 @@ fun LibroDetailScreen(
                 ) {
                     Text(
                         text = librosSelected?.titulo?.replace("+", " ") ?: "Sin título",
-                        style = MaterialTheme.typography.h4,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.ExtraBold),
                         color = AppColors.black,
-                        modifier = Modifier.weight(0.7f)
+                        modifier = Modifier.weight(0.75f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     Text(
                         text = "${librosSelected?.precio?.toString() ?: "N/A"} ${librosSelected?.moneda ?: ""}",
-                        style = MaterialTheme.typography.h5,
-                        color = AppColors.primary,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
+                        color = AppColors.primary
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                // Autores
-                librosSelected?.autores.takeIf { it?.isNotEmpty()  == true}?.let { autores ->
+                librosSelected?.autores.takeIf { it?.isNotEmpty() == true }?.let { autores ->
                     Text(
                         text = autores.joinToString(", ").replace("+", " "),
-                        style = MaterialTheme.typography.subtitle1,
-                        color = AppColors.black
+                        style = MaterialTheme.typography.subtitle2.copy(color = AppColors.grey)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
-
-                // Botón de añadir a la cesta
                 Button(
                     onClick = {
-                        carritoViewModel.agregarLibro(Utils.castearLibroToLibroDTO(librosSelected ?: throw Exception("No se puede añadir un libro no existente.")) )
+                        carritoViewModel.agregarLibro(
+                            Utils.castearLibroToLibroDTO(
+                                librosSelected ?: throw Exception("No se puede añadir un libro no existente.")
+                            )
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    shape = RoundedCornerShape(12.dp),
+                        .height(50.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
+                        backgroundColor = AppColors.primary,
                         contentColor = AppColors.white
                     ),
-                    enabled = if (librosSelected?.stock?.tipo == TipoStock.AGOTADO){false}else{true}
+                    enabled = librosSelected?.stock?.tipo != TipoStock.AGOTADO
                 ) {
                     Text(
                         "Añadir a la cesta",
-                        modifier = Modifier.padding(4.dp)
+                        style = MaterialTheme.typography.button.copy(fontSize = 16.sp)
                     )
                 }
 
-                // Descripción
+                Spacer(modifier = Modifier.height(24.dp))
+
                 Text(
                     text = "Descripción",
-                    style = MaterialTheme.typography.subtitle1,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold),
                     color = AppColors.black,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 Text(
                     text = librosSelected?.descripcion?.replace("+", " ") ?: "No hay descripción disponible",
-                    style = MaterialTheme.typography.body1,
-                    color = AppColors.black
+                    style = MaterialTheme.typography.body2.copy(color = AppColors.darkGrey),
+                    lineHeight = 20.sp
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
-                // Categorías relacionadas
                 librosSelected?.categorias.takeIf { it?.isNotEmpty() == true }?.let { categorias ->
                     Text(
                         text = "Te interesan estas categorías...",
-                        style = MaterialTheme.typography.subtitle1,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold),
                         color = AppColors.black,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
-                    // Grid de categorías
                     LazyHorizontalGrid(
                         rows = GridCells.Fixed(1),
-                        modifier = Modifier.height(150.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier.height(160.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-
-                        println(librosSugeridos)
                         items(librosSugeridos) { libro ->
                             LibroSugeridoItem(
                                 libro = libro,
@@ -241,19 +222,26 @@ fun LibroDetailScreen(
                             )
                         }
                     }
-
                 }
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                RatingComentario(
+                    rating = rating,
+                    onRatingChanged = { rating = it },
+                    comentario = comentario,
+                    onComentarioChanged = { comentario = it }
+                )
             }
         }
     }
 }
 
-// Componente para libros relacionados
 @Composable
 fun LibroSugeridoItem(libro: Libro, onClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .width(120.dp)
+            .width(130.dp)
             .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -261,25 +249,76 @@ fun LibroSugeridoItem(libro: Libro, onClick: () -> Unit) {
             url = libro.imagen,
             contentDescription = libro.titulo,
             modifier = Modifier
-                .size(120.dp, 160.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .size(width = 130.dp, height = 180.dp)
+                .clip(RoundedCornerShape(12.dp))
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = libro.titulo?.replace("+", " ") ?: "",
-            style = MaterialTheme.typography.caption,
-            color = AppColors.black,
-            maxLines = 1,
+            style = MaterialTheme.typography.caption.copy(color = AppColors.black),
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
 
         Text(
             text = "${libro.precio?.toString() ?: ""} ${libro.moneda ?: ""}",
-            style = MaterialTheme.typography.caption,
-            color = AppColors.primary,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.caption.copy(
+                color = AppColors.primary,
+                fontWeight = FontWeight.Bold
+            )
+        )
+    }
+}
+
+@Composable
+fun RatingComentario(
+    rating: Int,
+    onRatingChanged: (Int) -> Unit,
+    comentario: String,
+    onComentarioChanged: (String) -> Unit
+) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = "Califica el producto",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier.padding(bottom = 8.dp),
+            color = AppColors.black
+        )
+
+        Row {
+            for (i in 1..5) {
+                IconButton(onClick = { onRatingChanged(i) }) {
+                    Icon(
+                        imageVector = if (i <= rating) Icons.Default.Star else Icons.Outlined.Star,
+                        contentDescription = "Estrella $i",
+                        tint = if (i <= rating) AppColors.warning else AppColors.grey,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextField(
+            value = comentario,
+            onValueChange = onComentarioChanged,
+            label = { Text("Comentario") },
+            placeholder = { Text("Escribe tu opinión...") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = AppColors.white,
+                focusedIndicatorColor = AppColors.primary,
+                unfocusedIndicatorColor = AppColors.greyBlue,
+                cursorColor = AppColors.primary,
+                textColor = AppColors.black,
+                placeholderColor = AppColors.grey
+            )
         )
     }
 }
