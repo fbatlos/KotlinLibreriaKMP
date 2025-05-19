@@ -14,6 +14,7 @@ class Navigator(
             is AppRoutes.LibroDetalles -> navController.navigate(route.route)
             is AppRoutes.Registro -> {}
             is AppRoutes.Carrito -> {navController.navigate(route.route)}
+            AppRoutes.HistorialCompra -> {navController.navigate(route.route)}
         }
     }
 

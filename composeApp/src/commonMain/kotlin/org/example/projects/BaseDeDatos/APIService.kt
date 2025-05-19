@@ -32,6 +32,7 @@ interface APIService {
 
     suspend fun getCesta(token: String):MutableList<ItemCompra>
     suspend fun addCesta(token: String, itemCompra: ItemCompra):String
+    suspend fun updateCesta(token: String,itemsCompra:List<ItemCompra>):String
     suspend fun removeLibroCesta(token: String, idLibro: String):HttpResponse
 
     suspend fun checkout(compra: Compra,token: String) : Map<String, String>

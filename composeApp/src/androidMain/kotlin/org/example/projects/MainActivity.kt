@@ -23,6 +23,7 @@ import org.example.projects.NavController.Navigator
 import org.example.projects.Screens.CarritoScreen
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LoginScreen
+import org.example.projects.Screens.TicketCompraScreen
 import org.example.projects.Utils.LibroSerializer.toLibro
 import org.example.projects.ViewModel.AppContextProvider
 import org.example.projects.ViewModel.AuthViewModel
@@ -47,7 +48,7 @@ class MainActivity : ComponentActivity() {
                 val sharedViewModel = remember { SharedViewModel() }
                 val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
                 val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
-                val carritoViewModel = remember { CarritoViewModel(uiStateViewModel, sharedViewModel = sharedViewModel) }
+                val carritoViewModel = remember { CarritoViewModel(uiStateViewModel, sharedViewModel = sharedViewModel, authViewModel = authViewModel) }
 
                 NavigationHandleDeepLink.carritoViewModel = carritoViewModel
 
@@ -103,6 +104,18 @@ class MainActivity : ComponentActivity() {
                                     sharedViewModel = sharedViewModel,
                                     librosViewModel = libroViewModel,
                                     carritoViewModel = carritoViewModel
+                                )
+                            }
+
+                            composable(
+                                route = AppRoutes.HistorialCompra.route
+                            ){
+                                TicketCompraScreen(
+                                    navController = navigator,
+                                    carritoViewModel = carritoViewModel,
+                                    authViewModel = authViewModel,
+                                    uiViewModel = uiStateViewModel,
+                                    sharedViewModel = sharedViewModel
                                 )
                             }
 

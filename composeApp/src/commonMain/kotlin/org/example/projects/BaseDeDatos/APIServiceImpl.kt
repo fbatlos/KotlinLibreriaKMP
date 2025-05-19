@@ -108,7 +108,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.NoContent -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
             HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)
@@ -168,13 +168,30 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
     }
 
+    override suspend fun updateCesta(token: String, itemsCompra: List<ItemCompra>): String {
+        val response = client.put("usuarios/cesta") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody(itemsCompra)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
     override suspend fun removeLibroCesta(token: String, idLibro: String): HttpResponse {
         val response = client.delete("usuarios/cesta/$idLibro") {
             header(HttpHeaders.Authorization, "Bearer $token")
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.NoContent -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
             HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)

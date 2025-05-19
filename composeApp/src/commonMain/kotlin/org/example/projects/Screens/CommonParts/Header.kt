@@ -67,6 +67,7 @@ fun HeaderConHamburguesa(
     var query by remember { mutableStateOf("") }
     val cestaSize by carritoViewModel.cestaSize.collectAsState()
 
+    //TODO AÑADIR CABEZERA DE TODAS LAS PESTAÑAS
     TopAppBar(
         title = {
             when(navController.getCurrentRoute() ) {
@@ -116,6 +117,14 @@ fun HeaderConHamburguesa(
 
                     Text(text = "Volver")
                 }
+
+                is AppRoutes.HistorialCompra -> {
+                    TopAppBar(
+                        title = { Text("Mis Compras", color = AppColors.white) },
+                        backgroundColor = AppColors.primary
+                    )
+                }
+
                 else -> {}
             }
         },
@@ -216,9 +225,13 @@ fun MenuBurger(
                                 navController.navigateTo(AppRoutes.Login)
                                 selected = "Mi Perfil"
                             }
-                            "Inicio" -> {
+                            "Catálogo" -> {
                                 navController.navigateTo(AppRoutes.LibroLista)
-                                selected = "Inicio"
+                                selected = "Catálogo"
+                            }
+                            "Historial de pedidos" -> {
+                                navController.navigateTo(AppRoutes.HistorialCompra)
+                                selected = "Historial de pedidos"
                             }
                             //TODO implementar las demas ventanitas
                         }
@@ -264,13 +277,13 @@ fun MenuBurger(
         ) {
             Icon(
                 imageVector = Icons.Default.Info,
-                contentDescription = "Nose",
+                contentDescription = "Nombre",
                 tint = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "No sé que poner aquí",
+                text = "Francisco José Batista de los Santos",
                 style = MaterialTheme.typography.caption,
                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
             )

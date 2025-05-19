@@ -22,6 +22,7 @@ import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,8 +49,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.es.aplicacion.dto.LibroDTO
 import kotlinx.coroutines.FlowPreview
 import org.example.projects.BaseDeDatos.model.Compra
+import org.example.projects.BaseDeDatos.model.Direccion
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.ViewModel.*
+import java.time.LocalDateTime
 
 fun obtenerLibro(idLibro:String? , libros:List<Libro>):Libro = libros.filter { it._id == idLibro }.first()
 @Composable
@@ -119,7 +122,9 @@ fun CarritoScreen(
                 ResumenCompra(total = total, onCheckout = {
                     // Lógica para proceder al pago
                     if (sharedViewModel.token.value != null){
-                        carritoViewModel.checkout(Compra(authViewModel.username.value!!,items),sharedViewModel.token.value!!)
+                        uiStateViewModel.setLoading(true)
+                        carritoViewModel.checkout(Compra(authViewModel.username.value!!,items,LocalDateTime.now().toString()),sharedViewModel.token.value!!)
+                        uiStateViewModel.setLoading(false)
                     }else{
                         navController.navigateTo(AppRoutes.Login)
                     }
@@ -387,7 +392,7 @@ private fun EmptyCartView(navController: Navegator) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Tu carrito de MostraLibros está vacío",
+            text = "Tu carrito de LeafRead está vacío",
             style = MaterialTheme.typography.h6,
             color = AppColors.darkGrey,
             fontWeight = FontWeight.Bold
@@ -408,7 +413,7 @@ private fun EmptyCartView(navController: Navegator) {
             onClick = { navController.navigateTo(AppRoutes.LibroLista) },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppColors.primary,
-                contentColor = AppColors.grey
+                contentColor = AppColors.white
             ),
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier

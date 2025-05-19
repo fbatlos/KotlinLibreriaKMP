@@ -14,6 +14,7 @@ import org.example.projects.Screens.CarritoScreen
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LibrosScreen
 import org.example.projects.Screens.LoginScreen
+import org.example.projects.Screens.TicketCompraScreen
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
@@ -28,7 +29,7 @@ fun main() = application {
     val sharedViewModel = remember { SharedViewModel() }
     val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
     val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
-    val carritoViewModel = remember { CarritoViewModel(uiStateViewModel,sharedViewModel) }
+    val carritoViewModel = remember { CarritoViewModel(uiStateViewModel,authViewModel,sharedViewModel) }
 
     Window(onCloseRequest = ::exitApplication, title = "LeafRead" , icon = BitmapPainter(useResource("logo_libreria.png", ::loadImageBitmap))) {
         MaterialTheme {
@@ -68,7 +69,15 @@ fun main() = application {
                     )
                 }
 
-                is AppRoutes.HistorialCompra -> {}
+                is AppRoutes.HistorialCompra -> {
+                    TicketCompraScreen(
+                        navController = navigator,
+                        carritoViewModel = carritoViewModel,
+                        authViewModel = authViewModel,
+                        uiViewModel = uiStateViewModel,
+                        sharedViewModel = sharedViewModel
+                    )
+                }
             }
         }
     }

@@ -12,6 +12,7 @@ import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
+import java.time.LocalDateTime
 
 expect fun openUrl(url: String)
 
@@ -77,6 +78,16 @@ class CarritoViewModel(
                 current
             }
         }
+
+        viewModelScope.launch {
+            try {
+                API.apiService.updateCesta(sharedViewModel.token.value!!,_items.value)
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error: ${e.message} aaaaaa")
+                uiStateViewModel.setShowDialog(true)
+            }
+        }
+
     }
 
     fun eliminarLibro(libro: LibroDTO) {
@@ -88,7 +99,7 @@ class CarritoViewModel(
             try {
                 API.apiService.removeLibroCesta(sharedViewModel.token.value!!,libro._id!!)
             } catch (e: Exception) {
-                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setTextError("Error: ${e.message} aaaaaa")
                 uiStateViewModel.setShowDialog(true)
             }
         }
@@ -102,7 +113,6 @@ class CarritoViewModel(
             withContext(Dispatchers.Main) {
                 _sessionUrl.value = response["url"]
                 _sessionId.value = response["sessionId"]
-                println(response["sessionId"])
                 openUrl(_sessionUrl.value!!)
             }
         }
@@ -112,7 +122,7 @@ class CarritoViewModel(
     fun verEstadoPago(pagado:Boolean){
         if (pagado){
             //TODO API PARA CREAR EL TICKET
-            _items.value = emptyList()
+            println(_items.value)
             addTicketCompra()
         }
     }
@@ -121,7 +131,8 @@ class CarritoViewModel(
         viewModelScope.launch { // Usa el viewModelScope de Moko-MVVM
             uiStateViewModel.setLoading(true)
             try {
-                API.apiService.addTicket(Compra(authViewModel.username.value!!,_items.value), token = sharedViewModel.token.value!!)
+                API.apiService.addTicket(Compra(authViewModel.username.value!!,_items.value,LocalDateTime.now().toString()), token = sharedViewModel.token.value!!)
+                _items.value = emptyList()
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al subir el ticket: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
@@ -133,15 +144,12 @@ class CarritoViewModel(
 
     fun getTicketsCompra(){
         viewModelScope.launch {
-            uiStateViewModel.setLoading(true)
             try {
                 val response = API.apiService.getTicketCompra(token = sharedViewModel.token.value!!)
-                _tickets.value = response
+                _tickets.value = response.sortedByDescending { it.fechaCompra }
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al cargar los tickets: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
-            } finally {
-                uiStateViewModel.setLoading(false)
             }
         }
     }
