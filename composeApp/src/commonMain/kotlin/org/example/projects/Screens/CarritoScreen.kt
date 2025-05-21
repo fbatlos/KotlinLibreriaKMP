@@ -109,6 +109,7 @@ fun CarritoScreen(
                             onRemove = {
                                 libroToDelete = libroDto
                                 showDeleteDialog = true
+                                carritoViewModel.actualizarCantidad(null, nuevaCantidad = null)
                             },
                             onQuantityChange = { nuevaCantidad ->
                                 carritoViewModel.actualizarCantidad(libroDto, nuevaCantidad)
@@ -121,7 +122,7 @@ fun CarritoScreen(
                 // Resumen de compra
                 ResumenCompra(total = total, onCheckout = {
                     // Lógica para proceder al pago
-                    if (sharedViewModel.token.value != null){
+                    if (!sharedViewModel.token.value.isNullOrBlank()){
                         uiStateViewModel.setLoading(true)
                         carritoViewModel.checkout(Compra(authViewModel.username.value!!,items,LocalDateTime.now().toString()),sharedViewModel.token.value!!)
                         uiStateViewModel.setLoading(false)

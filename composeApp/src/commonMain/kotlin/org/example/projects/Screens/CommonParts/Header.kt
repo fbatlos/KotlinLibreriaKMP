@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -151,15 +152,15 @@ fun HeaderConHamburguesa(
                 if (cestaSize > 0) {
                     Box(
                         modifier = Modifier
-                            .size(22.dp)
+                            .size(25.dp)
                             .clip(CircleShape)
                             .background(AppColors.error),
-                        contentAlignment = Alignment.TopCenter
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = if (cestaSize > 9) "9+" else "${cestaSize}",
                             color = Color.White,
-                            fontSize = 18.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -184,10 +185,10 @@ fun MenuBurger(
     ) {
         // Encabezado del menú
         Text(
-            text = "MostraLibros",
+            text = "LeafRead",
             style = MaterialTheme.typography.h5.copy(
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colors.primary
+                color = AppColors.primary
             ),
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -205,7 +206,7 @@ fun MenuBurger(
         // Items del menú
         val menuItems = listOf(
             "Inicio" to Icons.Default.Home,
-            "Catálogo" to Icons.Default.Build,
+            "Catálogo" to Icons.Outlined.ThumbUp,
             "Mi Perfil" to Icons.Default.Person,
             "Mis Reseñas" to Icons.Default.Edit,
             "Historial de pedidos" to Icons.Filled.MoreVert,
@@ -261,7 +262,6 @@ fun MenuBurger(
 
                 if (item == "Catálogo") {
                     Spacer(modifier = Modifier.weight(1f))
-
                 }
             }
         }

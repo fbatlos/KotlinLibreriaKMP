@@ -52,42 +52,46 @@ class CarritoViewModel(
             }
         }
 
-        viewModelScope.launch {
-            try {
-                API.apiService.addCesta(sharedViewModel.token.value!!,ItemCompra(libro, 1))
-            } catch (e: Exception) {
-                uiStateViewModel.setTextError("Error: ${e.message}")
-                uiStateViewModel.setShowDialog(true)
+        if (!sharedViewModel.token.value.isNullOrBlank()) {
+            viewModelScope.launch {
+                try {
+                    API.apiService.addCesta(sharedViewModel.token.value!!, ItemCompra(libro, 1))
+                } catch (e: Exception) {
+                    uiStateViewModel.setTextError("Error: ${e.message}")
+                    uiStateViewModel.setShowDialog(true)
+                }
             }
         }
-
     }
 
-    fun actualizarCantidad(libro: LibroDTO, nuevaCantidad: Int) {
-        _items.update { current ->
-            val index = current.indexOfFirst { it.libro == libro }
-            if (index != -1) {
-                if (nuevaCantidad <= 0) {
-                    current.toMutableList().apply { removeAt(index) }
-                } else {
-                    current.toMutableList().apply {
-                        this[index] = this[index].copy(cantidad = nuevaCantidad)
+    fun actualizarCantidad(libro: LibroDTO?, nuevaCantidad: Int?) {
+        if (nuevaCantidad != null) {
+            _items.update { current ->
+                val index = current.indexOfFirst { it.libro == libro }
+                if (index != -1) {
+                    if (nuevaCantidad <= 0) {
+                        current.toMutableList().apply { removeAt(index) }
+                    } else {
+                        current.toMutableList().apply {
+                            this[index] = this[index].copy(cantidad = nuevaCantidad)
+                        }
                     }
+                } else {
+                    current
                 }
-            } else {
-                current
             }
         }
 
-        viewModelScope.launch {
-            try {
-                API.apiService.updateCesta(sharedViewModel.token.value!!,_items.value)
-            } catch (e: Exception) {
-                uiStateViewModel.setTextError("Error: ${e.message} aaaaaa")
-                uiStateViewModel.setShowDialog(true)
+        if (!sharedViewModel.token.value.isNullOrBlank()){
+            viewModelScope.launch {
+                try {
+                    API.apiService.updateCesta(sharedViewModel.token.value!!, _items.value)
+                } catch (e: Exception) {
+                    uiStateViewModel.setTextError("Error: ${e.message} aaaaaa")
+                    uiStateViewModel.setShowDialog(true)
+                }
             }
         }
-
     }
 
     fun eliminarLibro(libro: LibroDTO) {
@@ -95,12 +99,14 @@ class CarritoViewModel(
             current.filterNot { it.libro == libro }
         }
 
-        viewModelScope.launch {
-            try {
-                API.apiService.removeLibroCesta(sharedViewModel.token.value!!,libro._id!!)
-            } catch (e: Exception) {
-                uiStateViewModel.setTextError("Error: ${e.message} aaaaaa")
-                uiStateViewModel.setShowDialog(true)
+        if (!sharedViewModel.token.value.isNullOrBlank()) {
+            viewModelScope.launch {
+                try {
+                    API.apiService.removeLibroCesta(sharedViewModel.token.value!!, libro._id!!)
+                } catch (e: Exception) {
+                    uiStateViewModel.setTextError("Error: ${e.message} aaaaaa")
+                    uiStateViewModel.setShowDialog(true)
+                }
             }
         }
     }
@@ -150,6 +156,20 @@ class CarritoViewModel(
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al cargar los tickets: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
+            }
+        }
+    }
+
+    fun getCesta(){
+        if ( !sharedViewModel.token.value.isNullOrBlank()) {
+            viewModelScope.launch {
+                try {
+                    val response = API.apiService.getCesta(token = sharedViewModel.token.value!!)
+                    _items.value = response
+                } catch (e: Exception) {
+                    uiStateViewModel.setTextError("Error al cargar la cesta: ${e.message}")
+                    uiStateViewModel.setShowDialog(true)
+                }
             }
         }
     }

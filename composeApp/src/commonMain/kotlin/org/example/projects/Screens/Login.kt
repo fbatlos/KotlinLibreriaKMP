@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.*
+import org.example.projects.BaseDeDatos.API
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
@@ -131,6 +132,7 @@ fun LoginScreen(
                             password = contrasenia,
                             callback = { success ->
                                 if (success) {
+                                    carritoViewModel.getCesta()
                                     navController.navigateTo(AppRoutes.LibroLista)
                                 }
                             }

@@ -1,5 +1,6 @@
 ﻿package org.example.projects.Screens
 
+import AppColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,15 +85,17 @@ fun LibroDetailScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(0.65f) // Ajusta según proporción real de tus imágenes
+                    .aspectRatio(0.65f)
                     .background(AppColors.white, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-                    .shadow(6.dp, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                    .shadow(6.dp, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+                contentAlignment = Alignment.Center
             ) {
                 ImagenLibroDetails(
                     url = librosSelected?.imagen,
                     contentDescription = librosSelected?.titulo,
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth(0.8f)
+                        .height(500.dp)
                         .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
                 )
 
@@ -196,7 +200,15 @@ fun LibroDetailScreen(
                     lineHeight = 20.sp
                 )
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Divider(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp, bottom = 40.dp)
+                    ,
+                    color = AppColors.primary,
+                    thickness = 2.dp
+                )
 
                 librosSelected?.categorias.takeIf { it?.isNotEmpty() == true }?.let { categorias ->
                     Text(
@@ -208,7 +220,8 @@ fun LibroDetailScreen(
 
                     LazyHorizontalGrid(
                         rows = GridCells.Fixed(1),
-                        modifier = Modifier.height(160.dp),
+                        modifier = Modifier
+                            .height(250.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
@@ -224,7 +237,15 @@ fun LibroDetailScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Divider(
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp, bottom = 20.dp)
+                    ,
+                    color = AppColors.primary,
+                    thickness = 2.dp
+                )
 
                 RatingComentario(
                     rating = rating,
@@ -239,36 +260,47 @@ fun LibroDetailScreen(
 
 @Composable
 fun LibroSugeridoItem(libro: Libro, onClick: () -> Unit) {
-    Column(
+    Card (
         modifier = Modifier
-            .width(130.dp)
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        ImagenLibroDetails(
-            url = libro.imagen,
-            contentDescription = libro.titulo,
+            .width(200.dp)
+            .padding(5.dp)
+            .shadow(2.dp)
+    ){
+        Column(
             modifier = Modifier
-                .size(width = 130.dp, height = 180.dp)
-                .clip(RoundedCornerShape(12.dp))
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = libro.titulo?.replace("+", " ") ?: "",
-            style = MaterialTheme.typography.caption.copy(color = AppColors.black),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Text(
-            text = "${libro.precio?.toString() ?: ""} ${libro.moneda ?: ""}",
-            style = MaterialTheme.typography.caption.copy(
-                color = AppColors.primary,
-                fontWeight = FontWeight.Bold
+                .width(130.dp)
+                .clickable(onClick = onClick),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ImagenLibroDetails(
+                url = libro.imagen,
+                contentDescription = libro.titulo,
+                modifier = Modifier
+                    .size(width = 130.dp, height = 180.dp)
+                    .padding(top = 4.dp)
+                    .clip(RoundedCornerShape(12.dp))
             )
-        )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = libro.titulo?.replace("+", " ") ?: "",
+                style = MaterialTheme.typography.caption.copy(color = AppColors.black),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+            )
+
+            Text(
+                text = "${libro.precio?.toString() ?: ""} ${libro.moneda ?: ""}",
+                style = MaterialTheme.typography.caption.copy(
+                    color = AppColors.primary,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+            )
+        }
     }
 }
 
@@ -279,6 +311,7 @@ fun RatingComentario(
     comentario: String,
     onComentarioChanged: (String) -> Unit
 ) {
+    var enableComentar by remember { mutableStateOf(false) }
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = "Califica el producto",
@@ -317,8 +350,37 @@ fun RatingComentario(
                 unfocusedIndicatorColor = AppColors.greyBlue,
                 cursorColor = AppColors.primary,
                 textColor = AppColors.black,
-                placeholderColor = AppColors.grey
+                placeholderColor = AppColors.grey,
+                disabledLabelColor = AppColors.primary,
+                disabledPlaceholderColor = AppColors.primary
             )
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (rating!=0 && comentario.length >= 4){
+            enableComentar = true
+        }else{
+            enableComentar = false
+        }
+
+        Button(
+            onClick = {
+
+            } ,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = AppColors.primary,
+                contentColor = AppColors.white
+            ),
+            //TODO Check compra
+            enabled = enableComentar
+        ){
+            Text("Enviar", style = MaterialTheme.typography.button.copy(fontSize = 16.sp))
+        }
+
     }
 }

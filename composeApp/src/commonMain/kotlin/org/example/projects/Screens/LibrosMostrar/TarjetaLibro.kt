@@ -40,9 +40,9 @@ fun TarjetaLibro(
 
     Card(
         modifier = modifier
-            .width(100.dp)  // Tamaño base adaptable
-            .height(200.dp)
-            .padding(8.dp)
+            .width(100.dp)
+            .height(220.dp)
+            .padding(5.dp)
             .clickable(
                 onClick = {
                     librosViewModel.putLibroSelected(libro)
@@ -81,7 +81,7 @@ fun TarjetaLibro(
             // Título (truncado si es muy largo)
             Text(
                 text = libro.titulo ?: "Sin título",
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
                 modifier = Modifier.padding(horizontal = 8.dp)
