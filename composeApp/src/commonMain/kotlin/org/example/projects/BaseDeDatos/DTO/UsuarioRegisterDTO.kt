@@ -10,6 +10,5 @@ data class UsuarioRegisterDTO(
     val email: String,
     val password: String,
     val passwordRepeat: String,
-    val rol: String? = "USER",
-    var direccion: MutableList<Direccion>
+    val rol: String? = "USER"
 )

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
+import org.example.projects.BaseDeDatos.DTO.UsuarioRegisterDTO
 import org.example.projects.BaseDeDatos.model.Direccion
 import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
@@ -29,8 +30,6 @@ class AuthViewModel (
     private var _direcciones = MutableStateFlow<MutableList<Direccion>>(mutableListOf())
     val direcciones: StateFlow<MutableList<Direccion>> = _direcciones
 
-    private var _cesta = MutableStateFlow<MutableList<ItemCompra>>(mutableListOf())
-    val cesta:StateFlow<MutableList<ItemCompra>> = _cesta
 
     private var _isLoginEnabled = MutableStateFlow(false)
     val isLoginEnable: StateFlow<Boolean> = _isLoginEnabled
@@ -67,7 +66,6 @@ class AuthViewModel (
 
                 if (loginResult.first) {
                     sharedViewModel.setToken(loginResult.second)
-                    fetchCesta(loginResult.second)
                     true
                 } else {
                     uiStateViewModel.setTextError(loginResult.second)
@@ -84,26 +82,32 @@ class AuthViewModel (
         }
     }
 
+    fun fetchRegister(username: String, email: String, password: String, passwordRepeat: String, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            val result = try {
+                val resultRegister = withContext(Dispatchers.IO) {
+                    API.apiService.postRegister(UsuarioRegisterDTO(username,email,password,passwordRepeat))
+                }
+                uiStateViewModel.setLoading(false)
+                sharedViewModel.setToken(resultRegister.token)
+                //TODO HACER EL GET USARIO Y HACER LA PANTALLA DE MI USUARIO
+                true
+
+            } catch (e: Exception) {
+                uiStateViewModel.setLoading(false)
+                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+                false
+            }
+            callback(result)
+        }
+    }
+
 
     fun fetchUsuario(username: String) {
     }
 
-     fun fetchCesta(token:String) {
-        viewModelScope.launch {
-            try {
-                val response = API.apiService.getCesta(token)
-                _cesta.value = response
-
-            } catch (e: Exception) {
-                uiStateViewModel.setTextError("Error: ${e.message}")
-                uiStateViewModel.setShowDialog(true)
-            }
-        }
-    }
-
-    fun addDireccion(direccion: Direccion) {
-        _direcciones.value.add(direccion)
-    }
 }
 
 private suspend fun validarUsuario(username: String, password: String): Pair<Boolean, String> {

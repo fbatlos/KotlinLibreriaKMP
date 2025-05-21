@@ -251,7 +251,9 @@ fun LibroDetailScreen(
                     rating = rating,
                     onRatingChanged = { rating = it },
                     comentario = comentario,
-                    onComentarioChanged = { comentario = it }
+                    onComentarioChanged = { comentario = it },
+                    libroSelected = librosSelected,
+
                 )
             }
         }
@@ -309,9 +311,12 @@ fun RatingComentario(
     rating: Int,
     onRatingChanged: (Int) -> Unit,
     comentario: String,
-    onComentarioChanged: (String) -> Unit
+    onComentarioChanged: (String) -> Unit,
+    libroSelected:Libro?
 ) {
     var enableComentar by remember { mutableStateOf(false) }
+
+
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = "Califica el producto",
@@ -380,6 +385,27 @@ fun RatingComentario(
             enabled = enableComentar
         ){
             Text("Enviar", style = MaterialTheme.typography.button.copy(fontSize = 16.sp))
+        }
+
+
+        Spacer(Modifier.height(10.dp))
+
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(1),
+            modifier = Modifier
+                .height(250.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(librosSugeridos) { libro ->
+                LibroSugeridoItem(
+                    libro = libro,
+                    onClick = {
+                        librosViewModel.putLibroSelected(libro)
+                        navController.navigateTo(AppRoutes.LibroDetalles)
+                    }
+                )
+            }
         }
 
     }

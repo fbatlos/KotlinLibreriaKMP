@@ -13,7 +13,7 @@ object AppColors {
 
     // Primary Colors
     val primary = Color(21,148,68)//Color(0xFF4CAF50) // Nota: Este color tiene solo 5 dígitos, debería ser 6 u 8
-    val secondary = Color(0xFF263238)
+    val secondary = Color(0xFFA5D6A7)
     val info = Color(0xFF219413)
 
 

@@ -14,21 +14,39 @@ import org.example.projects.BaseDeDatos.model.AuthResponse
 import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
+import org.example.projects.BaseDeDatos.model.Valoracion
 import java.net.URLEncoder
 
 class APIServiceImpl(private val client: HttpClient) : APIService {
     override suspend fun postLogin(usuarioLoginDTO: UsuarioLoginDTO): HttpResponse {
-        return client.post("usuarios/login") {
+        val response = client.post("usuarios/login") {
             contentType(ContentType.Application.Json)
             setBody(usuarioLoginDTO)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
         }
     }
 
     override suspend fun postRegister(usuario: UsuarioRegisterDTO): AuthResponse {
-        return client.post("usuarios/register") {
-            contentType(ContentType.Application.Json)
+        val response =  client.post("usuarios/register") {
             setBody(usuario)
-        }.body()
+        }
+
+        return when (response.status) {
+            HttpStatusCode.Created -> response.body()
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
     }
 
     override suspend fun getUsuario(token: String): UsuarioDTO {
@@ -134,6 +152,33 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             )
         }
     }
+
+    override suspend fun getValoraciones(idLibro: String): List<Valoracion> {
+        val response = client.get("valoracion/$idLibro")
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun addValoracion(valoracion: Valoracion, token: String): String {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun removeValoracion(valoracionId: String, token: String): String {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getMisValoraciones(token: String): List<Valoracion> {
+        TODO("Not yet implemented")
+    }
+
 
     override suspend fun getCesta(token: String): MutableList<ItemCompra> {
         val response = client.get("usuarios/cesta") {
@@ -267,4 +312,6 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             )
         }
     }
+
+
 }

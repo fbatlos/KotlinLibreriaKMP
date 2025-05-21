@@ -23,6 +23,7 @@ import org.example.projects.NavController.Navigator
 import org.example.projects.Screens.CarritoScreen
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LoginScreen
+import org.example.projects.Screens.RegisterScreen
 import org.example.projects.Screens.TicketCompraScreen
 import org.example.projects.Utils.LibroSerializer.toLibro
 import org.example.projects.ViewModel.AppContextProvider
@@ -116,6 +117,18 @@ class MainActivity : ComponentActivity() {
                                     authViewModel = authViewModel,
                                     uiViewModel = uiStateViewModel,
                                     sharedViewModel = sharedViewModel
+                                )
+                            }
+
+                            composable(
+                                route = AppRoutes.Registro.route
+                            ){
+                                RegisterScreen(
+                                    modifier = Modifier,
+                                    navController = navigator,
+                                    authViewModel = authViewModel,
+                                    uiStateViewModel = uiStateViewModel,
+                                    carritoViewModel = carritoViewModel
                                 )
                             }
 

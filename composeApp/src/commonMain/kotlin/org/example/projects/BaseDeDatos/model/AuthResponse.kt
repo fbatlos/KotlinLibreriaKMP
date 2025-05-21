@@ -1,9 +1,10 @@
 ﻿package org.example.projects.BaseDeDatos.model
 
-import org.example.projects.BaseDeDatos.DTO.UsuarioDTO
+import kotlinx.serialization.Serializable
+import org.example.projects.BaseDeDatos.DTO.UsuarioInterfazDTO
 
-
+@Serializable
 data class AuthResponse(
     val token: String,
-    val user: UsuarioDTO
+    val user: UsuarioInterfazDTO
 )

@@ -12,7 +12,7 @@ class Navigator(
             is AppRoutes.Login -> navController.navigate(route.route)
             is AppRoutes.LibroLista -> navController.navigate(route.route)
             is AppRoutes.LibroDetalles -> navController.navigate(route.route)
-            is AppRoutes.Registro -> {}
+            is AppRoutes.Registro -> {navController.navigate(route.route)}
             is AppRoutes.Carrito -> {navController.navigate(route.route)}
             AppRoutes.HistorialCompra -> {navController.navigate(route.route)}
         }
