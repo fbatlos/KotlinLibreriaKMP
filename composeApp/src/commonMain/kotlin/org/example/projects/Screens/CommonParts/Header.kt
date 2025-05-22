@@ -3,6 +3,7 @@
 import AppColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -71,9 +72,9 @@ fun HeaderConHamburguesa(
     //TODO AÑADIR CABEZERA DE TODAS LAS PESTAÑAS
     TopAppBar(
         title = {
-            when(navController.getCurrentRoute() ) {
-
-                is AppRoutes.LibroLista ->TextField(
+            when (navController.getCurrentRoute()) {
+                is AppRoutes.LibroLista -> {
+                    TextField(
                         value = query,
                         onValueChange = {
                             query = it
@@ -83,50 +84,50 @@ fun HeaderConHamburguesa(
                             .fillMaxWidth()
                             .padding(end = 8.dp),
                         placeholder = {
-                            Text(
-                                "Buscar libros...",
-                                color = Color.White.copy(alpha = 0.7f)
-                            )
+                            Text("Buscar libros...", color = AppColors.lightGrey.copy(alpha = 0.7f))
                         },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Buscar",
-                                tint = Color.White
+                                tint = AppColors.lightGrey
                             )
                         },
                         singleLine = true,
                         shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.textFieldColors(
                             textColor = Color.White,
-                            backgroundColor = Color(0xFF4CAF50).copy(alpha = 0.7f),
+                            backgroundColor = AppColors.primary.copy(alpha = 0.7f),
                             cursorColor = Color.White,
                             focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
+                            unfocusedIndicatorColor = Color.Transparent
                         )
-                )
-
-                is AppRoutes.Login -> {}
-
-                is AppRoutes.LibroDetalles -> Row (modifier = Modifier.clickable{navController.popBackStack()}){
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Volver",
-                        tint = Color.White
-                    )
-
-                    Text(text = "Volver")
-                }
-
-                is AppRoutes.HistorialCompra -> {
-                    TopAppBar(
-                        title = { Text("Mis Compras", color = AppColors.white) },
-                        backgroundColor = AppColors.primary
                     )
                 }
 
-                else -> {}
+                else -> {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "LeafRead",
+                            color = AppColors.lightGrey,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+
+                        Spacer(Modifier.weight(1f))
+
+                        IconButton(onClick = { navController.navigateTo(AppRoutes.LibroLista) }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Buscar libros",
+                                tint = AppColors.lightGrey
+                            )
+                        }
+                    }
+                }
             }
         },
         backgroundColor = AppColors.primary,
@@ -136,7 +137,8 @@ fun HeaderConHamburguesa(
             IconButton(onClick = onMenuClick) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Menú"
+                    contentDescription = "Menú",
+                    tint = AppColors.lightGrey
                 )
             }
         },
@@ -146,7 +148,7 @@ fun HeaderConHamburguesa(
                     println(AppRoutes.Carrito)
                     navController.navigateTo(AppRoutes.Carrito)
                 } ) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito")
+                    Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito" , tint = AppColors.lightGrey)
                 }
 
                 if (cestaSize > 0) {
@@ -221,6 +223,11 @@ fun MenuBurger(
                         scope.launch { drawerState.close() }
 
                         when (item) {
+                            "Inicio" ->{
+                                navController.navigateTo(AppRoutes.Inicio)
+                                selected = "Inicio"
+                            }
+
                             "Mi Perfil" -> {
                                 //TODO hacer token para logearte o ver tu perfil real
                                 navController.navigateTo(AppRoutes.Login)
@@ -234,13 +241,14 @@ fun MenuBurger(
                                 navController.navigateTo(AppRoutes.HistorialCompra)
                                 selected = "Historial de pedidos"
                             }
+
                             //TODO implementar las demas ventanitas
                         }
                         println(selected)
                     }
                     .padding(vertical = 14.dp, horizontal = 8.dp)
                     .background(
-                        if (item == selected) MaterialTheme.colors.primary.copy(alpha = 0.2f)
+                        if (item == selected) AppColors.primary.copy(alpha = 0.2f)
                         else Color.Transparent,
                         shape = RoundedCornerShape(8.dp)
                     ),

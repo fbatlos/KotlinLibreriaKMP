@@ -21,6 +21,7 @@ import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.NavigationHandleDeepLink
 import org.example.projects.NavController.Navigator
 import org.example.projects.Screens.CarritoScreen
+import org.example.projects.Screens.InicioScreen
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LoginScreen
 import org.example.projects.Screens.RegisterScreen
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
                     content = { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = AppRoutes.LibroLista.route,
+                            startDestination = AppRoutes.Inicio.route,
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             // Pantalla de Login
@@ -134,6 +135,17 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
+                            composable(
+                                route = AppRoutes.Inicio.route
+                            ){
+                                InicioScreen(
+                                    librosViewModel = libroViewModel,
+                                    sharedViewModel = sharedViewModel,
+                                    navController = navigator,
+                                    authViewModel = authViewModel,
+                                    carritoViewModel = carritoViewModel
+                                )
+                            }
 
                         }
                     }

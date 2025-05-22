@@ -11,6 +11,7 @@ sealed class AppRoutes(val route: String) {
     object Carrito : AppRoutes("carrito")
     object LibroDetalles: AppRoutes("libroDetalles")
     object HistorialCompra: AppRoutes("historialCompra")
+    object Inicio: AppRoutes("inicio")
 
 
     companion object {
@@ -22,6 +23,7 @@ sealed class AppRoutes(val route: String) {
                 route == "libroDetalles" -> LibroDetalles
                 route == "registro" -> Registro
                 route == "historialCompra" -> HistorialCompra
+                route == "inicio" -> Inicio
                 else -> throw IllegalArgumentException("Unknown route: $route")
             }
         }
