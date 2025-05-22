@@ -1,5 +1,6 @@
 package org.example.projects.Screens
 
+import AppColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -144,7 +145,7 @@ fun LoginScreen(
                     enabled = isEnable,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xFF4CAF50),
+                        backgroundColor = AppColors.primary,
                         disabledBackgroundColor = Color(0xFFA5D6A7)
                     )
                 ) {

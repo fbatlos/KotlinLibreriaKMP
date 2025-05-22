@@ -165,7 +165,21 @@ class CarritoViewModel(
             viewModelScope.launch {
                 try {
                     val response = API.apiService.getCesta(token = sharedViewModel.token.value!!)
-                    _items.value = response
+                    when{
+                        _items.value.isEmpty() -> {
+                            _items.value = response
+                        }
+                        _items.value.isNotEmpty() && response.isEmpty() ->{
+                            actualizarCantidad(null,null)
+                        }
+                        _items.value.isNotEmpty() && response.isNotEmpty() -> {
+                            _items.value.forEach {
+                                response.add(it)
+                            }
+                            _items.value = response
+                            actualizarCantidad(null,null)
+                        }
+                    }
                 } catch (e: Exception) {
                     uiStateViewModel.setTextError("Error al cargar la cesta: ${e.message}")
                     uiStateViewModel.setShowDialog(true)

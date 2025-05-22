@@ -110,7 +110,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Created -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
             else -> throw ApiException(
@@ -158,7 +158,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status)
             HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)
             else -> throw ApiException(
                 "Error ${response.status.value}: ${response.status.description}",
@@ -168,7 +168,20 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
     }
 
     override suspend fun addValoracion(valoracion: Valoracion, token: String): String {
-        TODO("Not yet implemented")
+        val response = client.post("valoracion/add") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody(valoracion)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.Created -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.Conflict -> throw ApiException("Error ${response.status.description}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.status.description}",
+                response.status
+            )
+        }
     }
 
     override suspend fun removeValoracion(valoracionId: String, token: String): String {
@@ -203,7 +216,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Created -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
             else -> throw ApiException(

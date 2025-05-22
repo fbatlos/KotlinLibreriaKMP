@@ -25,18 +25,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.TipoStock
+import org.example.projects.BaseDeDatos.model.Valoracion
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.Utils.Utils
-import org.example.projects.ViewModel.AuthViewModel
-import org.example.projects.ViewModel.CarritoViewModel
-import org.example.projects.ViewModel.LibrosViewModel
+import org.example.projects.ViewModel.*
+import java.time.LocalDateTime
 
 @Composable
 expect fun ImagenLibroDetails(url: String?, contentDescription: String?, modifier: Modifier)
@@ -46,17 +49,21 @@ fun LibroDetailScreen(
     navController: Navegator,
     authViewModel: AuthViewModel,
     librosViewModel: LibrosViewModel,
-    carritoViewModel: CarritoViewModel
+    carritoViewModel: CarritoViewModel,
+    sharedViewModel: SharedViewModel,
+    uiStateViewModel: UiStateViewModel
 ) {
     val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
     val librosSelected by librosViewModel.libroSelected.collectAsState()
-    var rating by remember { mutableStateOf(0) }
-    var comentario by remember { mutableStateOf("") }
+
+    val isLoading by uiStateViewModel.isLoading.collectAsState()
 
     LaunchedEffect(librosSelected?.categorias) {
         librosSelected?.categorias?.firstOrNull()?.let { categoria ->
             librosViewModel.getLibrosByCategorias(categoria.replace("³", "").replace("+", " "))
         }
+
+        librosViewModel.fetchValoraciones(librosSelected?._id!!)
     }
 
     LayoutPrincipal(
@@ -248,12 +255,11 @@ fun LibroDetailScreen(
                 )
 
                 RatingComentario(
-                    rating = rating,
-                    onRatingChanged = { rating = it },
-                    comentario = comentario,
-                    onComentarioChanged = { comentario = it },
                     libroSelected = librosSelected,
-
+                    isLoading = isLoading,
+                    librosViewModel = librosViewModel,
+                    authViewModel = authViewModel,
+                    sharedViewModel = sharedViewModel
                 )
             }
         }
@@ -308,14 +314,18 @@ fun LibroSugeridoItem(libro: Libro, onClick: () -> Unit) {
 
 @Composable
 fun RatingComentario(
-    rating: Int,
-    onRatingChanged: (Int) -> Unit,
-    comentario: String,
-    onComentarioChanged: (String) -> Unit,
-    libroSelected:Libro?
+    libroSelected:Libro?,
+    isLoading:Boolean,
+    librosViewModel:LibrosViewModel,
+    authViewModel: AuthViewModel,
+    sharedViewModel: SharedViewModel
 ) {
     var enableComentar by remember { mutableStateOf(false) }
+    var rating by remember { mutableStateOf(0) }
+    var comentario by remember { mutableStateOf("") }
 
+    val valoraciones by librosViewModel.valoraciones.collectAsState()
+    val userName by authViewModel.username.collectAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
@@ -328,7 +338,7 @@ fun RatingComentario(
 
         Row {
             for (i in 1..5) {
-                IconButton(onClick = { onRatingChanged(i) }) {
+                IconButton(onClick = { rating = i }) {
                     Icon(
                         imageVector = if (i <= rating) Icons.Default.Star else Icons.Outlined.Star,
                         contentDescription = "Estrella $i",
@@ -343,7 +353,7 @@ fun RatingComentario(
 
         TextField(
             value = comentario,
-            onValueChange = onComentarioChanged,
+            onValueChange = { comentario = it },
             label = { Text("Comentario") },
             placeholder = { Text("Escribe tu opinión...") },
             modifier = Modifier
@@ -363,7 +373,7 @@ fun RatingComentario(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (rating!=0 && comentario.length >= 4){
+        if (rating!=0 && comentario.length >= 4 && sharedViewModel.token.value != null && valoraciones?.none { it.usuarioName == userName } ?: true){
             enableComentar = true
         }else{
             enableComentar = false
@@ -371,7 +381,11 @@ fun RatingComentario(
 
         Button(
             onClick = {
-
+                val scope = CoroutineScope(Dispatchers.IO)
+                scope.launch {
+                    librosViewModel.addValoracion(Valoracion(null,libroSelected?._id!!,userName,rating,comentario,LocalDateTime.now().toString()))
+                }
+                enableComentar =false
             } ,
             modifier = Modifier
                 .fillMaxWidth()
@@ -384,29 +398,105 @@ fun RatingComentario(
             //TODO Check compra
             enabled = enableComentar
         ){
-            Text("Enviar", style = MaterialTheme.typography.button.copy(fontSize = 16.sp))
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text("Enviar", style = MaterialTheme.typography.button.copy(fontSize = 16.sp))
+            }
         }
 
 
         Spacer(Modifier.height(10.dp))
+        when{
+            valoraciones == null -> {
+                Text("No se encontraron las valoraciones", color = AppColors.error)
+            }
 
-        LazyHorizontalGrid(
-            rows = GridCells.Fixed(1),
-            modifier = Modifier
-                .height(250.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(librosSugeridos) { libro ->
-                LibroSugeridoItem(
-                    libro = libro,
-                    onClick = {
-                        librosViewModel.putLibroSelected(libro)
-                        navController.navigateTo(AppRoutes.LibroDetalles)
+            valoraciones!!.isEmpty() -> {
+                Text("El libro no tiene comentarios", color = AppColors.primary)
+            }
+
+            else -> {
+                LazyHorizontalGrid(
+                    rows = GridCells.Fixed(1),
+                    modifier = Modifier
+                        .height(250.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(valoraciones!!) { valoracion ->
+                        ValoracionesForm(
+                            valoracion = valoracion
+                        )
                     }
-                )
+                }
             }
         }
+    }
+}
 
+@Composable
+fun ValoracionesForm(
+    valoracion: Valoracion
+) {
+    Card(
+        modifier = Modifier
+            .width(260.dp)
+            .padding(8.dp),
+        shape = RoundedCornerShape(16.dp),
+        backgroundColor = AppColors.white,
+        elevation = 6.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Nombre del usuario y fecha
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = valoracion.usuarioName,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = AppColors.black
+                )
+                Text(
+                    text = valoracion.fecha,
+                    fontSize = 12.sp,
+                    color = AppColors.grey
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Valoración con estrellas
+            Row {
+                for (i in 1..5) {
+                    Icon(
+                        imageVector = if (i <= valoracion.valoracion) Icons.Default.Star else Icons.Outlined.Star,
+                        contentDescription = "Estrella $i",
+                        tint = if (i <= valoracion.valoracion) AppColors.warning else AppColors.grey,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Comentario
+            Text(
+                text = valoracion.comentario,
+                fontSize = 14.sp,
+                color = AppColors.darkGrey,
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }

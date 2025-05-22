@@ -53,7 +53,9 @@ fun main() = application {
                         navController = navigator,
                         authViewModel = authViewModel,
                         librosViewModel = libroViewModel,
-                        carritoViewModel = carritoViewModel
+                        carritoViewModel = carritoViewModel,
+                        sharedViewModel = sharedViewModel,
+                        uiStateViewModel = uiStateViewModel
                     )
                 }
                 is AppRoutes.Registro -> {}
