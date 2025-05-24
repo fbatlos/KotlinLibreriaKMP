@@ -2,15 +2,29 @@
 
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 
+open class UiStateViewModel: ViewModel() {
 
-expect open class UiStateViewModel() : ViewModel {
-    val isLoading: StateFlow<Boolean>
-    val showDialog: StateFlow<Boolean>
-    val textError: StateFlow<String>
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _textError = MutableStateFlow("")
+    val textError: StateFlow<String> = _textError
 
-    fun setShowDialog(show: Boolean)
-    fun setTextError(error: String)
-    fun setLoading(loading: Boolean)
+    private val _showDialog = MutableStateFlow(false)
+    val showDialog: StateFlow<Boolean> = _showDialog
+
+    fun setLoading(loading: Boolean) {
+        _isLoading.value = loading
+    }
+
+    fun setTextError(error: String) {
+        _textError.value = error
+    }
+
+    fun setShowDialog(show: Boolean) {
+        _showDialog.value = show
+    }
 }
+

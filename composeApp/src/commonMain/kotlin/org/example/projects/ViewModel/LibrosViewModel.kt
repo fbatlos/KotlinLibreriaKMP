@@ -1,10 +1,6 @@
 ﻿package org.example.projects.ViewModel
 
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
-import io.ktor.client.call.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -34,7 +30,12 @@ class LibrosViewModel (
     private val _valoraciones = MutableStateFlow<List<Valoracion>?>(null)
     val valoraciones: StateFlow<List<Valoracion>?> = _valoraciones
 
+    private val _mediaValoracionesPorLibro = MutableStateFlow<Map<String, Double>>(emptyMap())
+    val mediaValoracionesPorLibro: StateFlow<Map<String, Double>> = _mediaValoracionesPorLibro
+
+
     fun fetchLibros() {
+        uiStateViewModel.setLoading(true)
         viewModelScope.launch {
             try {
                 val result = API.apiService.listarLibros(null, null)
@@ -61,8 +62,6 @@ class LibrosViewModel (
                 } catch (e: Exception) {
                     uiStateViewModel.setTextError("Error al cargar libros: ${e.message}")
                     uiStateViewModel.setShowDialog(true)
-                } finally {
-                    uiStateViewModel.setLoading(false)
                 }
             }
         }
@@ -125,31 +124,35 @@ class LibrosViewModel (
 
 
      fun fetchValoraciones(idLibro: String) {
+         viewModelScope.launch {
+             try {
+                 val valoraciones = API.apiService.getValoraciones(idLibro)
+                 val media = if (valoraciones.isNotEmpty()) {
+                     valoraciones.map { it.valoracion }.average()
+                 } else 0.0
+                _valoraciones.value = valoraciones
+                 _mediaValoracionesPorLibro.value = _mediaValoracionesPorLibro.value + (idLibro to media)
+
+             } catch (e: Exception) {
+                 uiStateViewModel.setTextError("Error al obtener valoraciones: ${e.message}")
+                 uiStateViewModel.setShowDialog(true)
+             }
+         }
+    }
+
+    fun addValoracion(
+        valoracion: Valoracion
+    ){
+        uiStateViewModel.setLoading(true)
         viewModelScope.launch {
-            uiStateViewModel.setLoading(true)
             try {
-                val result = API.apiService.getValoraciones(idLibro)
-                _valoraciones.value = result
+                API.apiService.addValoracion(valoracion, sharedViewModel.token.value!!)
             } catch (e: Exception) {
-                uiStateViewModel.setTextError("Error al cargar valoraciones: ${e.message}")
+                uiStateViewModel.setTextError("Error al añadir valoración: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
             } finally {
                 uiStateViewModel.setLoading(false)
             }
-        }
-    }
-
-    suspend fun addValoracion(
-        valoracion: Valoracion
-    ){
-        uiStateViewModel.setLoading(true)
-        try {
-            API.apiService.addValoracion(valoracion, sharedViewModel.token.value!!)
-        } catch (e: Exception) {
-            uiStateViewModel.setTextError("Error al añadir valoración: ${e.message}")
-            uiStateViewModel.setShowDialog(true)
-        } finally {
-            uiStateViewModel.setLoading(false)
         }
     }
 }

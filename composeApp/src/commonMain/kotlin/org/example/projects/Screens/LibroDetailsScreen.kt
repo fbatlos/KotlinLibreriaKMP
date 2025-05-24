@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -55,6 +56,7 @@ fun LibroDetailScreen(
 ) {
     val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
     val librosSelected by librosViewModel.libroSelected.collectAsState()
+    val mediaValoracion by librosViewModel.mediaValoracionesPorLibro.collectAsState()
 
     val isLoading by uiStateViewModel.isLoading.collectAsState()
 
@@ -232,9 +234,11 @@ fun LibroDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(librosSugeridos) { libro ->
+                        items(librosSugeridos.shuffled().take(6)) { libro ->
                             LibroSugeridoItem(
                                 libro = libro,
+                                mediaValoracion = mediaValoracion,
+                                librosViewModel = librosViewModel,
                                 onClick = {
                                     librosViewModel.putLibroSelected(libro)
                                     navController.navigateTo(AppRoutes.LibroDetalles)
@@ -267,46 +271,102 @@ fun LibroDetailScreen(
 }
 
 @Composable
-fun LibroSugeridoItem(libro: Libro, onClick: () -> Unit) {
-    Card (
-        modifier = Modifier
+fun LibroSugeridoItem(libro: Libro,librosViewModel: LibrosViewModel,mediaValoracion:Map<String,Double>, onClick: () -> Unit) {
+    LaunchedEffect(libro._id) {
+        librosViewModel.fetchValoraciones(libro._id!!)
+    }
+
+    Box(
+        Modifier
             .width(200.dp)
+            .height(250.dp)
             .padding(5.dp)
-            .shadow(2.dp)
-    ){
-        Column(
+    ) {
+        Card(
             modifier = Modifier
-                .width(130.dp)
-                .clickable(onClick = onClick),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .shadow(2.dp)
         ) {
-            ImagenLibroDetails(
-                url = libro.imagen,
-                contentDescription = libro.titulo,
+            Column(
                 modifier = Modifier
-                    .size(width = 130.dp, height = 180.dp)
-                    .padding(top = 4.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            )
+                    .width(130.dp)
+                    .clickable(onClick = onClick),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ImagenLibroDetails(
+                    url = libro.imagen,
+                    contentDescription = libro.titulo,
+                    modifier = Modifier
+                        .size(width = 130.dp, height = 180.dp)
+                        .padding(top = 4.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                )
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = libro.titulo?.replace("+", " ") ?: "",
-                style = MaterialTheme.typography.caption.copy(color = AppColors.black),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(start = 4.dp, end = 4.dp)
-            )
+                Text(
+                    text = libro.titulo?.replace("+", " ") ?: "",
+                    style = MaterialTheme.typography.caption.copy(color = AppColors.black),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+                )
 
-            Text(
-                text = "${libro.precio?.toString() ?: ""} ${libro.moneda ?: ""}",
-                style = MaterialTheme.typography.caption.copy(
-                    color = AppColors.primary,
-                    fontWeight = FontWeight.Bold
+                Text(
+                    text = "${libro.precio?.toString() ?: ""} ${libro.moneda ?: ""}",
+                    style = MaterialTheme.typography.caption.copy(
+                        color = AppColors.primary,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = (-6).dp, y = 6.dp)
+                .background(
+                    color = when (libro.stock.tipo) {
+                        TipoStock.EN_STOCK -> AppColors.primary
+                        TipoStock.AGOTADO -> AppColors.error
+                        TipoStock.PREVENTA -> AppColors.warning
+                    },
+                    shape = CircleShape
                 ),
-                modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = when (libro.stock.tipo) {
+                    TipoStock.EN_STOCK -> "S"
+                    TipoStock.AGOTADO -> "X"
+                    TipoStock.PREVENTA -> "P"
+                },
+                color = Color.White,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        // Valoración media justo al lado arriba izquierda
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(top = 5.dp)
+                .offset(x = (6).dp, y = (-6).dp)
+                .background(Color.White.copy(alpha = 0.8f), shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 6.dp, vertical = 2.dp)
+        ) {
+            Text(
+                text = if ((mediaValoracion[libro._id] ?: 0.0) > 0)
+                    "${"%.1f".format(mediaValoracion[libro._id])}/5⭐"
+                else "0/5⭐",
+                fontSize = 11.sp,
+                color = AppColors.primary,
+                fontWeight = FontWeight.Bold
             )
         }
     }
@@ -335,80 +395,86 @@ fun RatingComentario(
             modifier = Modifier.padding(bottom = 8.dp),
             color = AppColors.black
         )
-
-        Row {
-            for (i in 1..5) {
-                IconButton(onClick = { rating = i }) {
-                    Icon(
-                        imageVector = if (i <= rating) Icons.Default.Star else Icons.Outlined.Star,
-                        contentDescription = "Estrella $i",
-                        tint = if (i <= rating) AppColors.warning else AppColors.grey,
-                        modifier = Modifier.size(32.dp)
-                    )
+        if (sharedViewModel.token.value != null && valoraciones?.none { it.usuarioName == userName } ?: true) {
+            Row {
+                for (i in 1..5) {
+                    IconButton(onClick = { rating = i }) {
+                        Icon(
+                            imageVector = if (i <= rating) Icons.Default.Star else Icons.Outlined.Star,
+                            contentDescription = "Estrella $i",
+                            tint = if (i <= rating) AppColors.warning else AppColors.grey,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
-            value = comentario,
-            onValueChange = { comentario = it },
-            label = { Text("Comentario") },
-            placeholder = { Text("Escribe tu opinión...") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = AppColors.white,
-                focusedIndicatorColor = AppColors.primary,
-                unfocusedIndicatorColor = AppColors.greyBlue,
-                cursorColor = AppColors.primary,
-                textColor = AppColors.black,
-                placeholderColor = AppColors.grey,
-                disabledLabelColor = AppColors.primary,
-                disabledPlaceholderColor = AppColors.primary
-            )
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (rating!=0 && comentario.length >= 4 && sharedViewModel.token.value != null && valoraciones?.none { it.usuarioName == userName } ?: true){
-            enableComentar = true
-        }else{
-            enableComentar = false
-        }
-
-        Button(
-            onClick = {
-                val scope = CoroutineScope(Dispatchers.IO)
-                scope.launch {
-                    librosViewModel.addValoracion(Valoracion(null,libroSelected?._id!!,userName,rating,comentario,LocalDateTime.now().toString()))
-                }
-                enableComentar =false
-            } ,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = AppColors.primary,
-                contentColor = AppColors.white
-            ),
-            //TODO Check compra
-            enabled = enableComentar
-        ){
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp
+            TextField(
+                value = comentario,
+                onValueChange = { comentario = it },
+                label = { Text("Comentario") },
+                placeholder = { Text("Escribe tu opinión...") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = AppColors.white,
+                    focusedIndicatorColor = AppColors.primary,
+                    unfocusedIndicatorColor = AppColors.greyBlue,
+                    cursorColor = AppColors.primary,
+                    textColor = AppColors.black,
+                    placeholderColor = AppColors.grey,
+                    disabledLabelColor = AppColors.primary,
+                    disabledPlaceholderColor = AppColors.primary
                 )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (rating != 0 && comentario.length >= 4) {
+                enableComentar = true
             } else {
-                Text("Enviar", style = MaterialTheme.typography.button.copy(fontSize = 16.sp))
+                enableComentar = false
+            }
+
+            Button(
+                onClick = {
+                    librosViewModel.addValoracion(
+                        Valoracion(
+                            null,
+                            libroSelected?._id!!,
+                            userName,
+                            rating,
+                            comentario,
+                            LocalDateTime.now().toString()
+                        )
+                    )
+
+                    enableComentar = false
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = AppColors.primary,
+                    contentColor = AppColors.white
+                ),
+                enabled = enableComentar
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Enviar", style = MaterialTheme.typography.button.copy(fontSize = 16.sp))
+                }
             }
         }
-
 
         Spacer(Modifier.height(10.dp))
         when{
@@ -428,7 +494,8 @@ fun RatingComentario(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(valoraciones!!) { valoracion ->
+                    librosViewModel.fetchValoraciones(libroSelected?._id!!)
+                    items(valoraciones!!.sortedByDescending { it.fecha }) { valoracion ->
                         ValoracionesForm(
                             valoracion = valoracion
                         )

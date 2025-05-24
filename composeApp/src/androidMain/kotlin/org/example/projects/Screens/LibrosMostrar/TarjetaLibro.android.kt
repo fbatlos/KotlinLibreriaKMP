@@ -3,6 +3,7 @@
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,7 +20,8 @@ actual fun ImagenDesdeUrl(libro: Libro) {
         contentDescription = "Portada de ${libro.titulo}",
         modifier = Modifier
             .fillMaxWidth(0.5f)
-            .height(80.dp)
+            .height(90.dp)
+            .padding(top = 4.dp)
             .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
         contentScale = ContentScale.Crop
     )

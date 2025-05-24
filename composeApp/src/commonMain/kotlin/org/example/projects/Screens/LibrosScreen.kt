@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.*
 import org.example.projects.BaseDeDatos.model.Libro
+import org.example.projects.BaseDeDatos.model.Valoracion
 import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
@@ -34,11 +35,8 @@ fun LibrosScreen(
     val isLoading by uiStateViewModel.isLoading.collectAsState()
     val textError by uiStateViewModel.textError.collectAsState()
     val showDialog by uiStateViewModel.showDialog.collectAsState()
-
     val allLibros by librosViewModel.libros.collectAsState() // Todos los libros
     val query by librosViewModel.query.collectAsState()
-
-    val scopeSec = CoroutineScope(Dispatchers.IO)
 
     val filteredLibros by remember {
         derivedStateOf {
@@ -72,18 +70,13 @@ fun LibrosScreen(
     ) {paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    librosViewModel.loadFavoritos()
-                    librosViewModel.fetchLibros()
-
                     if (isLoading || allLibros.isEmpty()) {
                         CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.align(Alignment.Center),
+                            color = AppColors.primary
                         )
                     } else {
-                        scopeSec.async(Dispatchers.IO) {
-                            delay(300)
-                            uiStateViewModel.setLoading(false)
-                        }
+
                         LibrosGrid(
                             libros = filteredLibros,
                             librosViewModel = librosViewModel,
@@ -99,7 +92,7 @@ fun LibrosScreen(
 }
 
 @Composable
-fun LibrosGrid(libros: List<Libro>, librosViewModel: LibrosViewModel,uiStateViewModel: UiStateViewModel, showDialog: Boolean,textError: String, navigator: Navegator) {
+fun LibrosGrid(libros: List<Libro>,librosViewModel: LibrosViewModel,uiStateViewModel: UiStateViewModel, showDialog: Boolean,textError: String, navigator: Navegator) {
 
     val librosFavoritos by librosViewModel.librosFavoritos.collectAsState()
 

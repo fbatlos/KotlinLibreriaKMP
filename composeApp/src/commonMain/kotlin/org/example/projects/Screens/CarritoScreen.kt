@@ -120,7 +120,7 @@ fun CarritoScreen(
                 }
 
                 // Resumen de compra
-                ResumenCompra(total = total, onCheckout = {
+                ResumenCompra(total = total, isLoading = isLoading,onCheckout = {
                     // Lógica para proceder al pago
                     if (!sharedViewModel.token.value.isNullOrBlank()){
                         uiStateViewModel.setLoading(true)
@@ -176,7 +176,7 @@ fun CarritoScreen(
 }
 
 @Composable
-private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
+private fun ResumenCompra(total: Double,isLoading:Boolean, onCheckout: () -> Unit) {
     Surface(
         color = AppColors.white,
         elevation = 8.dp,
@@ -200,7 +200,7 @@ private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Subtotal:")
-                Text("$${"%.2f".format(total)}", fontWeight = FontWeight.Bold)
+                Text("${"%.2f".format(total)}€", fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -211,7 +211,7 @@ private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
             ) {
                 Text("Envío:")
                 Text(
-                    text = if (total > 50) "Gratis" else "$5.99",
+                    text = if (total > 50) "Gratis" else "5.99€",
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -228,7 +228,7 @@ private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
             ) {
                 Text("Total:", style = MaterialTheme.typography.h6)
                 Text(
-                    text = "$${"%.2f".format(if (total > 50) total else total + 5.99)}",
+                    text = "${"%.2f".format(if (total > 50) total else total + 5.99)}€",
                     style = MaterialTheme.typography.h6,
                     color = AppColors.primary,
                     fontWeight = FontWeight.Bold
@@ -248,7 +248,16 @@ private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Proceder al pago", fontWeight = FontWeight.Bold)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Proceder al pago", fontWeight = FontWeight.Bold)
+                }
+
             }
         }
     }
@@ -308,7 +317,7 @@ fun CartItem(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "$${"%.2f".format((libro.precio?.toDouble() ?: 0.0) * cantidad)}",
+                text = "${"%.2f".format((libro.precio?.toDouble() ?: 0.0) * cantidad)}€",
                 color = AppColors.primary,
                 fontWeight = FontWeight.Bold
             )

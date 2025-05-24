@@ -114,7 +114,6 @@ class CarritoViewModel(
     fun checkout(compra: Compra, token: String) {
         uiStateViewModel.setLoading(true)
         viewModelScope.launch {
-
             val response = API.apiService.checkout(compra, token)
             withContext(Dispatchers.Main) {
                 _sessionUrl.value = response["url"]

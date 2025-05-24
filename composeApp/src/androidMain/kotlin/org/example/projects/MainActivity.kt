@@ -143,6 +143,7 @@ class MainActivity : ComponentActivity() {
                                     sharedViewModel = sharedViewModel,
                                     navController = navigator,
                                     authViewModel = authViewModel,
+                                    uiViewModel = uiStateViewModel,
                                     carritoViewModel = carritoViewModel
                                 )
                             }
