@@ -414,7 +414,7 @@ fun RatingComentario(
             TextField(
                 value = comentario,
                 onValueChange = { comentario = it },
-                label = { Text("Comentario") },
+                label = { Text("Comentario", color = AppColors.primary) },
                 placeholder = { Text("Escribe tu opinión...") },
                 modifier = Modifier
                     .fillMaxWidth()
