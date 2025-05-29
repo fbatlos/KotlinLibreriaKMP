@@ -24,6 +24,7 @@ import org.example.projects.Screens.CarritoScreen
 import org.example.projects.Screens.InicioScreen
 import org.example.projects.Screens.LibroDetailScreen
 import org.example.projects.Screens.LoginScreen
+import org.example.projects.Screens.MiPerfilScreen
 import org.example.projects.Screens.RegisterScreen
 import org.example.projects.Screens.TicketCompraScreen
 import org.example.projects.Utils.LibroSerializer.toLibro
@@ -71,7 +72,8 @@ class MainActivity : ComponentActivity() {
                                     navController = navigator,
                                     authViewModel = authViewModel,
                                     uiStateViewModel = uiStateViewModel,
-                                    carritoViewModel = carritoViewModel
+                                    carritoViewModel = carritoViewModel,
+                                    sharedViewModel = sharedViewModel
                                 )
                             }
 
@@ -82,7 +84,8 @@ class MainActivity : ComponentActivity() {
                                     uiStateViewModel = uiStateViewModel,
                                     authViewModel = authViewModel,
                                     librosViewModel = libroViewModel,
-                                    carritoViewModel = carritoViewModel
+                                    carritoViewModel = carritoViewModel,
+                                    sharedViewModel = sharedViewModel
                                 )
                             }
 
@@ -131,7 +134,8 @@ class MainActivity : ComponentActivity() {
                                     navController = navigator,
                                     authViewModel = authViewModel,
                                     uiStateViewModel = uiStateViewModel,
-                                    carritoViewModel = carritoViewModel
+                                    carritoViewModel = carritoViewModel,
+                                    sharedViewModel = sharedViewModel
                                 )
                             }
 
@@ -139,6 +143,17 @@ class MainActivity : ComponentActivity() {
                                 route = AppRoutes.Inicio.route
                             ){
                                 InicioScreen(
+                                    librosViewModel = libroViewModel,
+                                    sharedViewModel = sharedViewModel,
+                                    navController = navigator,
+                                    authViewModel = authViewModel,
+                                    uiViewModel = uiStateViewModel,
+                                    carritoViewModel = carritoViewModel
+                                )
+                            }
+
+                            composable(route = AppRoutes.MiPerfil.route){
+                                MiPerfilScreen(
                                     librosViewModel = libroViewModel,
                                     sharedViewModel = sharedViewModel,
                                     navController = navigator,

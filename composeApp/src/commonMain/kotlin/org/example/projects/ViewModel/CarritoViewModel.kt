@@ -187,6 +187,11 @@ class CarritoViewModel(
         }
     }
 
+    fun limpiar(){
+        _items.value = emptyList()
+        _tickets.value = emptyList()
+    }
+
     val total: StateFlow<Double> = _items.map { items ->
         items.sumOf { it.libro.precio?.toDouble()?.times(it.cantidad) ?: 0.0 }
     }.stateIn(viewModelScope, SharingStarted.Lazily, 0.0)

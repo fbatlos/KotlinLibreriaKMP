@@ -26,5 +26,11 @@ open class UiStateViewModel: ViewModel() {
     fun setShowDialog(show: Boolean) {
         _showDialog.value = show
     }
+
+    fun limpiar() {
+        _isLoading.value = false
+        _textError.value = ""
+        _showDialog.value = false
+    }
 }
 

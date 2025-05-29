@@ -155,4 +155,9 @@ class LibrosViewModel (
             }
         }
     }
+
+    fun limpiar(){
+        _librosFavoritos.value = emptyList()
+        _query.value = ""
+    }
 }

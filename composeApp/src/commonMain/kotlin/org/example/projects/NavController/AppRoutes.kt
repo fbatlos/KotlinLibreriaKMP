@@ -6,6 +6,7 @@ import java.net.URLEncoder
 
 sealed class AppRoutes(val route: String) {
     object Login : AppRoutes("login")
+    object MiPerfil:AppRoutes("miPerfil")
     object LibroLista : AppRoutes("libroLista")
     object Registro:AppRoutes("registro")
     object Carrito : AppRoutes("carrito")
@@ -24,6 +25,7 @@ sealed class AppRoutes(val route: String) {
                 route == "registro" -> Registro
                 route == "historialCompra" -> HistorialCompra
                 route == "inicio" -> Inicio
+                route == "miPerfil"-> MiPerfil
                 else -> throw IllegalArgumentException("Unknown route: $route")
             }
         }

@@ -40,8 +40,8 @@ import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.ViewModel.*
-import org.example.projects.componentes_login.CustomPasswordField
-import org.example.projects.componentes_login.CustomTextField
+import org.example.projects.Screens.componentes_login.CustomPasswordField
+import org.example.projects.Screens.componentes_login.CustomTextField
 
 @Composable
 fun LoginScreen(
@@ -49,7 +49,8 @@ fun LoginScreen(
     navController: Navegator,
     authViewModel: AuthViewModel,
     carritoViewModel: CarritoViewModel,
-    uiStateViewModel: UiStateViewModel
+    uiStateViewModel: UiStateViewModel,
+    sharedViewModel: SharedViewModel
 ) {
     val userName by authViewModel.username.collectAsState()
     val contrasenia by authViewModel.contrasenia.collectAsState()
@@ -71,7 +72,7 @@ fun LoginScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController)
+            MenuBurger(drawerState,navController, sharedViewModel =sharedViewModel )
         }
     ) { paddingValues ->
         Box(

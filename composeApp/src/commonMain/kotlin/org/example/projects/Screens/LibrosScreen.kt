@@ -28,7 +28,7 @@ import org.example.projects.Screens.LibrosMostrar.TarjetaLibro
 import org.example.projects.ViewModel.UiStateViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.AuthViewModel
-import org.example.projects.ViewModel.CarritoViewModel
+import org.example.projects.ViewModel.*
 
 //TODO LOS FILTROS NO SON DEL MISMO TAMAÑO
 @Composable
@@ -37,13 +37,15 @@ fun LibrosScreen(
     uiStateViewModel: UiStateViewModel,
     authViewModel: AuthViewModel,
     librosViewModel: LibrosViewModel,
-    carritoViewModel: CarritoViewModel
+    carritoViewModel: CarritoViewModel,
+    sharedViewModel: SharedViewModel
 ) {
     val isLoading by uiStateViewModel.isLoading.collectAsState()
     val textError by uiStateViewModel.textError.collectAsState()
     val showDialog by uiStateViewModel.showDialog.collectAsState()
     val allLibros by librosViewModel.libros.collectAsState() // Todos los libros
     val query by librosViewModel.query.collectAsState()
+    val librosFavoritos by librosViewModel.librosFavoritos.collectAsState()
 
     var tipoStockFiltro by remember { mutableStateOf<TipoStock?>(null) }
     var categoriaFiltro by remember { mutableStateOf<String?>(null) }
@@ -75,6 +77,13 @@ fun LibrosScreen(
         }
     }
 
+    if (allLibros.isEmpty()){
+        librosViewModel.fetchLibros()
+    }
+    if (librosFavoritos.isEmpty()){
+        librosViewModel.loadFavoritos()
+    }
+
     LayoutPrincipal(
         headerContent = { drawerState,scope ->
             HeaderConHamburguesa(
@@ -87,7 +96,7 @@ fun LibrosScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController)
+            MenuBurger(drawerState,navController, sharedViewModel = sharedViewModel)
         }
     ) {paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {

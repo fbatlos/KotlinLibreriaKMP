@@ -80,7 +80,7 @@ fun LibroDetailScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController)
+            MenuBurger(drawerState, navController,sharedViewModel)
         }
     ) { paddingValues ->
         Column(

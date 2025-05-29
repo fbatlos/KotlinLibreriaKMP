@@ -16,6 +16,7 @@ class Navigator(
             is AppRoutes.Carrito -> {navController.navigate(route.route)}
             is AppRoutes.Inicio ->{navController.navigate(route.route)}
             AppRoutes.HistorialCompra -> {navController.navigate(route.route)}
+            AppRoutes.MiPerfil -> {navController.navigate(route.route)}
         }
     }
 

@@ -105,7 +105,27 @@ class AuthViewModel (
     }
 
 
-    fun fetchUsuario(username: String) {
+    fun fetchUsuario() {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            try {
+                val usuario = API.apiService.getUsuario(sharedViewModel.token.value!!)
+                _username.value = usuario.username
+                _email.value = usuario.email
+                _direcciones.value = usuario.direccion
+            }catch (e:Exception){
+                uiStateViewModel.setLoading(false)
+                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            }
+        }
+    }
+
+    fun logout(){
+        _username.value = ""
+        _email.value = ""
+        _contrasenia.value = ""
+        _direcciones.value = mutableListOf()
     }
 
 }

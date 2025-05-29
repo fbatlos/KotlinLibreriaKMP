@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
 import org.example.projects.ViewModel.AuthViewModel
-import org.example.projects.ViewModel.CarritoViewModel
+import org.example.projects.ViewModel.*
 
 @Composable
 fun LayoutPrincipal(
@@ -175,7 +175,8 @@ fun HeaderConHamburguesa(
 @Composable
 fun MenuBurger(
     drawerState: DrawerState,
-    navController: Navegator
+    navController: Navegator,
+    sharedViewModel: SharedViewModel
 ){
     val scope = rememberCoroutineScope()
     var selected by remember { mutableStateOf("") }
@@ -229,8 +230,12 @@ fun MenuBurger(
                             }
 
                             "Mi Perfil" -> {
-                                //TODO hacer token para logearte o ver tu perfil real
-                                navController.navigateTo(AppRoutes.Login)
+                                if (sharedViewModel.token.value == null) {
+                                    //TODO hacer token para logearte o ver tu perfil real
+                                    navController.navigateTo(AppRoutes.Login)
+                                }else{
+                                    navController.navigateTo(AppRoutes.MiPerfil)
+                                }
                                 selected = "Mi Perfil"
                             }
                             "Catálogo" -> {

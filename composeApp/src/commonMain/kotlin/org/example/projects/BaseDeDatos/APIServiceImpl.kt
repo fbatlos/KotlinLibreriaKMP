@@ -10,6 +10,7 @@ import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioRegisterDTO
 import org.example.projects.BaseDeDatos.ErrorAPI.ApiException
 import org.example.projects.BaseDeDatos.ErrorAPI.AuthException
+import org.example.projects.BaseDeDatos.ErrorAPI.ErrorResponse
 import org.example.projects.BaseDeDatos.model.AuthResponse
 import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.ItemCompra
@@ -18,6 +19,7 @@ import org.example.projects.BaseDeDatos.model.Valoracion
 import java.net.URLEncoder
 
 class APIServiceImpl(private val client: HttpClient) : APIService {
+
     override suspend fun postLogin(usuarioLoginDTO: UsuarioLoginDTO): HttpResponse {
         val response = client.post("usuarios/login") {
             contentType(ContentType.Application.Json)
@@ -26,9 +28,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status)
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -41,9 +43,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
 
         return when (response.status) {
             HttpStatusCode.Created -> response.body()
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status)
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -54,9 +56,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status)
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -83,7 +85,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -98,7 +100,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -112,9 +114,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.Created -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -128,10 +130,10 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.NoContent -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
-            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -145,9 +147,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -158,10 +160,10 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status)
-            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -176,9 +178,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.Created -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.Conflict -> throw ApiException("Error ${response.status.description}", response.status)
+            HttpStatusCode.Conflict -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -201,9 +203,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -216,11 +218,11 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
 
         return when (response.status) {
-            HttpStatusCode.Created -> response.body()
+            HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -235,9 +237,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -251,10 +253,10 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.NoContent -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
-            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status)
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -269,9 +271,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.NotFound -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -284,10 +286,10 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
-            HttpStatusCode.InternalServerError -> throw ApiException("Error ${response.status.description}, ${response.body<String>()}",response.status)
-            HttpStatusCode.Unauthorized -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.InternalServerError -> throw ApiException("Error ${response.body<ErrorResponse>().message}, ${response.body<String>()}",response.status)
+            HttpStatusCode.Unauthorized -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -302,9 +304,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }
@@ -318,9 +320,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
-            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.status.description}", response.status) //No debería saltar nunca
+            HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
             else -> throw ApiException(
-                "Error ${response.status.value}: ${response.status.description}",
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status
             )
         }

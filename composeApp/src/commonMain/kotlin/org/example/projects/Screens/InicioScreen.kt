@@ -26,7 +26,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +46,9 @@ import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.ViewModel.*
+import kotlin.random.Random
+import kotlin.uuid.Uuid.Companion.random
+
 @Composable
 fun InicioScreen(
     librosViewModel: LibrosViewModel,
@@ -60,14 +65,19 @@ fun InicioScreen(
     val usuarioLogueado = sharedViewModel.token.value != null
     val isLoading by uiViewModel.isLoading.collectAsState()
     val recomendaciones = if (usuarioLogueado && librosFavoritos.isNotEmpty()) {
-        libros.filter { it._id in librosFavoritos }
+        val categoriaAleatoria = libros.flatMap { it.categorias }.distinct().shuffled().get(0)
+
+        libros.filter { categoriaAleatoria in it.categorias }
+
     } else {
         libros.filter { it.stock.tipo == EN_STOCK || it.stock.tipo == PREVENTA }.shuffled().take(5)
     }
 
-    if (libros.isEmpty() && librosFavoritos.isEmpty()){
-        librosViewModel.loadFavoritos()
+    if (libros.isEmpty()){
         librosViewModel.fetchLibros()
+    }
+    if (librosFavoritos.isEmpty()){
+        librosViewModel.loadFavoritos()
     }
 
     LayoutPrincipal(
@@ -82,7 +92,7 @@ fun InicioScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController)
+            MenuBurger(drawerState, navController,sharedViewModel)
         }
     ) {
         LazyColumn(

@@ -1,4 +1,4 @@
-﻿package org.example.projects.componentes_login
+﻿package org.example.projects.Screens.componentes_login
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
