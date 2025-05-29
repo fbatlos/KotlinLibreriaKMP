@@ -174,6 +174,7 @@ fun InicioScreen(
                                     librosViewModel = librosViewModel,
                                     onClick = {
                                         librosViewModel.putLibroSelected(libro)
+                                        librosViewModel.fetchValoraciones(libro._id!!)
                                         navController.navigateTo(AppRoutes.LibroDetalles)
                                     }
                                 )

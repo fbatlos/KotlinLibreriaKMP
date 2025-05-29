@@ -64,8 +64,6 @@ fun LibroDetailScreen(
         librosSelected?.categorias?.firstOrNull()?.let { categoria ->
             librosViewModel.getLibrosByCategorias(categoria.replace("³", "").replace("+", " "))
         }
-
-        librosViewModel.fetchValoraciones(librosSelected?._id!!)
     }
 
     LayoutPrincipal(
@@ -131,6 +129,23 @@ fun LibroDetailScreen(
                         )
                     }
                 }
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 10.dp)
+                    .offset(x = (6).dp, y = (-6).dp)
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = if ((mediaValoracion[librosSelected?._id] ?: 0.0) > 0)
+                        "${"%.1f".format(mediaValoracion[librosSelected?._id])}/5⭐"
+                    else "0/5⭐",
+                    fontSize = 25.sp,
+                    color = AppColors.primary,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             // Contenido principal
@@ -241,6 +256,7 @@ fun LibroDetailScreen(
                                 librosViewModel = librosViewModel,
                                 onClick = {
                                     librosViewModel.putLibroSelected(libro)
+                                    librosViewModel.fetchValoraciones(libro._id!!)
                                     navController.navigateTo(AppRoutes.LibroDetalles)
                                 }
                             )
@@ -271,9 +287,13 @@ fun LibroDetailScreen(
 }
 
 @Composable
-fun LibroSugeridoItem(libro: Libro,librosViewModel: LibrosViewModel,mediaValoracion:Map<String,Double>, onClick: () -> Unit) {
+fun LibroSugeridoItem(libro: Libro,librosViewModel:LibrosViewModel,mediaValoracion:Map<String,Double>, onClick: () -> Unit) {
+    val media = mediaValoracion[libro._id]
+
     LaunchedEffect(libro._id) {
-        librosViewModel.fetchValoraciones(libro._id!!)
+        if (media == null) {
+            librosViewModel.fetchValoraciones(libro._id!!)
+        }
     }
 
     Box(
@@ -534,7 +554,7 @@ fun ValoracionesForm(
                     color = AppColors.black
                 )
                 Text(
-                    text = valoracion.fecha,
+                    text = Utils.formatearFecha(valoracion.fecha),
                     fontSize = 12.sp,
                     color = AppColors.grey
                 )

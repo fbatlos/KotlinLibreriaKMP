@@ -140,13 +140,14 @@ class LibrosViewModel (
          }
     }
 
-    fun addValoracion(
-        valoracion: Valoracion
-    ){
+    fun addValoracion(valoracion: Valoracion) {
         uiStateViewModel.setLoading(true)
         viewModelScope.launch {
             try {
                 API.apiService.addValoracion(valoracion, sharedViewModel.token.value!!)
+                _librosSelected.value?._id?.let {
+                    fetchValoraciones(it)
+                }
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al añadir valoración: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
@@ -155,6 +156,7 @@ class LibrosViewModel (
             }
         }
     }
+
 
     fun limpiar(){
         _librosFavoritos.value = emptyList()
