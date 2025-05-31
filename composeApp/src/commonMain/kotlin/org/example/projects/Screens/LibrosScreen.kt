@@ -96,7 +96,7 @@ fun LibrosScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController, sharedViewModel = sharedViewModel)
+            MenuBurger(drawerState,navController, uiStateViewModel,sharedViewModel = sharedViewModel)
         }
     ) {paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {

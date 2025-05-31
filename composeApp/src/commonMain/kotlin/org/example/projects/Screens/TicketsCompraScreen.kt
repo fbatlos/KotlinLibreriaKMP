@@ -68,15 +68,8 @@ fun TicketCompraScreen(
         if (!navigated) {
             uiViewModel.setLoading(true)
 
-            if (token.isNullOrEmpty()) {
-                uiViewModel.setTextError("Debes iniciar sesión para ver tus compras.")
-                uiViewModel.setShowDialog(true)
-                navigated = true
-                navController.navigateTo(AppRoutes.Login)
-            } else {
-                carritoViewModel.getTicketsCompra()
-                navigated = true
-            }
+            carritoViewModel.getTicketsCompra()
+            navigated = true
 
             uiViewModel.setLoading(false)
         }
@@ -96,7 +89,7 @@ fun TicketCompraScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController, sharedViewModel)
+            MenuBurger(drawerState,navController, uiViewModel,sharedViewModel)
         }
     ) {
         paddingValues ->
@@ -249,7 +242,7 @@ fun LibroCompraItem(libro:Libro ,itemCompra: ItemCompra) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = (libro.precio?.times(itemCompra.cantidad)).toString() + "€",
+            text = String.format("%.2f", (libro.precio?.times(itemCompra.cantidad)).toString()) + "€",
             style = MaterialTheme.typography.body2,
             color = AppColors.primary,
             maxLines = 2

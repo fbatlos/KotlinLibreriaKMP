@@ -87,7 +87,7 @@ class CarritoViewModel(
                 try {
                     API.apiService.updateCesta(sharedViewModel.token.value!!, _items.value)
                 } catch (e: Exception) {
-                    uiStateViewModel.setTextError("Error: ${e.message} aaaaaa")
+                    uiStateViewModel.setTextError("Error: ${e.message}")
                     uiStateViewModel.setShowDialog(true)
                 }
             }
@@ -104,7 +104,7 @@ class CarritoViewModel(
                 try {
                     API.apiService.removeLibroCesta(sharedViewModel.token.value!!, libro._id!!)
                 } catch (e: Exception) {
-                    uiStateViewModel.setTextError("Error: ${e.message} aaaaaa")
+                    uiStateViewModel.setTextError("Error: ${e.message}")
                     uiStateViewModel.setShowDialog(true)
                 }
             }
@@ -126,7 +126,6 @@ class CarritoViewModel(
 
     fun verEstadoPago(pagado:Boolean){
         if (pagado){
-            //TODO API PARA CREAR EL TICKET
             println(_items.value)
             addTicketCompra()
         }
@@ -136,6 +135,7 @@ class CarritoViewModel(
         viewModelScope.launch { // Usa el viewModelScope de Moko-MVVM
             uiStateViewModel.setLoading(true)
             try {
+                API.apiService.removeAllCesta(token = sharedViewModel.token.value!!)
                 API.apiService.addTicket(Compra(authViewModel.username.value!!,_items.value,LocalDateTime.now().toString()), token = sharedViewModel.token.value!!)
                 _items.value = emptyList()
             } catch (e: Exception) {

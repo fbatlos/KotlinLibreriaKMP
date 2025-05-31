@@ -27,6 +27,9 @@ class LibrosViewModel (
     private val _librosSelected = MutableStateFlow<Libro?>(null)
     val libroSelected: StateFlow<Libro?> = _librosSelected
 
+    private val _misValoraciones = MutableStateFlow<List<Valoracion>?>(null)
+    val misValoraciones = _misValoraciones
+
     private val _valoraciones = MutableStateFlow<List<Valoracion>?>(null)
     val valoraciones: StateFlow<List<Valoracion>?> = _valoraciones
 
@@ -157,6 +160,34 @@ class LibrosViewModel (
         }
     }
 
+    fun getMisValoraciones(){
+        uiStateViewModel.setLoading(true)
+        viewModelScope.launch {
+            try {
+                _misValoraciones.value = API.apiService.getMisValoraciones(token = sharedViewModel.token.value!!)
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al conseguir tus valoraciones: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
+        }
+    }
+
+    fun deleteMiValoracion(idValoracion: String){
+        uiStateViewModel.setLoading(true)
+        viewModelScope.launch {
+            try {
+                API.apiService.removeValoracion(idValoracion,token = sharedViewModel.token.value!!)
+                getMisValoraciones()
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al añadir valoración: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
+        }
+    }
 
     fun limpiar(){
         _librosFavoritos.value = emptyList()

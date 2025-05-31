@@ -92,7 +92,7 @@ fun InicioScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController,sharedViewModel)
+            MenuBurger(drawerState, navController,uiViewModel,sharedViewModel)
         }
     ) {
         LazyColumn(

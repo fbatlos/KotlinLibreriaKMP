@@ -52,7 +52,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
     }
 
     override suspend fun getUsuario(token: String): UsuarioDTO {
-        val response = client.get("usuarios/usuario")
+        val response = client.get("usuarios/usuario"){
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
@@ -187,11 +189,35 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
     }
 
     override suspend fun removeValoracion(valoracionId: String, token: String): String {
-        TODO("Not yet implemented")
+        val response = client.delete("valoracion/eliminar/${valoracionId}"){
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.NoContent -> response.body()
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
+                response.status
+            )
+        }
     }
 
     override suspend fun getMisValoraciones(token: String): List<Valoracion> {
-        TODO("Not yet implemented")
+        val response = client.get("valoracion/mis-valoraciones"){
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
+                response.status
+            )
+        }
     }
 
 
@@ -238,6 +264,23 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
+                response.status
+            )
+        }
+    }
+
+    override suspend fun removeAllCesta(token: String): HttpResponse {
+        val response = client.delete("usuarios/cesta") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.NoContent -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.NotFound -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status) //No debería saltar nunca
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}", response.status)
             else -> throw ApiException(
                 "Error ${response.status.value}: ${response.body<ErrorResponse>().message}",
                 response.status

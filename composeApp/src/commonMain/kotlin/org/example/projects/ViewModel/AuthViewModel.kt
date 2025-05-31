@@ -117,6 +117,8 @@ class AuthViewModel (
                 uiStateViewModel.setLoading(false)
                 uiStateViewModel.setTextError("Error: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
+            }finally {
+                uiStateViewModel.setLoading(false)
             }
         }
     }

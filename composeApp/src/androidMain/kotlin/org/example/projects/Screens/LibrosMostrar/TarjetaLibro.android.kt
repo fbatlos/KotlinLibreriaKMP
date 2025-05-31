@@ -14,11 +14,14 @@ import coil.compose.rememberAsyncImagePainter
 import org.example.projects.BaseDeDatos.model.Libro
 
 @Composable
-actual fun ImagenDesdeUrl(libro: Libro) {
+actual fun ImagenDesdeUrl(
+    libro: Libro,
+    modifier: Modifier
+) {
     Image(
         painter = rememberAsyncImagePainter(libro.imagen?:""),
         contentDescription = "Portada de ${libro.titulo}",
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(0.5f)
             .height(90.dp)
             .padding(top = 4.dp)

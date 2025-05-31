@@ -176,6 +176,7 @@ fun HeaderConHamburguesa(
 fun MenuBurger(
     drawerState: DrawerState,
     navController: Navegator,
+    uiViewModel:UiStateViewModel,
     sharedViewModel: SharedViewModel
 ){
     val scope = rememberCoroutineScope()
@@ -230,7 +231,7 @@ fun MenuBurger(
                             }
 
                             "Mi Perfil" -> {
-                                if (sharedViewModel.token.value == null) {
+                                if (sharedViewModel.token.value.isNullOrEmpty()) {
                                     //TODO hacer token para logearte o ver tu perfil real
                                     navController.navigateTo(AppRoutes.Login)
                                 }else{
@@ -242,9 +243,27 @@ fun MenuBurger(
                                 navController.navigateTo(AppRoutes.LibroLista)
                                 selected = "Catálogo"
                             }
+
+                            "Mis Reseñas" ->{
+                                if (sharedViewModel.token.value.isNullOrEmpty()) {
+                                    uiViewModel.setTextError("Debes iniciar sesión para ver tus reseñas.")
+                                    uiViewModel.setShowDialog(true)
+                                    navController.navigateTo(AppRoutes.Login)
+                                } else {
+                                    navController.navigateTo(AppRoutes.MisValoraciones)
+                                    selected = "Mis Reseñas"
+                                }
+                            }
+
                             "Historial de pedidos" -> {
-                                navController.navigateTo(AppRoutes.HistorialCompra)
-                                selected = "Historial de pedidos"
+                                if (sharedViewModel.token.value.isNullOrEmpty()) {
+                                    uiViewModel.setTextError("Debes iniciar sesión para ver tus compras.")
+                                    uiViewModel.setShowDialog(true)
+                                    navController.navigateTo(AppRoutes.Login)
+                                } else {
+                                    navController.navigateTo(AppRoutes.HistorialCompra)
+                                    selected = "Historial de pedidos"
+                                }
                             }
 
                             //TODO implementar las demas ventanitas

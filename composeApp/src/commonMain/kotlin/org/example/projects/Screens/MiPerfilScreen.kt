@@ -72,6 +72,7 @@ fun MiPerfilScreen(
             MenuBurger(
                 drawerState = drawerState,
                 navController = navController,
+                uiViewModel = uiViewModel,
                 sharedViewModel = sharedViewModel
             )
         }

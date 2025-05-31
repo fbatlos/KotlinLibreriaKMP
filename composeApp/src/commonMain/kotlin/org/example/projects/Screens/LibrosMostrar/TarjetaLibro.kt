@@ -27,7 +27,7 @@ import org.example.projects.NavController.Navegator
 import org.example.projects.ViewModel.*
 
 @Composable
-expect fun ImagenDesdeUrl(libro: Libro)
+expect fun ImagenDesdeUrl(libro: Libro, modifier: Modifier = Modifier)
 
 @Composable
 fun TarjetaLibro(
