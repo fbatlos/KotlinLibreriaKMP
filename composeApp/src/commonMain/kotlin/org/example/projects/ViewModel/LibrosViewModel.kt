@@ -168,10 +168,10 @@ class LibrosViewModel (
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al conseguir tus valoraciones: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
-            } finally {
-                uiStateViewModel.setLoading(false)
             }
         }
+
+        uiStateViewModel.setLoading(false)
     }
 
     fun deleteMiValoracion(idValoracion: String){
@@ -183,10 +183,9 @@ class LibrosViewModel (
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al añadir valoración: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
-            } finally {
-                uiStateViewModel.setLoading(false)
             }
         }
+        uiStateViewModel.setLoading(false)
     }
 
     fun limpiar(){

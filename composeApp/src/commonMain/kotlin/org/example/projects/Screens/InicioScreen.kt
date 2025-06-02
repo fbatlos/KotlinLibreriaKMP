@@ -9,14 +9,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -25,29 +22,20 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.model.Libro
-import org.example.projects.BaseDeDatos.model.TipoStock
-import org.example.projects.BaseDeDatos.model.TipoStock.*
-import org.example.projects.BaseDeDatos.model.Valoracion
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.ViewModel.*
-import kotlin.random.Random
-import kotlin.uuid.Uuid.Companion.random
 
 @Composable
 fun InicioScreen(
@@ -56,7 +44,8 @@ fun InicioScreen(
     authViewModel: AuthViewModel,
     carritoViewModel: CarritoViewModel,
     uiViewModel: UiStateViewModel,
-    sharedViewModel: SharedViewModel
+    sharedViewModel: SharedViewModel,
+    inicioViewModel: InicioViewModel
 ) {
     val libros by librosViewModel.libros.collectAsState()
     val librosFavoritos by librosViewModel.librosFavoritos.collectAsState()
@@ -64,20 +53,24 @@ fun InicioScreen(
 
     val usuarioLogueado = sharedViewModel.token.value != null
     val isLoading by uiViewModel.isLoading.collectAsState()
-    val recomendaciones = if (usuarioLogueado && librosFavoritos.isNotEmpty()) {
-        val categoriaAleatoria = libros.flatMap { it.categorias }.distinct().shuffled().get(0)
 
-        libros.filter { categoriaAleatoria in it.categorias }
+    val recomendaciones by inicioViewModel.recomendaciones.collectAsState()
+    val librosCategoriaAleatoria by inicioViewModel.librosCategoria.collectAsState()
+    val categoriaName by inicioViewModel.categoriaSeleccionada.collectAsState()
+    val librosMejorValorados by inicioViewModel.librosMejorValorados.collectAsState()
 
-    } else {
-        libros.filter { it.stock.tipo == EN_STOCK || it.stock.tipo == PREVENTA }.shuffled().take(5)
-    }
 
-    if (libros.isEmpty()){
+    if (libros.isEmpty()) {
         librosViewModel.fetchLibros()
+        libros.map {   librosViewModel.fetchValoraciones(it._id) }
     }
-    if (librosFavoritos.isEmpty()){
+    if (librosFavoritos.isEmpty() && recomendaciones.isNullOrEmpty() && librosCategoriaAleatoria.isNullOrEmpty() && librosMejorValorados.isNullOrEmpty()) {
         librosViewModel.loadFavoritos()
+        LaunchedEffect(!libros.isNullOrEmpty()){
+            inicioViewModel.getRecomendaciones(libros,librosFavoritos,usuarioLogueado)
+            inicioViewModel.getLibrosCategorias(libros)
+            inicioViewModel.getLibrosMejorValorados(libros,mediaValoracion)
+        }
     }
 
     LayoutPrincipal(
@@ -92,7 +85,7 @@ fun InicioScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController,uiViewModel,sharedViewModel)
+            MenuBurger(drawerState, navController, uiViewModel, sharedViewModel)
         }
     ) {
         LazyColumn(
@@ -157,7 +150,8 @@ fun InicioScreen(
                         .fillMaxWidth()
                 ) {
                     println(isLoading)
-                    if (isLoading) {
+                    println(recomendaciones.isNullOrEmpty())
+                    if (isLoading || recomendaciones.isNullOrEmpty()) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp).align(Alignment.Center),
                             color = AppColors.primary,
@@ -167,7 +161,7 @@ fun InicioScreen(
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(recomendaciones) { libro ->
+                            items(recomendaciones!!) { libro ->
                                 LibroSugeridoItem(
                                     libro = libro,
                                     mediaValoracion = mediaValoracion,
@@ -184,72 +178,105 @@ fun InicioScreen(
                 }
             }
 
-            // Eventos destacados
+            // Destacados
             item {
                 Text(
-                    text = "Eventos destacados",
+                    text = "Destacados de $categoriaName: ",
                     style = MaterialTheme.typography.h6,
                     color = AppColors.primary,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
             }
 
-            // Si en el futuro quieres meter aquí los eventos:
-            // items(eventos) { evento ->
-            //     EventoCard(evento)
-            // }
+            // Libros recomendados de categorias
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                ) {
+                    if (isLoading || librosCategoriaAleatoria.isNullOrEmpty()) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp).align(Alignment.Center),
+                            color = AppColors.primary,
+                            strokeWidth = 4.dp
+                        )
+                    } else {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(librosCategoriaAleatoria!!) { libro ->
+                                LibroSugeridoItem(
+                                    libro = libro,
+                                    mediaValoracion = mediaValoracion,
+                                    librosViewModel = librosViewModel,
+                                    onClick = {
+                                        librosViewModel.putLibroSelected(libro)
+                                        librosViewModel.fetchValoraciones(libro._id!!)
+                                        navController.navigateTo(AppRoutes.LibroDetalles)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            // Destacados
+            item {
+                Text(
+                    text = "Libros mejor valorados.",
+                    style = MaterialTheme.typography.h6,
+                    color = AppColors.primary,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+
+            // Libros recomendados de categorias
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                ) {
+                    println(isLoading)
+                    println(librosMejorValorados.isNullOrEmpty())
+                    if (isLoading || librosMejorValorados.isNullOrEmpty()) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp).align(Alignment.Center),
+                            color = AppColors.primary,
+                            strokeWidth = 4.dp
+                        )
+                    } else {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(librosMejorValorados!!) { libro ->
+                                LibroSugeridoItem(
+                                    libro = libro,
+                                    mediaValoracion = mediaValoracion,
+                                    librosViewModel = librosViewModel,
+                                    onClick = {
+                                        librosViewModel.putLibroSelected(libro)
+                                        librosViewModel.fetchValoraciones(libro._id!!)
+                                        navController.navigateTo(AppRoutes.LibroDetalles)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
         }
     }
 }
 
+fun filtroCategorias(usuarioLogueado:Boolean,librosFavoritos:List<String>,librosCategorias:List<Libro>, allLibros:List<Libro>):List<Libro>?{
+    if (usuarioLogueado && librosFavoritos.isNotEmpty()) {
+        val categoria = librosCategorias.flatMap { it.categorias }.distinct().shuffled().get(0)
+        return allLibros.filter { categoria in it.categorias }
 
-@Composable
-fun LibroCard(libro: Libro) {
-
-    Box (
-        modifier = Modifier
-            .width(200.dp)
-            .padding(end = 8.dp)
-    ){
-        Card(
-           modifier = Modifier.fillMaxSize(),
-            elevation = 4.dp
-        ) {
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = libro.titulo!!, style = MaterialTheme.typography.subtitle1)
-                Text(text = "Autor: ${libro.autores}", style = MaterialTheme.typography.body2)
-                Text(
-                    text = "Categoría: ${libro.categorias}",
-                    style = MaterialTheme.typography.body2
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-        }
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = (-6).dp, y = 6.dp)
-                .background(
-                    color = when (libro.stock.tipo) {
-                        EN_STOCK -> AppColors.primary
-                        AGOTADO -> AppColors.error
-                        PREVENTA -> AppColors.warning
-                    },
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = when (libro.stock.tipo) {
-                    EN_STOCK -> "S"
-                    AGOTADO -> "X"
-                    PREVENTA -> "P"
-                },
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+    } else {
+        return null
     }
 }

@@ -45,6 +45,7 @@ fun LibrosScreen(
     val showDialog by uiStateViewModel.showDialog.collectAsState()
     val allLibros by librosViewModel.libros.collectAsState() // Todos los libros
     val query by librosViewModel.query.collectAsState()
+    librosViewModel.filtrarLibros("")
     val librosFavoritos by librosViewModel.librosFavoritos.collectAsState()
 
     var tipoStockFiltro by remember { mutableStateOf<TipoStock?>(null) }

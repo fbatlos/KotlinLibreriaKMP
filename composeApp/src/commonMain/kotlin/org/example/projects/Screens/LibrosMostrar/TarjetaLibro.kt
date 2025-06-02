@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -68,7 +69,14 @@ fun TarjetaLibro(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 // Imagen
-                ImagenDesdeUrl(libro)
+                ImagenDesdeUrl(
+                    libro = libro,
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .height(90.dp)
+                        .padding(top = 4.dp)
+                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                )
 
                 // Botón favorito
                 IconButton(

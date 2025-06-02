@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -230,7 +231,14 @@ fun LibroCompraItem(libro:Libro ,itemCompra: ItemCompra) {
             .width(120.dp)
             .padding(8.dp)
     ) {
-        ImagenDesdeUrl(libro)
+        ImagenDesdeUrl(
+            libro = libro,
+            modifier = Modifier
+                .fillMaxWidth(0.5f)
+                .height(90.dp)
+                .padding(top = 4.dp)
+                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = libro.titulo ?: "",
@@ -242,7 +250,7 @@ fun LibroCompraItem(libro:Libro ,itemCompra: ItemCompra) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = String.format("%.2f", (libro.precio?.times(itemCompra.cantidad)).toString()) + "€",
+            text = String.format("%.2f", ((libro.precio?.times(itemCompra.cantidad)))) + "€",
             style = MaterialTheme.typography.body2,
             color = AppColors.primary,
             maxLines = 2

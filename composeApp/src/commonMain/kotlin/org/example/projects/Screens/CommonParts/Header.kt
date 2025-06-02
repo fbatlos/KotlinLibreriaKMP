@@ -90,7 +90,7 @@ fun HeaderConHamburguesa(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Buscar",
-                                tint = AppColors.lightGrey
+                                tint = AppColors.white
                             )
                         },
                         singleLine = true,
@@ -112,7 +112,7 @@ fun HeaderConHamburguesa(
                     ) {
                         Text(
                             text = "LeafRead",
-                            color = AppColors.lightGrey,
+                            color = AppColors.white,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
                         )
@@ -123,7 +123,7 @@ fun HeaderConHamburguesa(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Buscar libros",
-                                tint = AppColors.lightGrey
+                                tint = AppColors.white
                             )
                         }
                     }
@@ -138,7 +138,7 @@ fun HeaderConHamburguesa(
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Menú",
-                    tint = AppColors.lightGrey
+                    tint = AppColors.white
                 )
             }
         },
@@ -148,7 +148,7 @@ fun HeaderConHamburguesa(
                     println(AppRoutes.Carrito)
                     navController.navigateTo(AppRoutes.Carrito)
                 } ) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito" , tint = AppColors.lightGrey)
+                    Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito" , tint = AppColors.white)
                 }
 
                 if (cestaSize > 0) {

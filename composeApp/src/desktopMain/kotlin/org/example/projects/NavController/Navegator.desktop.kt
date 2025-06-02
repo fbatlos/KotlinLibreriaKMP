@@ -8,8 +8,8 @@ import okhttp3.internal.wait
 import org.example.projects.NavController.Navigator
 
 class Navigator: Navegator{
-    private var backStack by mutableStateOf<AppRoutes>(AppRoutes.LibroLista)
-    private var currentScreen by mutableStateOf<AppRoutes>(AppRoutes.LibroLista)
+    private var backStack by mutableStateOf<AppRoutes>(AppRoutes.Inicio)
+    private var currentScreen by mutableStateOf<AppRoutes>(AppRoutes.Inicio)
 
     override fun navigateTo(route: AppRoutes) {
         backStack = currentScreen
