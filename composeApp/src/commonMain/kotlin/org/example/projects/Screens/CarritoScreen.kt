@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.es.aplicacion.dto.LibroDTO
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.Direccion
 import org.example.projects.NavController.AppRoutes
@@ -62,7 +63,6 @@ fun CarritoScreen(
     authViewModel: AuthViewModel,
     librosViewModel:LibrosViewModel,
     sharedViewModel:SharedViewModel,
-
     carritoViewModel: CarritoViewModel
 ) {
     val items by carritoViewModel.items.collectAsState()
@@ -88,55 +88,72 @@ fun CarritoScreen(
             MenuBurger(drawerState, navController,uiStateViewModel,sharedViewModel)
         }
     ) { paddingValues ->
+        println(isLoading)
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(AppColors.silver)
         ) {
-            if (items.isEmpty()) {
-                EmptyCartView(navController)
-            } else {
-                // Lista de items
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(items.toList()) { (libroDto,cantidad) ->
-                        CartItem(
-                            libro = libroDto,
-                            libros = libros,
-                            cantidad = cantidad,
-                            onRemove = {
-                                libroToDelete = libroDto
-                                showDeleteDialog = true
-                                carritoViewModel.actualizarCantidad(null, nuevaCantidad = null)
-                            },
-                            onQuantityChange = { nuevaCantidad ->
-                                carritoViewModel.actualizarCantidad(libroDto, nuevaCantidad)
-                            }
+            when {
+                isLoading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = AppColors.primary,
+                            strokeWidth = 2.dp
                         )
-                        Divider(color = AppColors.greyBlue, thickness = 0.5.dp)
+
+                        LaunchedEffect(isLoading){
+                            delay(1000)
+                            // Lógica para proceder al pago
+                            if (!sharedViewModel.token.value.isNullOrBlank()) {
+                                carritoViewModel.checkout(
+                                    Compra(
+                                        authViewModel.username.value!!,
+                                        items,
+                                        LocalDateTime.now().toString()
+                                    )
+                                )
+                            } else {
+                                navController.navigateTo(AppRoutes.Login)
+                            }
+                        }
                     }
                 }
 
-                // Resumen de compra
-                ResumenCompra(total = total, isLoading = isLoading,onCheckout = {
-                    // Lógica para proceder al pago
-                    if (!sharedViewModel.token.value.isNullOrBlank()){
-                        uiStateViewModel.setLoading(true)
-                        carritoViewModel.checkout(Compra(authViewModel.username.value!!,items,LocalDateTime.now().toString()),sharedViewModel.token.value!!)
-                        uiStateViewModel.setLoading(false)
-                    }else{
-                        navController.navigateTo(AppRoutes.Login)
+                items.isEmpty() -> {
+                    EmptyCartView(navController)
+                }
+
+                else -> {
+                    // Lista de items
+                    LazyColumn(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        items(items.toList()) { (libroDto, cantidad) ->
+                            CartItem(
+                                libro = libroDto,
+                                libros = libros,
+                                cantidad = cantidad,
+                                onRemove = {
+                                    libroToDelete = libroDto
+                                    showDeleteDialog = true
+                                    carritoViewModel.actualizarCantidad(null, nuevaCantidad = null)
+                                },
+                                onQuantityChange = { nuevaCantidad ->
+                                    carritoViewModel.actualizarCantidad(libroDto, nuevaCantidad)
+                                }
+                            )
+                            Divider(color = AppColors.greyBlue, thickness = 0.5.dp)
+                        }
                     }
-                })
-            }
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp
-                )
+
+                    // Resumen de compra
+                    ResumenCompra(total = total, onCheckout = {
+                        uiStateViewModel.setLoading(true)
+                    })
+                }
             }
         }
     }
@@ -176,7 +193,7 @@ fun CarritoScreen(
 }
 
 @Composable
-private fun ResumenCompra(total: Double,isLoading:Boolean, onCheckout: () -> Unit) {
+private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
     Surface(
         color = AppColors.white,
         elevation = 8.dp,
@@ -248,15 +265,7 @@ private fun ResumenCompra(total: Double,isLoading:Boolean, onCheckout: () -> Uni
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Proceder al pago", fontWeight = FontWeight.Bold)
-                }
+                Text("Proceder al pago", fontWeight = FontWeight.Bold)
 
             }
         }

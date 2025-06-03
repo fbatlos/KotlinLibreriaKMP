@@ -13,6 +13,7 @@ import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.Stock
 import org.example.projects.BaseDeDatos.model.TipoStock
+import java.util.concurrent.TimeoutException
 
 class AuthViewModel (
     private val uiStateViewModel: UiStateViewModel,
@@ -94,7 +95,12 @@ class AuthViewModel (
                 //TODO HACER EL GET USARIO Y HACER LA PANTALLA DE MI USUARIO
                 true
 
-            } catch (e: Exception) {
+            }catch (e:TimeoutException){
+                uiStateViewModel.setLoading(false)
+                uiStateViewModel.setTextError("Error: Se excedió el tiempo de espera de la API")
+                uiStateViewModel.setShowDialog(true)
+                false
+            }catch (e: Exception) {
                 uiStateViewModel.setLoading(false)
                 uiStateViewModel.setTextError("Error: ${e.message}")
                 uiStateViewModel.setShowDialog(true)

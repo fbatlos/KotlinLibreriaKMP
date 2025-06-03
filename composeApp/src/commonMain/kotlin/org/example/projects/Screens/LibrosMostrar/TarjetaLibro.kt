@@ -40,7 +40,6 @@ fun TarjetaLibro(
     navController: Navegator
 ) {
     val esFavorito = librosFavoritos.contains(libro._id)
-    val mediaValoracion by librosViewModel.mediaValoracionesPorLibro.collectAsState()
 
     LaunchedEffect(libro._id) {
         librosViewModel.fetchValoraciones(libro._id!!)
@@ -150,9 +149,7 @@ fun TarjetaLibro(
                 .padding(horizontal = 6.dp, vertical = 2.dp)
         ) {
             Text(
-                text = if ((mediaValoracion[libro._id] ?: 0.0) > 0)
-                    "${"%.1f".format(mediaValoracion[libro._id])}/5⭐"
-                else "0/5⭐",
+                text = libro.valoracionMedia.toString() + " ⭐",
                 fontSize = 11.sp,
                 color = AppColors.primary,
                 fontWeight = FontWeight.Bold

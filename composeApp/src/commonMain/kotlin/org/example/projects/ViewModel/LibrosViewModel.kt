@@ -33,8 +33,6 @@ class LibrosViewModel (
     private val _valoraciones = MutableStateFlow<List<Valoracion>?>(null)
     val valoraciones: StateFlow<List<Valoracion>?> = _valoraciones
 
-    private val _mediaValoracionesPorLibro = MutableStateFlow<Map<String, Double>>(emptyMap())
-    val mediaValoracionesPorLibro: StateFlow<Map<String, Double>> = _mediaValoracionesPorLibro
 
 
     fun fetchLibros() {
@@ -127,20 +125,18 @@ class LibrosViewModel (
 
 
      fun fetchValoraciones(idLibro: String) {
+         uiStateViewModel.setLoading(true)
          viewModelScope.launch {
              try {
                  val valoraciones = API.apiService.getValoraciones(idLibro)
-                 val media = if (valoraciones.isNotEmpty()) {
-                     valoraciones.map { it.valoracion }.average()
-                 } else 0.0
                 _valoraciones.value = valoraciones
-                 _mediaValoracionesPorLibro.value = _mediaValoracionesPorLibro.value + (idLibro to media)
 
              } catch (e: Exception) {
                  uiStateViewModel.setTextError("Error al obtener valoraciones: ${e.message}")
                  uiStateViewModel.setShowDialog(true)
              }
          }
+         uiStateViewModel.setLoading(false)
     }
 
     fun addValoracion(valoracion: Valoracion) {
@@ -148,9 +144,15 @@ class LibrosViewModel (
         viewModelScope.launch {
             try {
                 API.apiService.addValoracion(valoracion, sharedViewModel.token.value!!)
+
                 _librosSelected.value?._id?.let {
                     fetchValoraciones(it)
                 }
+
+                fetchLibros()
+
+                getMisValoraciones()
+
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al añadir valoración: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
@@ -159,6 +161,7 @@ class LibrosViewModel (
             }
         }
     }
+
 
     fun getMisValoraciones(){
         uiStateViewModel.setLoading(true)

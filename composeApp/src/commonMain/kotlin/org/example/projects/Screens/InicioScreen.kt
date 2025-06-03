@@ -49,7 +49,7 @@ fun InicioScreen(
 ) {
     val libros by librosViewModel.libros.collectAsState()
     val librosFavoritos by librosViewModel.librosFavoritos.collectAsState()
-    val mediaValoracion by librosViewModel.mediaValoracionesPorLibro.collectAsState()
+
 
     val usuarioLogueado = sharedViewModel.token.value != null
     val isLoading by uiViewModel.isLoading.collectAsState()
@@ -60,18 +60,19 @@ fun InicioScreen(
     val librosMejorValorados by inicioViewModel.librosMejorValorados.collectAsState()
 
 
-    if (libros.isEmpty()) {
-        librosViewModel.fetchLibros()
-        libros.map {   librosViewModel.fetchValoraciones(it._id) }
-    }
-    if (librosFavoritos.isEmpty() && recomendaciones.isNullOrEmpty() && librosCategoriaAleatoria.isNullOrEmpty() && librosMejorValorados.isNullOrEmpty()) {
+    LaunchedEffect(Unit) {
         librosViewModel.loadFavoritos()
-        LaunchedEffect(!libros.isNullOrEmpty()){
-            inicioViewModel.getRecomendaciones(libros,librosFavoritos,usuarioLogueado)
+        librosViewModel.fetchLibros()
+    }
+
+    LaunchedEffect(libros) {
+        if (libros.isNotEmpty()) {
+            inicioViewModel.getRecomendaciones(libros, librosFavoritos, usuarioLogueado)
             inicioViewModel.getLibrosCategorias(libros)
-            inicioViewModel.getLibrosMejorValorados(libros,mediaValoracion)
+            inicioViewModel.getLibrosMejorValorados(libros)
         }
     }
+
 
     LayoutPrincipal(
         headerContent = { drawerState, scope ->
@@ -164,7 +165,6 @@ fun InicioScreen(
                             items(recomendaciones!!) { libro ->
                                 LibroSugeridoItem(
                                     libro = libro,
-                                    mediaValoracion = mediaValoracion,
                                     librosViewModel = librosViewModel,
                                     onClick = {
                                         librosViewModel.putLibroSelected(libro)
@@ -181,7 +181,7 @@ fun InicioScreen(
             // Destacados
             item {
                 Text(
-                    text = "Destacados de $categoriaName: ",
+                    text = "Destacados de ${categoriaName ?: ""} ",
                     style = MaterialTheme.typography.h6,
                     color = AppColors.primary,
                     modifier = Modifier.padding(vertical = 16.dp)
@@ -207,7 +207,6 @@ fun InicioScreen(
                             items(librosCategoriaAleatoria!!) { libro ->
                                 LibroSugeridoItem(
                                     libro = libro,
-                                    mediaValoracion = mediaValoracion,
                                     librosViewModel = librosViewModel,
                                     onClick = {
                                         librosViewModel.putLibroSelected(libro)
@@ -225,7 +224,7 @@ fun InicioScreen(
             // Destacados
             item {
                 Text(
-                    text = "Libros mejor valorados.",
+                    text = "Libros mejor valorados ",
                     style = MaterialTheme.typography.h6,
                     color = AppColors.primary,
                     modifier = Modifier.padding(vertical = 16.dp)
@@ -253,7 +252,6 @@ fun InicioScreen(
                             items(librosMejorValorados!!) { libro ->
                                 LibroSugeridoItem(
                                     libro = libro,
-                                    mediaValoracion = mediaValoracion,
                                     librosViewModel = librosViewModel,
                                     onClick = {
                                         librosViewModel.putLibroSelected(libro)
@@ -268,15 +266,5 @@ fun InicioScreen(
             }
 
         }
-    }
-}
-
-fun filtroCategorias(usuarioLogueado:Boolean,librosFavoritos:List<String>,librosCategorias:List<Libro>, allLibros:List<Libro>):List<Libro>?{
-    if (usuarioLogueado && librosFavoritos.isNotEmpty()) {
-        val categoria = librosCategorias.flatMap { it.categorias }.distinct().shuffled().get(0)
-        return allLibros.filter { categoria in it.categorias }
-
-    } else {
-        return null
     }
 }

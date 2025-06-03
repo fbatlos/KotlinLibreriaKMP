@@ -66,7 +66,8 @@ fun LibrosScreen(
             allLibros.filter { libro ->
                 val coincideBusqueda = query.isEmpty() || libro.titulo!!.contains(query, ignoreCase = true) ||
                         libro.autores.any { it.contains(query, ignoreCase = true) } ||
-                        libro.categorias.any { it.contains(query, ignoreCase = true) }
+                        libro.categorias.any { it.contains(query, ignoreCase = true) } ||
+                        libro.isbn13!!.contains(query, ignoreCase = true)
 
                 val coincideStock = tipoStockFiltro == null || libro.stock.tipo == tipoStockFiltro
                 val coincideCategoria = categoriaFiltro == null || libro.categorias.contains(categoriaFiltro)

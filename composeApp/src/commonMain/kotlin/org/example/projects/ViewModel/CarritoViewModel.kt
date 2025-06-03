@@ -30,8 +30,8 @@ class CarritoViewModel(
     )
     val items: StateFlow<List<ItemCompra>> = _items
 
-    private val _tickets = MutableStateFlow<List<Compra>>(emptyList())
-    val tickets: StateFlow<List<Compra>> = _tickets
+    private val _tickets = MutableStateFlow<List<Compra>?>(null)
+    val tickets: StateFlow<List<Compra>?> = _tickets
 
     val cestaSize: StateFlow<Int> = _items.map { items ->
         items.sumOf { it.cantidad }
@@ -111,43 +111,56 @@ class CarritoViewModel(
         }
     }
 
-    fun checkout(compra: Compra, token: String) {
+    fun checkout(compra: Compra) {
         uiStateViewModel.setLoading(true)
         viewModelScope.launch {
-            val response = API.apiService.checkout(compra, token)
+            val response = API.apiService.checkout(compra, sharedViewModel.token.value!!)
             withContext(Dispatchers.Main) {
                 _sessionUrl.value = response["url"]
                 _sessionId.value = response["sessionId"]
                 openUrl(_sessionUrl.value!!)
             }
         }
-        uiStateViewModel.setLoading(false)
     }
 
     fun verEstadoPago(pagado:Boolean){
+        uiStateViewModel.setLoading(false)
         if (pagado){
-            println(_items.value)
+            actualizarStok()
             addTicketCompra()
         }
     }
 
-    fun addTicketCompra(){
-        viewModelScope.launch { // Usa el viewModelScope de Moko-MVVM
-            uiStateViewModel.setLoading(true)
+    fun actualizarStok(){
+        viewModelScope.launch {
             try {
-                API.apiService.removeAllCesta(token = sharedViewModel.token.value!!)
-                API.apiService.addTicket(Compra(authViewModel.username.value!!,_items.value,LocalDateTime.now().toString()), token = sharedViewModel.token.value!!)
-                _items.value = emptyList()
+                val resultado = API.apiService.actualizarStock(Compra(authViewModel.username.value, _items.value,LocalDateTime.now().toString()), token = sharedViewModel.token.value!!)
+                println(resultado)
             } catch (e: Exception) {
-                uiStateViewModel.setTextError("Error al subir el ticket: ${e.message}")
+                uiStateViewModel.setTextError("Error al actualizar el Stock: ${e.message}")
                 uiStateViewModel.setShowDialog(true)
-            } finally {
-                uiStateViewModel.setLoading(false)
             }
         }
     }
 
+    fun addTicketCompra(){
+        uiStateViewModel.setLoading(true)
+        viewModelScope.launch { // Usa el viewModelScope de Moko-MVVM
+            try {
+                API.apiService.removeAllCesta(token = sharedViewModel.token.value!!)
+                delay(100)
+                API.apiService.addTicket(Compra(authViewModel.username.value, _items.value,LocalDateTime.now().toString()), token = sharedViewModel.token.value!!)
+                _items.value = emptyList()
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al subir el ticket: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            }
+        }
+        uiStateViewModel.setLoading(false)
+    }
+
     fun getTicketsCompra(){
+        uiStateViewModel.setLoading(true)
         viewModelScope.launch {
             try {
                 val response = API.apiService.getTicketCompra(token = sharedViewModel.token.value!!)
@@ -157,6 +170,7 @@ class CarritoViewModel(
                 uiStateViewModel.setShowDialog(true)
             }
         }
+        uiStateViewModel.setLoading(false)
     }
 
     fun getCesta(){

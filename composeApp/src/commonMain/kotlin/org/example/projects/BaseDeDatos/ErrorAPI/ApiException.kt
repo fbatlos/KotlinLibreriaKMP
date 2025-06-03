@@ -2,4 +2,4 @@
 
 import io.ktor.http.*
 
-class ApiException(message: String, val statusCode: HttpStatusCode) : Exception(message)
+class ApiException(message: String) : Exception(message)

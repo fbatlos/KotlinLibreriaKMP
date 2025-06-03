@@ -32,6 +32,7 @@ import org.example.projects.Utils.LibroSerializer.toLibro
 import org.example.projects.ViewModel.AppContextProvider
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.CarritoViewModel
+import org.example.projects.ViewModel.InicioViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
                 val authViewModel = remember { AuthViewModel(uiStateViewModel, sharedViewModel) }
                 val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
                 val carritoViewModel = remember { CarritoViewModel(uiStateViewModel, sharedViewModel = sharedViewModel, authViewModel = authViewModel) }
+                val inicioViewModel = remember { InicioViewModel() }
 
                 NavigationHandleDeepLink.carritoViewModel = carritoViewModel
 
@@ -150,7 +152,8 @@ class MainActivity : ComponentActivity() {
                                     navController = navigator,
                                     authViewModel = authViewModel,
                                     uiViewModel = uiStateViewModel,
-                                    carritoViewModel = carritoViewModel
+                                    carritoViewModel = carritoViewModel,
+                                    inicioViewModel = inicioViewModel
                                 )
                             }
 

@@ -43,6 +43,7 @@ interface APIService {
     suspend fun removeLibroCesta(token: String, idLibro: String):HttpResponse
 
     suspend fun checkout(compra: Compra,token: String) : Map<String, String>
+    suspend fun actualizarStock(compra: Compra, token: String):String
     suspend fun obtenerEstadoPago(sessionId:String,token: String):Map<String, String>
 
     suspend fun addTicket(compra: Compra,token: String): Map<String, Boolean>

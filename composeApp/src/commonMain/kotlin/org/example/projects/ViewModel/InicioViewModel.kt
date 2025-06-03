@@ -4,7 +4,6 @@ import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.example.projects.BaseDeDatos.model.Libro
-import org.example.projects.Screens.filtroCategorias
 
 class InicioViewModel (
 ) : ViewModel() {
@@ -22,8 +21,13 @@ class InicioViewModel (
 
     fun getRecomendaciones(libros:List<Libro>,librosFavoritos:List<String>,usuarioLogueado:Boolean){
         if (usuarioLogueado && librosFavoritos.isNotEmpty()) {
-            val librosEnFavorito = libros.filter { it._id == librosFavoritos.shuffled().get(0) }
-            _recomendaciones.value = filtroCategorias(usuarioLogueado,librosFavoritos,librosEnFavorito,libros)
+            println(librosFavoritos)
+            val idLibroFavorito = librosFavoritos.shuffled().get(0)
+            val librosEnFavorito = libros.filter { it._id == idLibroFavorito }
+            println(librosEnFavorito)
+            val categoria = librosEnFavorito.flatMap { it.categorias }.distinct().shuffled()[0]
+            _recomendaciones.value = libros.filter { categoria in it.categorias }.take(8)
+
 
         } else {
             _recomendaciones.value = libros.shuffled().take(8)
@@ -38,21 +42,9 @@ class InicioViewModel (
         }
     }
 
-    fun getLibrosMejorValorados(libros: List<Libro>, mediaValoracion: Map<String, Double>){
+    fun getLibrosMejorValorados(libros: List<Libro>){
         if (libros.isNotEmpty()){
-            val mediasOrdenadas = mediaValoracion.entries.sortedByDescending { it.value }
-            println(mediasOrdenadas)
-            val librosValorados = mutableListOf<Libro>()
-            mediasOrdenadas.map { medias ->
-                libros.map {
-                    println(medias.key)
-                    if (medias.key == it._id){
-                        librosValorados.add(it)
-                    }
-                }
-            }
-            println(librosValorados)
-            _librosMejorValorados.value =librosValorados
+            _librosMejorValorados.value = libros.sortedByDescending { it.valoracionMedia }.take(8)
         }
     }
 

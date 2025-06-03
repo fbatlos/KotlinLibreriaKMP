@@ -95,7 +95,7 @@ fun TicketCompraScreen(
     ) {
         paddingValues ->
         when {
-            isLoading -> {
+            isLoading || tickets == null-> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -106,7 +106,7 @@ fun TicketCompraScreen(
                 }
             }
 
-            tickets.isEmpty() -> {
+            tickets?.isEmpty() == true -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -117,7 +117,7 @@ fun TicketCompraScreen(
                         Text(
                             "Aún no tienes compras registradas.",
                             style = MaterialTheme.typography.h6,
-                            color = AppColors.darkGrey
+                            color = AppColors.primary
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
@@ -140,7 +140,7 @@ fun TicketCompraScreen(
                         .padding(paddingValues)
                         .padding(16.dp)
                 ) {
-                    items(tickets) { compra ->
+                    items(tickets!!) { compra ->
                         val sumaCompra = compra.items.sumOf { item ->
                             val libro = libros.find { it._id == item.libro._id }
                             (libro?.precio ?: 0.0) * item.cantidad

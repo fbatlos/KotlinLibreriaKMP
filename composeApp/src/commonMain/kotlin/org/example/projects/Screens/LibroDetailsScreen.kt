@@ -56,7 +56,6 @@ fun LibroDetailScreen(
 ) {
     val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
     val librosSelected by librosViewModel.libroSelected.collectAsState()
-    val mediaValoracion by librosViewModel.mediaValoracionesPorLibro.collectAsState()
 
     val isLoading by uiStateViewModel.isLoading.collectAsState()
 
@@ -139,9 +138,7 @@ fun LibroDetailScreen(
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = if ((mediaValoracion[librosSelected?._id] ?: 0.0) > 0)
-                        "${"%.1f".format(mediaValoracion[librosSelected?._id])}/5⭐"
-                    else "0/5⭐",
+                    text = (librosSelected?.valoracionMedia?.toString() + " ⭐") ,
                     fontSize = 25.sp,
                     color = AppColors.primary,
                     fontWeight = FontWeight.Bold
@@ -252,7 +249,6 @@ fun LibroDetailScreen(
                         items(librosSugeridos.shuffled().take(6)) { libro ->
                             LibroSugeridoItem(
                                 libro = libro,
-                                mediaValoracion = mediaValoracion,
                                 librosViewModel = librosViewModel,
                                 onClick = {
                                     librosViewModel.putLibroSelected(libro)
@@ -287,14 +283,7 @@ fun LibroDetailScreen(
 }
 
 @Composable
-fun LibroSugeridoItem(libro: Libro,librosViewModel:LibrosViewModel,mediaValoracion:Map<String,Double>, onClick: () -> Unit) {
-    val media = mediaValoracion[libro._id]
-
-    LaunchedEffect(libro._id) {
-        if (media == null) {
-            librosViewModel.fetchValoraciones(libro._id!!)
-        }
-    }
+fun LibroSugeridoItem(libro: Libro,librosViewModel:LibrosViewModel, onClick: () -> Unit) {
 
     Box(
         Modifier
@@ -381,9 +370,7 @@ fun LibroSugeridoItem(libro: Libro,librosViewModel:LibrosViewModel,mediaValoraci
                 .padding(horizontal = 6.dp, vertical = 2.dp)
         ) {
             Text(
-                text = if ((mediaValoracion[libro._id] ?: 0.0) > 0)
-                    "${"%.1f".format(mediaValoracion[libro._id])}/5⭐"
-                else "0/5⭐",
+                text = libro.valoracionMedia.toString() + " ⭐",
                 fontSize = 11.sp,
                 color = AppColors.primary,
                 fontWeight = FontWeight.Bold
@@ -471,6 +458,8 @@ fun RatingComentario(
                             LocalDateTime.now().toString()
                         )
                     )
+
+                    librosViewModel.fetchLibros()
 
                     enableComentar = false
                 },

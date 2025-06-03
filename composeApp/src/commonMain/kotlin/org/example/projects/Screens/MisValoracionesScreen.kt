@@ -62,12 +62,8 @@ fun MisValoracionesScreen(
 
     LaunchedEffect(token) {
         if (!navigated) {
-            uiViewModel.setLoading(true)
-
             librosViewModel.getMisValoraciones()
             navigated = true
-
-            uiViewModel.setLoading(false)
         }
     }
 
@@ -87,7 +83,7 @@ fun MisValoracionesScreen(
         }
     ) { paddingValues ->
         when {
-            isLoading -> {
+            isLoading || misValoraciones == null -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -108,7 +104,7 @@ fun MisValoracionesScreen(
                     Text(
                         text = "Aún no has hecho ninguna reseña.",
                         style = MaterialTheme.typography.h6,
-                        color = AppColors.darkGrey
+                        color = AppColors.primary
                     )
                 }
             }
@@ -127,7 +123,9 @@ fun MisValoracionesScreen(
                             librosViewModel = librosViewModel,
                             navController = navController,
                             onDeleteClick = { valoracionAEliminar ->
+
                                 librosViewModel.deleteMiValoracion(valoracionAEliminar._id!!)
+                                librosViewModel.fetchLibros()
                             }
                         )
                     }
