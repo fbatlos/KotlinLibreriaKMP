@@ -1,7 +1,11 @@
 package org.example.projects
 
+import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,8 +19,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.example.projects.Screens.LibrosScreen
 import androidx.compose.material.MaterialTheme
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.NavigationHandleDeepLink
 import org.example.projects.NavController.Navigator
@@ -28,7 +30,6 @@ import org.example.projects.Screens.MiPerfilScreen
 import org.example.projects.Screens.MisValoracionesScreen
 import org.example.projects.Screens.RegisterScreen
 import org.example.projects.Screens.TicketCompraScreen
-import org.example.projects.Utils.LibroSerializer.toLibro
 import org.example.projects.ViewModel.AppContextProvider
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.CarritoViewModel
@@ -190,5 +191,22 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         AppContextProvider.handleDeepLink(intent)
     }
+
+    private val PICK_IMAGE_REQUEST = 1
+    private lateinit var imageView: ImageView
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
+            val imageUri: Uri? = data?.data
+            val inputStream = contentResolver.openInputStream(imageUri!!)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+            println(bitmap)
+        }
+    }
+
 
 }

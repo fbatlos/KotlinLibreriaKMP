@@ -10,5 +10,6 @@ data class UsuarioDTO(
     val email: String,
     var direccion: MutableList<Direccion>,
     val librosfav: MutableList<String> = mutableListOf(),
+    val avatar:String,
     val rol: String?
 )

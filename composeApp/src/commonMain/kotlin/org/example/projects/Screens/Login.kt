@@ -1,6 +1,7 @@
 package org.example.projects.Screens
 
 import AppColors
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -26,12 +27,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.actapp.componentes_login.ErrorDialog
+import dev.icerock.moko.resources.ImageResource
 import kotlinx.coroutines.*
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.NavController.AppRoutes
@@ -55,10 +59,12 @@ fun LoginScreen(
     val userName by authViewModel.username.collectAsState()
     val contrasenia by authViewModel.contrasenia.collectAsState()
     val isEnable by authViewModel.isLoginEnable.collectAsState()
+
     val textError by uiStateViewModel.textError.collectAsState()
     val showDialog by uiStateViewModel.showDialog.collectAsState()
     val isLoading by uiStateViewModel.isLoading.collectAsState()
     val focusManager = LocalFocusManager.current
+
 
     LayoutPrincipal(
         headerContent = { drawerState,scope ->
@@ -172,6 +178,7 @@ fun LoginScreen(
                         navController.navigateTo(AppRoutes.Registro)
                     }
                 )
+
             }
 
             if (showDialog) {

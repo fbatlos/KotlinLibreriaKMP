@@ -4,7 +4,9 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
+import kotlinx.serialization.json.Json
 import org.example.projects.BaseDeDatos.DTO.UsuarioDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioRegisterDTO
@@ -12,7 +14,9 @@ import org.example.projects.BaseDeDatos.ErrorAPI.ApiException
 import org.example.projects.BaseDeDatos.ErrorAPI.AuthException
 import org.example.projects.BaseDeDatos.ErrorAPI.ErrorResponse
 import org.example.projects.BaseDeDatos.model.AuthResponse
+import org.example.projects.BaseDeDatos.model.Avatar
 import org.example.projects.BaseDeDatos.model.Compra
+import org.example.projects.BaseDeDatos.model.Direccion
 import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.Valoracion
@@ -62,6 +66,85 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             )
         }
     }
+
+    override suspend fun addDireccion(token: String, direccion: Direccion): String {
+        val response = client.put("usuarios/direccion") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(direccion)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}")
+            else -> throw ApiException("Error ${response.status.value}: ${response.body<ErrorResponse>().message}")
+        }
+    }
+
+
+    override suspend fun deleteDireccion(token: String, direccion: Direccion) {
+        val response = client.delete("usuarios/direccion") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(direccion)
+        }
+
+        when (response.status) {
+            HttpStatusCode.NoContent -> {} // todo ok, no hay body
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}")
+            else -> throw ApiException("Error ${response.status.value}: ${response.body<ErrorResponse>().message}")
+        }
+    }
+
+
+    override suspend fun getMiAvatar(idAvatar: String, token: String): Avatar {
+        val response = client.get("avatar/miAvatar/${idAvatar}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                return response.body()
+            }
+            HttpStatusCode.NotFound -> throw ApiException("Avatar no encontrado")
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
+            )
+        }
+    }
+
+    override suspend fun getAllAvatares(token: String): List<Avatar> {
+        val response = client.get("avatar/allAvatares") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                return response.body()
+            }
+
+                else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
+            )
+        }
+    }
+
+    override suspend fun updateUsuarioAvatar(idNuevoAvatar: String, token: String): String {
+        val response = client.put("usuarios/avatar") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody(idNuevoAvatar)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}")
+            else -> throw ApiException("Error ${response.status.value}: ${response.body<ErrorResponse>().message}")
+        }
+    }
+
 
     override suspend fun listarLibros(categoria: String?,autor:String?): List<Libro> {
         val query = mutableListOf<String>().apply {
@@ -365,6 +448,5 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             )
         }
     }
-
 
 }

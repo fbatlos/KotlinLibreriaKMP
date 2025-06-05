@@ -57,8 +57,12 @@ kotlin {
             implementation(compose.ui)
 
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
             implementation("dev.icerock.moko:mvvm-core:0.16.1")
             implementation("dev.icerock.moko:mvvm-compose:0.16.1")
+            implementation("dev.icerock.moko:resources:0.24.4")
+            implementation("dev.icerock.moko:resources-compose:0.24.4")
+
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
             implementation("io.ktor:ktor-client-core:2.3.5")
             implementation("io.ktor:ktor-client-content-negotiation:2.3.5")

@@ -13,7 +13,9 @@ import org.example.projects.BaseDeDatos.DTO.UsuarioDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioRegisterDTO
 import org.example.projects.BaseDeDatos.model.AuthResponse
+import org.example.projects.BaseDeDatos.model.Avatar
 import org.example.projects.BaseDeDatos.model.Compra
+import org.example.projects.BaseDeDatos.model.Direccion
 import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.Valoracion
@@ -23,6 +25,12 @@ interface APIService {
     suspend fun postLogin(usuarioLoginDTO: UsuarioLoginDTO): HttpResponse
     suspend fun postRegister(usuario: UsuarioRegisterDTO): AuthResponse
     suspend fun getUsuario(token: String): UsuarioDTO
+    suspend fun addDireccion(token: String, direccion: Direccion): String
+    suspend fun deleteDireccion(token: String, direccion: Direccion)
+
+    suspend fun getMiAvatar(idAvatar: String, token: String): Avatar
+    suspend fun getAllAvatares(token: String): List<Avatar>
+    suspend fun updateUsuarioAvatar(idNuevoAvatar:String,token: String):String
 
     suspend fun listarLibros(categoria:String?,autor: String?): List<Libro>
     suspend fun filtrarLibros(token: String,query:String): List<Libro>

@@ -1,5 +1,6 @@
 ﻿package org.example.projects.ViewModel
 
+import androidx.compose.ui.graphics.ImageBitmap
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.ktor.client.call.*
 import kotlinx.coroutines.*
@@ -8,11 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.DTO.UsuarioLoginDTO
 import org.example.projects.BaseDeDatos.DTO.UsuarioRegisterDTO
+import org.example.projects.BaseDeDatos.model.Avatar
 import org.example.projects.BaseDeDatos.model.Direccion
-import org.example.projects.BaseDeDatos.model.ItemCompra
-import org.example.projects.BaseDeDatos.model.Libro
-import org.example.projects.BaseDeDatos.model.Stock
-import org.example.projects.BaseDeDatos.model.TipoStock
+import org.example.projects.Screens.convertByteArrayToImageBitmap
 import java.util.concurrent.TimeoutException
 
 class AuthViewModel (
@@ -30,6 +29,16 @@ class AuthViewModel (
 
     private var _direcciones = MutableStateFlow<MutableList<Direccion>>(mutableListOf())
     val direcciones: StateFlow<MutableList<Direccion>> = _direcciones
+
+    private var _imagenUsuario = MutableStateFlow<ImageBitmap?>(null)
+    val imagenUsuario = _imagenUsuario
+
+    private var _idAvatarUsuario = MutableStateFlow<String?>(null)
+    val idAvatarUsuario: StateFlow<String?> = _idAvatarUsuario
+
+    private var _listaAvatares = MutableStateFlow<List<Avatar>>(emptyList())
+    val listaAvatares: StateFlow<List<Avatar>> = _listaAvatares
+
 
 
     private var _isLoginEnabled = MutableStateFlow(false)
@@ -118,7 +127,12 @@ class AuthViewModel (
                 val usuario = API.apiService.getUsuario(sharedViewModel.token.value!!)
                 _username.value = usuario.username
                 _email.value = usuario.email
-                _direcciones.value = usuario.direccion
+                _idAvatarUsuario.value = usuario.avatar
+
+                // Cargar el avatar automáticamente cuando tenemos el ID
+                if (usuario.avatar != null) {
+                    fetchMiAvatar()
+                }
             }catch (e:Exception){
                 uiStateViewModel.setLoading(false)
                 uiStateViewModel.setTextError("Error: ${e.message}")
@@ -129,11 +143,103 @@ class AuthViewModel (
         }
     }
 
+    fun fetchMiAvatar() {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            try {
+                val avatarResponse = API.apiService.getMiAvatar(_idAvatarUsuario.value!!,sharedViewModel.token.value!!)
+                val imageBytes = avatarResponse.data?.toByteArray() ?: return@launch
+                _imagenUsuario.value = convertByteArrayToImageBitmap(imageBytes)
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al obtener avatar: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
+        }
+
+        println(_imagenUsuario.value)
+    }
+
+    fun fetchAllAvatares() {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            try {
+                val avataresResponse = API.apiService.getAllAvatares(sharedViewModel.token.value!!)
+                _listaAvatares.value = avataresResponse
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al obtener avatares: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
+        }
+
+        println(_listaAvatares.value )
+    }
+
+    fun cambiarAvatar(avatarId: String) {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            try {
+                val result = API.apiService.updateUsuarioAvatar(avatarId, sharedViewModel.token.value!!)
+                _idAvatarUsuario.value = avatarId
+                fetchMiAvatar()
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError(e.message.toString())
+                uiStateViewModel.setShowDialog(true)
+                // Manejo de errores
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
+        }
+    }
+
+
+
+
+    fun addDireccion(direccion: Direccion) {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            try {
+                API.apiService.addDireccion(sharedViewModel.token.value!!, direccion)
+                fetchUsuario()
+                uiStateViewModel.setLoading(false)
+            } catch (e: Exception) {
+                uiStateViewModel.setLoading(false)
+                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            }
+        }
+    }
+
+    fun deleteDireccion(direccion: Direccion) {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            try {
+                API.apiService.deleteDireccion(sharedViewModel.token.value!!, direccion)
+                fetchUsuario()
+                uiStateViewModel.setLoading(false)
+            } catch (e: Exception) {
+                uiStateViewModel.setLoading(false)
+                uiStateViewModel.setTextError("Error: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            }
+        }
+    }
+
+
     fun logout(){
         _username.value = ""
         _email.value = ""
         _contrasenia.value = ""
         _direcciones.value = mutableListOf()
+        _imagenUsuario.value = null
+    }
+
+
+    fun selectedImagenUsuario(bitmap: ImageBitmap){
+        _imagenUsuario.value = bitmap
     }
 
 }
@@ -150,8 +256,13 @@ private suspend fun validarUsuario(username: String, password: String): Pair<Boo
                 val error = API.parseError(response)
                 Pair(false, error.message)
             }
-        } catch (e: Exception) {
+        }
+        catch (e: TimeoutException) {
+            Pair(false, "Tiempo de espera excedido")
+        }
+        catch (e: Exception) {
             Pair(false, "Error: ${e.localizedMessage}")
         }
+
     }
 }

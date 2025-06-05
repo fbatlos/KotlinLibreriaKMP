@@ -1,5 +1,7 @@
 package org.example.projects.Utils
 
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import com.es.aplicacion.dto.LibroDTO
 import org.example.projects.BaseDeDatos.model.Libro
 import java.text.SimpleDateFormat

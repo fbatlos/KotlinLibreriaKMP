@@ -233,6 +233,8 @@ fun MenuBurger(
                             "Mi Perfil" -> {
                                 if (sharedViewModel.token.value.isNullOrEmpty()) {
                                     //TODO hacer token para logearte o ver tu perfil real
+                                    uiViewModel.setTextError("Debes iniciar sesión para ver tu perfil.")
+                                    uiViewModel.setShowDialog(true)
                                     navController.navigateTo(AppRoutes.Login)
                                 }else{
                                     navController.navigateTo(AppRoutes.MiPerfil)
