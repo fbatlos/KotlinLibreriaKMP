@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.model.Avatar
 import org.example.projects.BaseDeDatos.model.Usuario
@@ -49,6 +50,8 @@ import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
+import org.example.projects.Screens.DireccionFormulario.DialogoDirecciones
+import org.example.projects.Screens.DireccionFormulario.FormularioDireccion
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.LibrosViewModel
@@ -75,7 +78,12 @@ fun MiPerfilScreen(
     val idAvatarUsuario by authViewModel.idAvatarUsuario.collectAsState()
     val listaAvatares by authViewModel.listaAvatares.collectAsState()
 
+    val showDialogError by uiViewModel.showDialog.collectAsState()
+    val textError by uiViewModel.textError.collectAsState()
+
     var showAvataresDialog by remember { mutableStateOf(false) }
+    var showDireccionesDialog by remember { mutableStateOf(false) }
+    var showAddDireccionDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         authViewModel.fetchUsuario()
@@ -194,6 +202,25 @@ fun MiPerfilScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Botón volver
+            Button(
+                onClick = {
+                    showDireccionesDialog = true
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = AppColors.primary,
+                    contentColor = AppColors.white
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(MaterialTheme.shapes.medium)
+            ) {
+                Text("Ver mis Direcciones")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
             // Botón cerrar sesión
             Button(
                 onClick = {
@@ -226,6 +253,48 @@ fun MiPerfilScreen(
                     },
                     onDismiss = { showAvataresDialog = false }
                 )
+            }
+        }
+
+
+        // Diálogos
+        if (showDireccionesDialog) {
+            DialogoDirecciones(
+                authViewModel = authViewModel,
+                onConfirm = {
+                    showDireccionesDialog = false
+                    showAddDireccionDialog = false
+                },
+                onCancel = { showDireccionesDialog = false },
+                onAddNew = {
+                    showDireccionesDialog = false
+                    showAddDireccionDialog = true
+                }
+            )
+        }
+
+        if (showAddDireccionDialog) {
+            AlertDialog(
+                onDismissRequest = { showAddDireccionDialog = false },
+                title = { Text("Nueva dirección"  ,style = MaterialTheme.typography.h6,
+                    color = AppColors.primary) },
+                text = {
+                    FormularioDireccion(
+                        onSave = { nuevaDireccion ->
+                            authViewModel.addDireccion(nuevaDireccion)
+                            showAddDireccionDialog = false
+                            showDireccionesDialog = true
+                        },
+                        onCancel = { showAddDireccionDialog = false }
+                    )
+                },
+                buttons = {} // Los botones están dentro del formulario
+            )
+        }
+
+        if (showDialogError){
+            ErrorDialog(textError = textError) {
+                uiViewModel.setShowDialog(it)
             }
         }
     }

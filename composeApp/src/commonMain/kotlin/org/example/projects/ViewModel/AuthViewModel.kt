@@ -30,6 +30,9 @@ class AuthViewModel (
     private var _direcciones = MutableStateFlow<MutableList<Direccion>>(mutableListOf())
     val direcciones: StateFlow<MutableList<Direccion>> = _direcciones
 
+    private val _direccionSeleccionada = MutableStateFlow<Direccion?>(null)
+    val direccionSeleccionada = _direccionSeleccionada
+
     private var _imagenUsuario = MutableStateFlow<ImageBitmap?>(null)
     val imagenUsuario = _imagenUsuario
 
@@ -128,7 +131,7 @@ class AuthViewModel (
                 _username.value = usuario.username
                 _email.value = usuario.email
                 _idAvatarUsuario.value = usuario.avatar
-
+                _direcciones.value =usuario.direccion
                 // Cargar el avatar automáticamente cuando tenemos el ID
                 if (usuario.avatar != null) {
                     fetchMiAvatar()
@@ -196,14 +199,32 @@ class AuthViewModel (
     }
 
 
+    fun fetchDirecciones() {
+        viewModelScope.launch {
+            uiStateViewModel.setLoading(true)
+            try {
+                val usuario = API.apiService.getUsuario(sharedViewModel.token.value!!)
+                _direcciones.value = (usuario.direccion ?: emptyList()).toMutableList()
 
+                // Seleccionar la primera dirección por defecto si no hay selección
+                if (_direccionSeleccionada.value == null && _direcciones.value.isNotEmpty()) {
+                    _direccionSeleccionada.value = _direcciones.value.first()
+                }
+            } catch (e: Exception) {
+                uiStateViewModel.setTextError("Error al obtener direcciones: ${e.message}")
+                uiStateViewModel.setShowDialog(true)
+            } finally {
+                uiStateViewModel.setLoading(false)
+            }
+        }
+    }
 
     fun addDireccion(direccion: Direccion) {
         viewModelScope.launch {
             uiStateViewModel.setLoading(true)
             try {
                 API.apiService.addDireccion(sharedViewModel.token.value!!, direccion)
-                fetchUsuario()
+                fetchDirecciones()
                 uiStateViewModel.setLoading(false)
             } catch (e: Exception) {
                 uiStateViewModel.setLoading(false)
@@ -218,7 +239,12 @@ class AuthViewModel (
             uiStateViewModel.setLoading(true)
             try {
                 API.apiService.deleteDireccion(sharedViewModel.token.value!!, direccion)
-                fetchUsuario()
+                _direccionSeleccionada.value = null
+                fetchDirecciones()
+
+                if (_direccionSeleccionada.value == direccion) {
+                    _direccionSeleccionada.value = _direcciones.value.firstOrNull()
+                }
                 uiStateViewModel.setLoading(false)
             } catch (e: Exception) {
                 uiStateViewModel.setLoading(false)
@@ -226,6 +252,10 @@ class AuthViewModel (
                 uiStateViewModel.setShowDialog(true)
             }
         }
+    }
+
+    fun seleccionarDireccion(direccion: Direccion){
+        _direccionSeleccionada.value = direccion
     }
 
 

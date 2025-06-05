@@ -8,7 +8,8 @@ import kotlinx.serialization.Serializable
 data class Compra(
     val usuarioName: String,
     val items: List<ItemCompra>,
-    val fechaCompra: String
+    val fechaCompra: String,
+    val direccion: Direccion
 )
 
 @Serializable

@@ -134,7 +134,7 @@ class CarritoViewModel(
     fun actualizarStok(){
         viewModelScope.launch {
             try {
-                val resultado = API.apiService.actualizarStock(Compra(authViewModel.username.value, _items.value,LocalDateTime.now().toString()), token = sharedViewModel.token.value!!)
+                val resultado = API.apiService.actualizarStock(Compra(authViewModel.username.value, _items.value,LocalDateTime.now().toString(), direccion = authViewModel.direccionSeleccionada.value!!), token = sharedViewModel.token.value!!)
                 println(resultado)
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al actualizar el Stock: ${e.message}")
@@ -149,7 +149,7 @@ class CarritoViewModel(
             try {
                 API.apiService.removeAllCesta(token = sharedViewModel.token.value!!)
                 delay(100)
-                API.apiService.addTicket(Compra(authViewModel.username.value, _items.value,LocalDateTime.now().toString()), token = sharedViewModel.token.value!!)
+                API.apiService.addTicket(Compra(authViewModel.username.value, _items.value,LocalDateTime.now().toString(), direccion = authViewModel.direccionSeleccionada.value!!), token = sharedViewModel.token.value!!)
                 _items.value = emptyList()
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al subir el ticket: ${e.message}")

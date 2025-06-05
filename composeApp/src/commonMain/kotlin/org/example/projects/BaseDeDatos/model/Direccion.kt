@@ -8,5 +8,4 @@ data class Direccion(
     val num: String,
     val municipio: String,
     val provincia: String
-   // val cp: String
 )

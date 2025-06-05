@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
                             composable(AppRoutes.Carrito.route){
                                 CarritoScreen(
                                     navController = navigator,
-                                    uiStateViewModel = uiStateViewModel,
+                                    uiViewModel = uiStateViewModel,
                                     authViewModel = authViewModel,
                                     sharedViewModel = sharedViewModel,
                                     librosViewModel = libroViewModel,

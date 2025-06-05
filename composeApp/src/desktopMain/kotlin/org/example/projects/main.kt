@@ -25,8 +25,6 @@ import org.example.projects.ViewModel.InicioViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
-import java.awt.Toolkit
-import javax.swing.ImageIcon
 
 fun main() = application {
     val navigator = remember { Navigator() }
@@ -80,7 +78,7 @@ fun main() = application {
                 is AppRoutes.Carrito -> {
                     CarritoScreen(
                         navController = navigator,
-                        uiStateViewModel = uiStateViewModel,
+                        uiViewModel = uiStateViewModel,
                         authViewModel = authViewModel,
                         sharedViewModel = sharedViewModel,
                         librosViewModel = libroViewModel,

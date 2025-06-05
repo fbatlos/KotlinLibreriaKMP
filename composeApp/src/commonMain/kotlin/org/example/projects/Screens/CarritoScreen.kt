@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,13 +22,9 @@ import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,24 +37,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.es.aplicacion.dto.LibroDTO
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
+import com.example.actapp.componentes_login.ErrorDialog
 import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.Direccion
+import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.NavController.AppRoutes
+import org.example.projects.Screens.DireccionFormulario.DialogoDirecciones
+import org.example.projects.Screens.DireccionFormulario.FormularioDireccion
 import org.example.projects.ViewModel.*
 import java.time.LocalDateTime
 
 fun obtenerLibro(idLibro:String? , libros:List<Libro>):Libro = libros.filter { it._id == idLibro }.first()
+
+
 @Composable
 fun CarritoScreen(
     navController: Navegator,
-    uiStateViewModel:UiStateViewModel,
+    uiViewModel:UiStateViewModel,
     authViewModel: AuthViewModel,
     librosViewModel:LibrosViewModel,
     sharedViewModel:SharedViewModel,
@@ -67,11 +65,27 @@ fun CarritoScreen(
 ) {
     val items by carritoViewModel.items.collectAsState()
     val total by carritoViewModel.total.collectAsState()
+
     val libros by librosViewModel.libros.collectAsState()
 
+    val isLoading by uiViewModel.isLoading.collectAsState()
+    val showDialogError by uiViewModel.showDialog.collectAsState()
+    val textError by uiViewModel.textError.collectAsState()
+
+    val direccionSeleccionada by authViewModel.direccionSeleccionada.collectAsState()
+
     var showDeleteDialog by remember { mutableStateOf(false) }
-    val isLoading by uiStateViewModel.isLoading.collectAsState()
     var libroToDelete by remember { mutableStateOf<LibroDTO?>(null) }
+
+    var showDireccionesDialog by remember { mutableStateOf(false) }
+    var showAddDireccionDialog by remember { mutableStateOf(false) }
+
+    // Cargar direcciones al iniciar
+    if (!sharedViewModel.token.value.isNullOrBlank()){
+        LaunchedEffect(Unit) {
+            authViewModel.fetchDirecciones()
+        }
+    }
 
     LayoutPrincipal(
         headerContent = { drawerState, scope ->
@@ -85,10 +99,9 @@ fun CarritoScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController,uiStateViewModel,sharedViewModel)
+            MenuBurger(drawerState, navController,uiViewModel,sharedViewModel)
         }
     ) { paddingValues ->
-        println(isLoading)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -103,22 +116,6 @@ fun CarritoScreen(
                             color = AppColors.primary,
                             strokeWidth = 2.dp
                         )
-
-                        LaunchedEffect(isLoading){
-                            delay(1000)
-                            // Lógica para proceder al pago
-                            if (!sharedViewModel.token.value.isNullOrBlank()) {
-                                carritoViewModel.checkout(
-                                    Compra(
-                                        authViewModel.username.value!!,
-                                        items,
-                                        LocalDateTime.now().toString()
-                                    )
-                                )
-                            } else {
-                                navController.navigateTo(AppRoutes.Login)
-                            }
-                        }
                     }
                 }
 
@@ -150,11 +147,70 @@ fun CarritoScreen(
                     }
 
                     // Resumen de compra
-                    ResumenCompra(total = total, onCheckout = {
-                        uiStateViewModel.setLoading(true)
-                    })
+                    ResumenCompra(
+                        total = total,
+                        onCheckout = {
+                        if (direccionSeleccionada != null) {
+                            realizarCheckout(
+                                sharedViewModel = sharedViewModel,
+                                navController = navController,
+                                authViewModel = authViewModel,
+                                carritoViewModel = carritoViewModel,
+                                items = items,
+                                direccionSeleccionada = direccionSeleccionada!!,
+                                onShowDireccionDialog = { showDireccionesDialog = it }
+                            )
+                        }else{
+                            showDireccionesDialog = true
+                        }
+                    },
+                        authViewModel = authViewModel,
+                        onEditAddress = { showDireccionesDialog = true}
+                    )
                 }
             }
+
+            if (showDialogError){
+                ErrorDialog(textError = textError) {
+                    uiViewModel.setShowDialog(it)
+                }
+            }
+
+
+            // Diálogos
+            if (showDireccionesDialog) {
+                DialogoDirecciones(
+                    authViewModel = authViewModel,
+                    onConfirm = {
+                        showDireccionesDialog = false
+                    },
+                    onCancel = { showDireccionesDialog = false },
+                    onAddNew = {
+                        showDireccionesDialog = false
+                        showAddDireccionDialog = true
+                    }
+                )
+            }
+
+            if (showAddDireccionDialog) {
+                AlertDialog(
+                    onDismissRequest = { showAddDireccionDialog = false },
+                    title = { Text("Nueva dirección"  ,style = MaterialTheme.typography.h6,
+                        color = AppColors.primary) },
+                    text = {
+                        FormularioDireccion(
+                            onSave = { nuevaDireccion ->
+                                authViewModel.addDireccion(nuevaDireccion)
+                                showAddDireccionDialog = false
+                                showDireccionesDialog = true
+                            },
+                            onCancel = { showAddDireccionDialog = false }
+                        )
+                    },
+                    buttons = {} // Los botones están dentro del formulario
+                )
+            }
+
         }
     }
 
@@ -192,8 +248,41 @@ fun CarritoScreen(
     }
 }
 
+fun realizarCheckout(sharedViewModel: SharedViewModel,navController: Navegator,authViewModel: AuthViewModel,carritoViewModel: CarritoViewModel,items:List<ItemCompra>,direccionSeleccionada:Direccion,onShowDireccionDialog:(Boolean)->Unit){
+    if (sharedViewModel.token.value.isNullOrBlank()) {
+        navController.navigateTo(AppRoutes.Login)
+    }
+    if (authViewModel.direcciones.value.isEmpty()) {
+        onShowDireccionDialog(true)
+    } else {
+        // Verificar si hay dirección seleccionada
+        if (direccionSeleccionada != null) {
+            // Proceder con el checkout
+            carritoViewModel.checkout(
+                Compra(
+                    usuarioName = authViewModel.username.value,
+                    items,
+                    LocalDateTime.now().toString(),
+                    direccionSeleccionada!!
+                )
+            )
+        } else {
+            // Mostrar diálogo para seleccionar dirección
+            onShowDireccionDialog(true)
+        }
+    }
+}
+
+
 @Composable
-private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
+private fun ResumenCompra(
+    total: Double,
+    authViewModel: AuthViewModel,
+    onCheckout: () -> Unit,
+    onEditAddress: () -> Unit
+) {
+    val direccionSeleccionada by authViewModel.direccionSeleccionada.collectAsState()
+
     Surface(
         color = AppColors.white,
         elevation = 8.dp,
@@ -210,8 +299,52 @@ private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
+            // Sección de dirección
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(AppColors.white.copy(alpha = 0.2f))
+                    .padding(12.dp)
+                    .border(1.dp, AppColors.greyBlue, RoundedCornerShape(8.dp))
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Dirección de envío",
+                        style = MaterialTheme.typography.subtitle1,
+                        fontWeight = FontWeight.Bold
+                    )
+                    TextButton(
+                        onClick = onEditAddress,
+                        modifier = Modifier.padding(0.dp)
+                    ) {
+                        Text("Cambiar", color = AppColors.primary)
+                    }
+                }
+
+                if (direccionSeleccionada != null) {
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("${direccionSeleccionada!!.calle} ${direccionSeleccionada!!.num}, ${direccionSeleccionada!!.municipio}, ${direccionSeleccionada!!.provincia}", textAlign = TextAlign.Center)
+                    }
+                } else {
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "No hay dirección seleccionada",
+                            color = AppColors.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Resto del resumen (precios)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -263,15 +396,14 @@ private fun ResumenCompra(total: Double, onCheckout: () -> Unit) {
                     backgroundColor = AppColors.primary,
                     contentColor = AppColors.white
                 ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                enabled = direccionSeleccionada != null
             ) {
                 Text("Proceder al pago", fontWeight = FontWeight.Bold)
-
             }
         }
     }
 }
-
 @Composable
 fun CartItem(
     libro: LibroDTO,
@@ -355,6 +487,7 @@ fun CartItem(
         }
     }
 }
+
 
 @Composable
 fun QuantitySelector(
