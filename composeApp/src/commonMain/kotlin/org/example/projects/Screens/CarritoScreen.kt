@@ -99,7 +99,7 @@ fun CarritoScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController,uiViewModel,sharedViewModel)
+            MenuBurger(drawerState, navController,uiViewModel,authViewModel,sharedViewModel)
         }
     ) { paddingValues ->
         Column(
@@ -213,6 +213,7 @@ fun CarritoScreen(
 
         }
     }
+
 
     // Diálogo de confirmación para eliminar
     if (showDeleteDialog) {

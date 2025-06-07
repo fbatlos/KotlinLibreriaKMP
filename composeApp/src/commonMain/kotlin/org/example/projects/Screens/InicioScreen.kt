@@ -27,7 +27,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.NavController.AppRoutes
@@ -50,9 +52,11 @@ fun InicioScreen(
     val libros by librosViewModel.libros.collectAsState()
     val librosFavoritos by librosViewModel.librosFavoritos.collectAsState()
 
-
     val usuarioLogueado = sharedViewModel.token.value != null
+
+    val showDialog by uiViewModel.showDialog.collectAsState()
     val isLoading by uiViewModel.isLoading.collectAsState()
+    val textError by uiViewModel.textError.collectAsState()
 
     val recomendaciones by inicioViewModel.recomendaciones.collectAsState()
     val librosCategoriaAleatoria by inicioViewModel.librosCategoria.collectAsState()
@@ -86,7 +90,7 @@ fun InicioScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController, uiViewModel, sharedViewModel)
+            MenuBurger(drawerState, navController, uiViewModel, authViewModel,sharedViewModel)
         }
     ) {
         LazyColumn(
@@ -122,6 +126,7 @@ fun InicioScreen(
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             Button(
+                                modifier = Modifier.testTag("botonScreenInicio"),
                                 onClick = { navController.navigateTo(AppRoutes.Login) },
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = AppColors.warning
@@ -265,6 +270,11 @@ fun InicioScreen(
                 }
             }
 
+        }
+        if (showDialog) {
+            ErrorDialog(textError = textError) {
+                uiViewModel.setShowDialog(it)
+            }
         }
     }
 }

@@ -77,7 +77,7 @@ fun RegisterScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController, uiStateViewModel,sharedViewModel = sharedViewModel)
+            MenuBurger(drawerState,navController, uiStateViewModel,authViewModel,sharedViewModel = sharedViewModel)
         }
     ) { paddingValues ->
         Box(

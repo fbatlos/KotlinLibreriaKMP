@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
+import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.model.Compra
@@ -58,8 +59,12 @@ fun TicketCompraScreen(
     sharedViewModel: SharedViewModel,
     librosViewModel: LibrosViewModel
 ) {
-    val tickets by carritoViewModel.tickets.collectAsState() // Asegúrate de tener el StateFlow en tu ViewModel
+    val tickets by carritoViewModel.tickets.collectAsState()
+
+    val showDialog by uiViewModel.showDialog.collectAsState()
+    val textError by uiViewModel.textError.collectAsState()
     val isLoading by uiViewModel.isLoading.collectAsState()
+
     val libros by librosViewModel.libros.collectAsState()
     val token = sharedViewModel.token.collectAsState().value
 
@@ -70,6 +75,8 @@ fun TicketCompraScreen(
             uiViewModel.setLoading(true)
 
             carritoViewModel.getTicketsCompra()
+            authViewModel.fetchAllAvatares()
+            authViewModel.fetchMiAvatar()
             navigated = true
 
             uiViewModel.setLoading(false)
@@ -90,7 +97,7 @@ fun TicketCompraScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController, uiViewModel,sharedViewModel)
+            MenuBurger(drawerState,navController, uiViewModel, authViewModel,sharedViewModel)
         }
     ) {
         paddingValues ->
@@ -180,6 +187,11 @@ fun TicketCompraScreen(
 
                 }
 
+            }
+        }
+        if (showDialog) {
+            ErrorDialog(textError = textError) {
+                uiViewModel.setShowDialog(it)
             }
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -85,16 +86,6 @@ fun MiPerfilScreen(
     var showDireccionesDialog by remember { mutableStateOf(false) }
     var showAddDireccionDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        authViewModel.fetchUsuario()
-        authViewModel.fetchAllAvatares()
-    }
-
-    LaunchedEffect(idAvatarUsuario) {
-        if (idAvatarUsuario != null) {
-            authViewModel.fetchMiAvatar()
-        }
-    }
 
     LayoutPrincipal(
         headerContent = { drawerState, scope ->
@@ -112,135 +103,133 @@ fun MiPerfilScreen(
                 drawerState = drawerState,
                 navController = navController,
                 uiViewModel = uiViewModel,
+                authViewModel = authViewModel,
                 sharedViewModel = sharedViewModel
             )
         }
     ) { paddingValues ->
-
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp) // Espaciado entre items
         ) {
+            item {
+                Text(
+                    text = "Mi Perfil",
+                    style = MaterialTheme.typography.h4,
+                    color = AppColors.primary
+                )
+            }
 
-            Text(
-                text = "Mi Perfil",
-                style = MaterialTheme.typography.h4,
-                color = AppColors.primary
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Avatar clicable para cambiar
-            Box(
-                modifier = Modifier
-                    .size(140.dp)
-                    .clip(CircleShape)
-                    .border(4.dp, AppColors.primary, CircleShape)
-                    .clickable { showAvataresDialog = true },
-                contentAlignment = Alignment.Center
-            ) {
-                if (imagenUsuario != null) {
-                    Image(
-                        bitmap = imagenUsuario!!,
-                        contentDescription = "Avatar del usuario",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    CircularProgressIndicator(color = AppColors.primary, strokeWidth = 2.dp)
+            item {
+                // Avatar clicable para cambiar
+                Box(
+                    modifier = Modifier
+                        .size(140.dp)
+                        .clip(CircleShape)
+                        .border(4.dp, AppColors.primary, CircleShape)
+                        .clickable { showAvataresDialog = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (imagenUsuario != null) {
+                        Image(
+                            bitmap = imagenUsuario!!,
+                            contentDescription = "Avatar del usuario",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        CircularProgressIndicator(color = AppColors.primary, strokeWidth = 2.dp)
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Nombre de usuario
-            Text(
-                text = "Nombre de usuario",
-                style = MaterialTheme.typography.caption,
-                color = AppColors.primary
-            )
-            Text(
-                text = username,
-                style = MaterialTheme.typography.h6,
-                color = AppColors.primary
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Email
-            Text(
-                text = "Correo electrónico",
-                style = MaterialTheme.typography.caption,
-                color = AppColors.primary
-            )
-            Text(
-                text = email,
-                style = MaterialTheme.typography.body2,
-                color = AppColors.primary
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            // Botón volver
-            Button(
-                onClick = {
-                    navController.popBackStack()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = AppColors.primary,
-                    contentColor = AppColors.white
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(MaterialTheme.shapes.medium)
-            ) {
-                Text("Volver")
+            item {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Nombre de usuario",
+                        style = MaterialTheme.typography.caption,
+                        color = AppColors.primary
+                    )
+                    Text(
+                        text = username,
+                        style = MaterialTheme.typography.h6,
+                        color = AppColors.primary
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Botón volver
-            Button(
-                onClick = {
-                    showDireccionesDialog = true
-                },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = AppColors.primary,
-                    contentColor = AppColors.white
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(MaterialTheme.shapes.medium)
-            ) {
-                Text("Ver mis Direcciones")
+            item {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Correo electrónico",
+                        style = MaterialTheme.typography.caption,
+                        color = AppColors.primary
+                    )
+                    Text(
+                        text = email,
+                        style = MaterialTheme.typography.body2,
+                        color = AppColors.primary
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            item {
+                Button(
+                    onClick = { navController.popBackStack() },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = AppColors.primary,
+                        contentColor = AppColors.white
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                ) {
+                    Text("Volver")
+                }
+            }
 
-            // Botón cerrar sesión
-            Button(
-                onClick = {
-                    authViewModel.logout()
-                    librosViewModel.limpiar()
-                    carritoViewModel.limpiar()
-                    sharedViewModel.limpiar()
-                    navController.navigateTo(AppRoutes.Login)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = AppColors.error
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(MaterialTheme.shapes.large)
-            ) {
-                Text("Cerrar sesión", color = AppColors.white)
+            item {
+                Button(
+                    onClick = { showDireccionesDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = AppColors.primary,
+                        contentColor = AppColors.white
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                ) {
+                    Text("Ver mis Direcciones")
+                }
+            }
+
+            item {
+                Button(
+                    onClick = {
+                        authViewModel.logout()
+                        librosViewModel.limpiar()
+                        carritoViewModel.limpiar()
+                        sharedViewModel.limpiar()
+                        navController.navigateTo(AppRoutes.Login)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = AppColors.error
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .clip(MaterialTheme.shapes.large)
+                ) {
+                    Text("Cerrar sesión", color = AppColors.white)
+                }
             }
         }
+
 
         // Dialog para seleccionar avatar
         if (showAvataresDialog) {

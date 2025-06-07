@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
                                     librosViewModel = libroViewModel,
                                     carritoViewModel = carritoViewModel,
                                     sharedViewModel = sharedViewModel,
-                                    uiStateViewModel = uiStateViewModel
+                                    uiViewModel = uiStateViewModel
                                 )
                             }
 

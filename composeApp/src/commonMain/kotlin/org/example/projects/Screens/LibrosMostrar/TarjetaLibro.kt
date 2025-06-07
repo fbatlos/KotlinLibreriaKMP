@@ -19,9 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.example.projects.BaseDeDatos.model.Libro
-import org.example.projects.BaseDeDatos.model.TipoStock
 import org.example.projects.BaseDeDatos.model.TipoStock.AGOTADO
-import org.example.projects.BaseDeDatos.model.TipoStock.EN_STOCK
+import org.example.projects.BaseDeDatos.model.TipoStock.DISPONIBLE
 import org.example.projects.BaseDeDatos.model.TipoStock.PREVENTA
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
@@ -119,7 +118,7 @@ fun TarjetaLibro(
                 .offset(x = (-6).dp, y = 6.dp)
                 .background(
                     color = when (libro.stock.tipo) {
-                        EN_STOCK -> AppColors.primary
+                        DISPONIBLE -> AppColors.primary
                         AGOTADO -> AppColors.error
                         PREVENTA -> AppColors.warning
                     },
@@ -129,7 +128,7 @@ fun TarjetaLibro(
         ) {
             Text(
                 text = when (libro.stock.tipo) {
-                    EN_STOCK -> "S"
+                    DISPONIBLE -> "S"
                     AGOTADO -> "X"
                     PREVENTA -> "P"
                 },

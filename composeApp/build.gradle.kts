@@ -22,7 +22,7 @@ kotlin {
     
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -48,6 +48,7 @@ kotlin {
             implementation ("androidx.browser:browser:1.8.0")
 
             implementation ("com.stripe:stripe-android:20.3.0")
+
         }
         commonMain.dependencies {
             // Dependencias multiplataforma
@@ -83,7 +84,17 @@ kotlin {
             implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
         }
+
+        val androidInstrumentedTest by getting {
+            dependencies {
+                implementation("androidx.compose.ui:ui-test-junit4:1.7.0")
+                implementation("androidx.test:runner:1.5.2")
+                implementation("androidx.test.ext:junit:1.1.5")
+                implementation("androidx.test.espresso:espresso-core:3.5.1")
+            }
+        }
     }
+
 }
 
 android {
@@ -96,10 +107,17 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "/META-INF/{AL2.0,LGPL2.1}",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/NOTICE.md",
+                "META-INF/NOTICE"
+            )
         }
     }
     buildTypes {

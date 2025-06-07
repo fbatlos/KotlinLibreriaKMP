@@ -13,6 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.actapp.componentes_login.ErrorDialog
@@ -98,7 +99,7 @@ fun LibrosScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController, uiStateViewModel,sharedViewModel = sharedViewModel)
+            MenuBurger(drawerState,navController, uiStateViewModel,authViewModel,sharedViewModel = sharedViewModel)
         }
     ) {paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
@@ -113,10 +114,10 @@ fun LibrosScreen(
                 categoriasDisponibles = categoriasDisponibles,
                 onSelectedCategoria = { categoriaFiltro = it }
             )
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize().testTag("libroListaScreen")) {
                 if (isLoading || allLibros.isEmpty()) {
                     CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier.align(Alignment.Center).testTag("loadingIndicator"),
                         color = AppColors.primary
                     )
                 }
@@ -198,7 +199,7 @@ fun FiltrarLibros(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         item {

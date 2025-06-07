@@ -26,10 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.launch
-import org.example.projects.BaseDeDatos.API
 import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.BaseDeDatos.model.TipoStock
 import org.example.projects.BaseDeDatos.model.Valoracion
@@ -52,12 +50,14 @@ fun LibroDetailScreen(
     librosViewModel: LibrosViewModel,
     carritoViewModel: CarritoViewModel,
     sharedViewModel: SharedViewModel,
-    uiStateViewModel: UiStateViewModel
+    uiViewModel: UiStateViewModel
 ) {
     val librosSugeridos by librosViewModel.librosSugeridosCategorias.collectAsState()
     val librosSelected by librosViewModel.libroSelected.collectAsState()
 
-    val isLoading by uiStateViewModel.isLoading.collectAsState()
+    val isLoading by uiViewModel.isLoading.collectAsState()
+    val showDialog by uiViewModel.showDialog.collectAsState()
+    val textError by uiViewModel.textError.collectAsState()
 
     LaunchedEffect(librosSelected?.categorias) {
         librosSelected?.categorias?.firstOrNull()?.let { categoria ->
@@ -77,7 +77,7 @@ fun LibroDetailScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController,uiStateViewModel,sharedViewModel)
+            MenuBurger(drawerState, navController,uiViewModel, authViewModel,sharedViewModel)
         }
     ) { paddingValues ->
         Column(
@@ -111,7 +111,7 @@ fun LibroDetailScreen(
                             .padding(16.dp)
                             .background(
                                 color = when (estado) {
-                                    TipoStock.EN_STOCK -> AppColors.success.copy(alpha = 0.85f)
+                                    TipoStock.DISPONIBLE -> AppColors.success.copy(alpha = 0.85f)
                                     TipoStock.PREVENTA -> AppColors.warning.copy(alpha = 0.85f)
                                     TipoStock.AGOTADO -> AppColors.error.copy(alpha = 0.85f)
                                     else -> AppColors.primary.copy(alpha = 0.85f)
@@ -278,6 +278,12 @@ fun LibroDetailScreen(
                     sharedViewModel = sharedViewModel
                 )
             }
+
+            if (showDialog) {
+                ErrorDialog(textError = textError) {
+                    uiViewModel.setShowDialog(it)
+                }
+            }
         }
     }
 }
@@ -340,7 +346,7 @@ fun LibroSugeridoItem(libro: Libro,librosViewModel:LibrosViewModel, onClick: () 
                 .offset(x = (-6).dp, y = 6.dp)
                 .background(
                     color = when (libro.stock.tipo) {
-                        TipoStock.EN_STOCK -> AppColors.primary
+                        TipoStock.DISPONIBLE -> AppColors.primary
                         TipoStock.AGOTADO -> AppColors.error
                         TipoStock.PREVENTA -> AppColors.warning
                     },
@@ -350,7 +356,7 @@ fun LibroSugeridoItem(libro: Libro,librosViewModel:LibrosViewModel, onClick: () 
         ) {
             Text(
                 text = when (libro.stock.tipo) {
-                    TipoStock.EN_STOCK -> "S"
+                    TipoStock.DISPONIBLE -> "S"
                     TipoStock.AGOTADO -> "X"
                     TipoStock.PREVENTA -> "P"
                 },

@@ -1,6 +1,7 @@
 ﻿package org.example.projects.Screens.CommonParts
 
 import AppColors
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -157,7 +159,7 @@ fun HeaderConHamburguesa(
                             .size(25.dp)
                             .clip(CircleShape)
                             .background(AppColors.error),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.TopCenter
                     ) {
                         Text(
                             text = if (cestaSize > 9) "9+" else "${cestaSize}",
@@ -177,10 +179,15 @@ fun MenuBurger(
     drawerState: DrawerState,
     navController: Navegator,
     uiViewModel:UiStateViewModel,
+    authViewModel: AuthViewModel,
     sharedViewModel: SharedViewModel
 ){
+
     val scope = rememberCoroutineScope()
     var selected by remember { mutableStateOf("") }
+    val token by sharedViewModel.token.collectAsState()
+    val imagenUsuario by authViewModel.imagenUsuario.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -188,22 +195,61 @@ fun MenuBurger(
             .background(MaterialTheme.colors.surface)
     ) {
         // Encabezado del menú
-        Text(
-            text = "LeafRead",
-            style = MaterialTheme.typography.h5.copy(
-                fontWeight = FontWeight.Bold,
-                color = AppColors.primary
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "LeafRead",
+                style = MaterialTheme.typography.h5.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = AppColors.primary
+                )
+            )
 
-        Text(
-            text = "Menú Principal",
-            style = MaterialTheme.typography.subtitle1.copy(
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
-            ),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+            if (token.isNullOrEmpty()) {
+                Button(
+                    onClick = { navController.navigateTo(AppRoutes.Login) },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = AppColors.primary,
+                        contentColor = AppColors.white
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text("Iniciar sesión", fontSize = 14.sp)
+                }
+            } else {
+                // Avatar del usuario
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(AppColors.primary)
+                        .clickable {
+                            navController.navigateTo(AppRoutes.MiPerfil)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (imagenUsuario != null) {
+                        Image(
+                            bitmap = imagenUsuario!!,
+                            contentDescription = "Avatar del usuario",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Avatar por defecto",
+                            tint = AppColors.white
+                        )
+                    }
+                }
+            }
+
+        }
 
         Divider(color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
 

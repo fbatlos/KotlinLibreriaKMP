@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -58,6 +59,7 @@ fun CustomTextField(
         ),
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("textFieldNormal")
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(12.dp)
     )
@@ -116,6 +118,7 @@ fun CustomPasswordField(
         ),
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("textFieldContrasenia")
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(12.dp)
     )

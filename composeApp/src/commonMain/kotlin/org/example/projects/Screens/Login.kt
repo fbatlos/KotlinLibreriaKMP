@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -59,6 +60,7 @@ fun LoginScreen(
     val userName by authViewModel.username.collectAsState()
     val contrasenia by authViewModel.contrasenia.collectAsState()
     val isEnable by authViewModel.isLoginEnable.collectAsState()
+    val idAvatarUsuario by authViewModel.idAvatarUsuario.collectAsState()
 
     val textError by uiStateViewModel.textError.collectAsState()
     val showDialog by uiStateViewModel.showDialog.collectAsState()
@@ -78,7 +80,7 @@ fun LoginScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController, uiStateViewModel,sharedViewModel =sharedViewModel )
+            MenuBurger(drawerState,navController, uiStateViewModel,authViewModel,sharedViewModel =sharedViewModel )
         }
     ) { paddingValues ->
         Box(
@@ -141,6 +143,13 @@ fun LoginScreen(
                             callback = { success ->
                                 if (success) {
                                     carritoViewModel.getCesta()
+
+                                    authViewModel.fetchUsuario()
+                                    authViewModel.fetchAllAvatares()
+
+                                    if (idAvatarUsuario != null) {
+                                        authViewModel.fetchMiAvatar()
+                                    }
                                     navController.navigateTo(AppRoutes.LibroLista)
                                 }
                             }
@@ -148,6 +157,7 @@ fun LoginScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .testTag("botonIniciarSesion")
                         .height(48.dp),
                     enabled = isEnable,
                     shape = RoundedCornerShape(8.dp),

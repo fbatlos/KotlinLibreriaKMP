@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.launch
 import org.example.projects.BaseDeDatos.model.Valoracion
 import org.example.projects.NavController.AppRoutes
@@ -55,8 +56,12 @@ fun MisValoracionesScreen(
 ) {
     val misValoraciones by librosViewModel.misValoraciones.collectAsState()
     val libros by librosViewModel.libros.collectAsState()
+
     val isLoading by uiViewModel.isLoading.collectAsState()
-    val token = sharedViewModel.token.collectAsState().value
+    val showDialog by uiViewModel.showDialog.collectAsState()
+    val textError by uiViewModel.textError.collectAsState()
+
+    val token by sharedViewModel.token.collectAsState()
 
     var navigated by remember { mutableStateOf(false) }
 
@@ -79,7 +84,7 @@ fun MisValoracionesScreen(
             )
         },
         drawerContent = { drawerState ->
-            MenuBurger(drawerState, navController,uiViewModel, sharedViewModel)
+            MenuBurger(drawerState, navController,uiViewModel, authViewModel, sharedViewModel)
         }
     ) { paddingValues ->
         when {
@@ -131,6 +136,12 @@ fun MisValoracionesScreen(
                     }
 
                 }
+            }
+        }
+
+        if (showDialog) {
+            ErrorDialog(textError = textError) {
+                uiViewModel.setShowDialog(it)
             }
         }
     }

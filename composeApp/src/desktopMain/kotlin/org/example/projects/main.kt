@@ -61,7 +61,7 @@ fun main() = application {
                         librosViewModel = libroViewModel,
                         carritoViewModel = carritoViewModel,
                         sharedViewModel = sharedViewModel,
-                        uiStateViewModel = uiStateViewModel
+                        uiViewModel = uiStateViewModel
                     )
                 }
                 is AppRoutes.Registro -> {
