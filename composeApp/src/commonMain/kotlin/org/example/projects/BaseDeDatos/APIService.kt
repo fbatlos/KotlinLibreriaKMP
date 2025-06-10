@@ -18,6 +18,7 @@ import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.Direccion
 import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
+import org.example.projects.BaseDeDatos.model.Ticket
 import org.example.projects.BaseDeDatos.model.Valoracion
 
 interface APIService {
@@ -56,4 +57,15 @@ interface APIService {
 
     suspend fun addTicket(compra: Compra,token: String): Map<String, Boolean>
     suspend fun getTicketCompra(token:String):MutableList<Compra>
+
+    suspend fun addTicketDuda(ticket: Ticket,token: String):Ticket
+
+    //ADMIN
+
+    suspend fun addLibro(libro: Libro,token: String):Boolean
+    suspend fun putLibro(libroID:String,libro: Libro,token: String):Boolean
+    suspend fun deleteLibro(libroID: String,token: String):Boolean
+
+    suspend fun allCompras(token: String):List<Compra>
+    suspend fun allTicket(token: String):List<Ticket>
 }

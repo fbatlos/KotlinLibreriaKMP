@@ -196,10 +196,10 @@ fun FiltrarLibros(
 
 
     LazyRow(
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         item {
@@ -220,7 +220,7 @@ fun FiltrarLibros(
                     }
                 },
                 label = { Text("Min €", color = AppColors.primary) },
-                modifier = Modifier.width(100.dp).height(60.dp),
+                modifier = Modifier.width(100.dp).height(60.dp).padding(start = 10.dp, end = 10.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 isError = errorPrecio.isNotEmpty(),
@@ -282,7 +282,7 @@ fun FiltroTipoStock(selectedTipo: TipoStock?, onSelected:(TipoStock?) -> Unit) {
 
     Box {
         Button(
-            modifier = Modifier.height(50.dp),
+            modifier = Modifier.height(50.dp).padding(end = 10.dp),
             onClick = { expanded = true },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppColors.primary,

@@ -23,7 +23,7 @@ object AppContextProvider {
                     Toast.makeText(context, "Pago exitoso", Toast.LENGTH_LONG).show()
                     NavigationHandleDeepLink.carritoViewModel.verEstadoPago(true)
 
-                    NavigationHandleDeepLink.navigator.navigateTo(AppRoutes.LibroLista)
+                    NavigationHandleDeepLink.navigator.navigateTo(AppRoutes.Inicio)
                 }
                 it.contains("/pago_candelado") -> {
                     Log.d("DeepLink", "Pago cancelado")

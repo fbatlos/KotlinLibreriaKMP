@@ -7,7 +7,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,10 +30,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.example.actapp.componentes_login.ErrorDialog
 import kotlinx.coroutines.*
-import org.example.projects.BaseDeDatos.API
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
 import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
@@ -50,17 +47,18 @@ fun RegisterScreen(
     navController: Navegator,
     authViewModel: AuthViewModel,
     carritoViewModel: CarritoViewModel,
-    uiStateViewModel: UiStateViewModel,
+    uiViewModel: UiStateViewModel,
     sharedViewModel: SharedViewModel
 ) {
     val userName by authViewModel.username.collectAsState()
     val contrasenia by authViewModel.contrasenia.collectAsState()
     val email by authViewModel.email.collectAsState()
     val isEnable by authViewModel.isLoginEnable.collectAsState()
+    val idAvatarUsuario by authViewModel.idAvatarUsuario.collectAsState()
 
-    val textError by uiStateViewModel.textError.collectAsState()
-    val showDialog by uiStateViewModel.showDialog.collectAsState()
-    val isLoading by uiStateViewModel.isLoading.collectAsState()
+    val textError by uiViewModel.textError.collectAsState()
+    val showDialog by uiViewModel.showDialog.collectAsState()
+    val isLoading by uiViewModel.isLoading.collectAsState()
     val focusManager = LocalFocusManager.current
 
     var contraseniaRepeat  by remember { mutableStateOf("") }
@@ -77,7 +75,7 @@ fun RegisterScreen(
             )
         },
         drawerContent = {drawerState->
-            MenuBurger(drawerState,navController, uiStateViewModel,authViewModel,sharedViewModel = sharedViewModel)
+            MenuBurger(drawerState,navController, uiViewModel,authViewModel,sharedViewModel = sharedViewModel)
         }
     ) { paddingValues ->
         Box(
@@ -156,6 +154,13 @@ fun RegisterScreen(
                             passwordRepeat = contraseniaRepeat,
                             callback = { success ->
                                 if (success) {
+
+                                    authViewModel.fetchUsuario()
+                                    authViewModel.fetchAllAvatares()
+
+                                    if (idAvatarUsuario != null) {
+                                        authViewModel.fetchMiAvatar()
+                                    }
                                     navController.navigateTo(AppRoutes.LibroLista)
                                 }
                             }
@@ -198,7 +203,7 @@ fun RegisterScreen(
             if (showDialog) {
                 ErrorDialog(
                     textError = textError ?: "Error desconocido",
-                    onDismiss = { uiStateViewModel.setShowDialog(false) }
+                    onDismiss = { uiViewModel.setShowDialog(false) }
                 )
             }
         }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.actapp.componentes_login.ErrorDialog
@@ -233,7 +235,7 @@ fun MiPerfilScreen(
 
         // Dialog para seleccionar avatar
         if (showAvataresDialog) {
-            if (showAvataresDialog) {
+
                 AvatarSelectionDialog(
                     avatares = listaAvatares,
                     onAvatarSelected = { avatarId ->
@@ -242,7 +244,7 @@ fun MiPerfilScreen(
                     },
                     onDismiss = { showAvataresDialog = false }
                 )
-            }
+
         }
 
 
@@ -297,32 +299,51 @@ private fun AvatarSelectionDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Selecciona un avatar") },
         text = {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = Modifier.height(200.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.Center
             ) {
                 items(avatares) { avatar ->
                     val bitmap = remember(avatar.data) {
                         convertByteArrayToImageBitmap(avatar.data.toByteArray())
                     }
-                    Image(
-                        bitmap = bitmap,
-                        contentDescription = "Avatar ${avatar.id}",
+
+                    Box(
                         modifier = Modifier
-                            .padding(8.dp)
-                            .size(80.dp)
+                            .fillMaxSize()
+                            .padding(4.dp)
                             .clip(CircleShape)
                             .border(2.dp, AppColors.primary, CircleShape)
                             .clickable { onAvatarSelected(avatar.id!!) }
-                    )
+                            .background(AppColors.lightGrey.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap,
+                                contentDescription = "Avatar del usuario",
+                                contentScale = ContentScale.Crop, // Esto es crucial
+                                modifier = Modifier
+                                    .fillMaxWidth().height(180.dp)
+                                    .clip(CircleShape)
+                            )
+                        } else {
+                            CircularProgressIndicator(
+                                color = AppColors.primary,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(30.dp)
+                            )
+                        }
+                    }
+
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text("Cancelar", color = AppColors.primary)
             }
         }
     )

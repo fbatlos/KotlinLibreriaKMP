@@ -19,6 +19,7 @@ import org.example.projects.BaseDeDatos.model.Compra
 import org.example.projects.BaseDeDatos.model.Direccion
 import org.example.projects.BaseDeDatos.model.ItemCompra
 import org.example.projects.BaseDeDatos.model.Libro
+import org.example.projects.BaseDeDatos.model.Ticket
 import org.example.projects.BaseDeDatos.model.Valoracion
 import java.net.URLEncoder
 
@@ -423,9 +424,10 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             header(HttpHeaders.Authorization, "Bearer $token")
             setBody(compra)
         }
-
         return when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.OK -> {
+                response.body()
+            }
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.BadRequest -> throw ApiException("Error ${response.body<ErrorResponse>().message}") //No debería saltar nunca
             else -> throw ApiException(
@@ -443,6 +445,104 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             HttpStatusCode.OK -> response.body()
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}") //No debería saltar nunca
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
+            )
+        }
+    }
+
+    override suspend fun addTicketDuda(ticket: Ticket, token: String): Ticket {
+        val response = client.post("/ticket/enviar") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody(ticket)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
+            )
+        }
+    }
+
+    override suspend fun addLibro(libro: Libro, token: String): Boolean {
+        val response = client.post("/libros/admin/libro") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody(libro)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Conflict -> throw ApiException("${response.body<ErrorResponse>().message}")
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
+            )
+        }
+    }
+
+    override suspend fun putLibro(libroID: String, libro: Libro, token: String): Boolean {
+        val response = client.put("/libros/admin/libros/$libroID") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody(libro)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Conflict -> throw ApiException("${response.body<ErrorResponse>().message}")
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
+            )
+        }
+    }
+
+    override suspend fun deleteLibro(libroID: String, token: String): Boolean {
+        val response = client.delete("/libros/admin/libros/$libroID") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Conflict -> throw ApiException("${response.body<ErrorResponse>().message}")
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
+            )
+        }
+    }
+
+    override suspend fun allCompras(token: String): List<Compra> {
+        val response = client.get("/compra/admin/tickets") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Conflict -> throw ApiException("${response.body<ErrorResponse>().message}")
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")
+            else -> throw ApiException(
+                "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
+            )
+        }
+    }
+
+    override suspend fun allTicket(token: String): List<Ticket> {
+        val response = client.get("/ticket/admin/tickets") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.Conflict -> throw ApiException("${response.body<ErrorResponse>().message}")
+            HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
+            HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")
             else -> throw ApiException(
                 "Error ${response.status.value}: ${response.body<ErrorResponse>().message}"
             )

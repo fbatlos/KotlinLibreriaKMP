@@ -22,6 +22,10 @@ import androidx.compose.material.MaterialTheme
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.NavigationHandleDeepLink
 import org.example.projects.NavController.Navigator
+import org.example.projects.Screens.AdminScreens.CompraAdminScreen
+import org.example.projects.Screens.AdminScreens.LibrosAdminScreen
+import org.example.projects.Screens.AdminScreens.TicketsDudaAdminScreen
+import org.example.projects.Screens.AyudaScreen
 import org.example.projects.Screens.CarritoScreen
 import org.example.projects.Screens.InicioScreen
 import org.example.projects.Screens.LibroDetailScreen
@@ -30,12 +34,16 @@ import org.example.projects.Screens.MiPerfilScreen
 import org.example.projects.Screens.MisValoracionesScreen
 import org.example.projects.Screens.RegisterScreen
 import org.example.projects.Screens.TicketCompraScreen
+import org.example.projects.ViewModel.AdminViewModel.LibrosAdminViewModel
+import org.example.projects.ViewModel.AdminViewModel.TicketCompraAdminViewModel
+import org.example.projects.ViewModel.AdminViewModel.TicketDudaAdminViewModel
 import org.example.projects.ViewModel.AppContextProvider
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.CarritoViewModel
 import org.example.projects.ViewModel.InicioViewModel
 import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
+import org.example.projects.ViewModel.TicketViewModel
 import org.example.projects.ViewModel.UiStateViewModel
 
 class MainActivity : ComponentActivity() {
@@ -56,6 +64,11 @@ class MainActivity : ComponentActivity() {
                 val libroViewModel = remember { LibrosViewModel(uiStateViewModel, sharedViewModel) }
                 val carritoViewModel = remember { CarritoViewModel(uiStateViewModel, sharedViewModel = sharedViewModel, authViewModel = authViewModel) }
                 val inicioViewModel = remember { InicioViewModel() }
+                val ticketViewModel = remember { TicketViewModel(uiStateViewModel,authViewModel,sharedViewModel) }
+                val librosAdminViewModel = remember { LibrosAdminViewModel(uiStateViewModel, sharedViewModel, libroViewModel) }
+                val ticketCompraAdminViewModel = remember { TicketCompraAdminViewModel(uiStateViewModel,sharedViewModel) }
+                val ticketDudaAdminViewModel = remember { TicketDudaAdminViewModel(uiStateViewModel,sharedViewModel) }
+
 
                 NavigationHandleDeepLink.carritoViewModel = carritoViewModel
 
@@ -138,7 +151,7 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier,
                                     navController = navigator,
                                     authViewModel = authViewModel,
-                                    uiStateViewModel = uiStateViewModel,
+                                    uiViewModel = uiStateViewModel,
                                     carritoViewModel = carritoViewModel,
                                     sharedViewModel = sharedViewModel
                                 )
@@ -177,6 +190,53 @@ class MainActivity : ComponentActivity() {
                                     authViewModel = authViewModel,
                                     uiViewModel = uiStateViewModel,
                                     carritoViewModel = carritoViewModel
+                                )
+                            }
+
+                            composable(route = AppRoutes.Ayuda.route){
+                                AyudaScreen(
+                                    librosViewModel = libroViewModel,
+                                    sharedViewModel = sharedViewModel,
+                                    navController = navigator,
+                                    authViewModel = authViewModel,
+                                    carritoViewModel = carritoViewModel,
+                                    uiViewModel = uiStateViewModel,
+                                    ticketViewModel = ticketViewModel
+                                )
+                            }
+
+                            composable(route = AppRoutes.LibrosAdmin.route){
+                                LibrosAdminScreen(
+                                    librosViewModel = libroViewModel,
+                                    sharedViewModel = sharedViewModel,
+                                    navController = navigator,
+                                    authViewModel = authViewModel,
+                                    carritoViewModel = carritoViewModel,
+                                    uiViewModel = uiStateViewModel,
+                                    librosAdminViewModel = librosAdminViewModel
+                                )
+                            }
+
+                            composable(route = AppRoutes.CompraAdmin.route){
+                                CompraAdminScreen(
+                                    navController = navigator,
+                                    carritoViewModel = carritoViewModel,
+                                    authViewModel = authViewModel,
+                                    uiViewModel = uiStateViewModel,
+                                    sharedViewModel = sharedViewModel,
+                                    librosViewModel = libroViewModel,
+                                    ticketCompraAdminViewModel = ticketCompraAdminViewModel
+                                )
+                            }
+
+                            composable(route = AppRoutes.TicketDudaAdmin.route){
+                                TicketsDudaAdminScreen(
+                                    navController = navigator,
+                                    carritoViewModel = carritoViewModel,
+                                    authViewModel = authViewModel,
+                                    uiViewModel = uiStateViewModel,
+                                    sharedViewModel = sharedViewModel,
+                                    ticketDudaAdminViewModel = ticketDudaAdminViewModel
                                 )
                             }
 

@@ -183,6 +183,7 @@ fun CarritoScreen(
                     authViewModel = authViewModel,
                     onConfirm = {
                         showDireccionesDialog = false
+                        showAddDireccionDialog = false
                     },
                     onCancel = { showDireccionesDialog = false },
                     onAddNew = {
@@ -207,7 +208,7 @@ fun CarritoScreen(
                             onCancel = { showAddDireccionDialog = false }
                         )
                     },
-                    buttons = {} // Los botones están dentro del formulario
+                    buttons = {}
                 )
             }
 

@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
+import org.example.projects.Utils.Utils
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.*
 
@@ -186,6 +188,7 @@ fun MenuBurger(
     val scope = rememberCoroutineScope()
     var selected by remember { mutableStateOf("") }
     val token by sharedViewModel.token.collectAsState()
+    val esAdmin by sharedViewModel.isAdmin.collectAsState()
     val imagenUsuario by authViewModel.imagenUsuario.collectAsState()
 
     Column(
@@ -252,9 +255,14 @@ fun MenuBurger(
         }
 
         Divider(color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
+        val adminMenuItems = if (esAdmin) listOf(
+            "Libros Admin" to Icons.Outlined.Edit,
+            "Compras" to Icons.Filled.ShoppingCart,
+            "Soporte" to Icons.Default.Build
+        ) else emptyList()
 
         // Items del menú
-        val menuItems = listOf(
+        val menuItems = adminMenuItems+listOf(
             "Inicio" to Icons.Default.Home,
             "Catálogo" to Icons.Outlined.ThumbUp,
             "Mi Perfil" to Icons.Default.Person,
@@ -278,7 +286,6 @@ fun MenuBurger(
 
                             "Mi Perfil" -> {
                                 if (sharedViewModel.token.value.isNullOrEmpty()) {
-                                    //TODO hacer token para logearte o ver tu perfil real
                                     uiViewModel.setTextError("Debes iniciar sesión para ver tu perfil.")
                                     uiViewModel.setShowDialog(true)
                                     navController.navigateTo(AppRoutes.Login)
@@ -314,7 +321,21 @@ fun MenuBurger(
                                 }
                             }
 
-                            //TODO implementar las demas ventanitas
+                            "Ayuda" -> {
+                                navController.navigateTo(AppRoutes.Ayuda)
+                            }
+
+                            "Libros Admin" ->{
+                                navController.navigateTo(AppRoutes.LibrosAdmin)
+                             }
+
+                            "Soporte" ->{
+                                navController.navigateTo(AppRoutes.TicketDudaAdmin)
+                            }
+
+                            "Compras" -> {
+                                navController.navigateTo(AppRoutes.CompraAdmin)
+                            }
                         }
                         println(selected)
                     }

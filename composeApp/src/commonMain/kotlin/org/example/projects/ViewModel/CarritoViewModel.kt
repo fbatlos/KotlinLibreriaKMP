@@ -134,8 +134,7 @@ class CarritoViewModel(
     fun actualizarStok(){
         viewModelScope.launch {
             try {
-                val resultado = API.apiService.actualizarStock(Compra(authViewModel.username.value, _items.value,LocalDateTime.now().toString(), direccion = authViewModel.direccionSeleccionada.value!!), token = sharedViewModel.token.value!!)
-                println(resultado)
+               API.apiService.actualizarStock(Compra(authViewModel.username.value, _items.value,LocalDateTime.now().toString(), direccion = authViewModel.direccionSeleccionada.value!!), token = sharedViewModel.token.value!!)
             } catch (e: Exception) {
                 uiStateViewModel.setTextError("Error al actualizar el Stock: ${e.message}")
                 uiStateViewModel.setShowDialog(true)

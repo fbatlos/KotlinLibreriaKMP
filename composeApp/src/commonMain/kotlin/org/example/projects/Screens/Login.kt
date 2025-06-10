@@ -86,7 +86,7 @@ fun LoginScreen(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
+                .background(AppColors.white)
                 .padding(paddingValues)
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = { focusManager.clearFocus() })
@@ -105,7 +105,7 @@ fun LoginScreen(
                     text = "LeafRead",
                     style = MaterialTheme.typography.h4.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4CAF50)
+                        color = AppColors.primary
                     ),
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
@@ -147,6 +147,7 @@ fun LoginScreen(
                                     authViewModel.fetchUsuario()
                                     authViewModel.fetchAllAvatares()
 
+                                    sharedViewModel.comprobarAdmin()
                                     if (idAvatarUsuario != null) {
                                         authViewModel.fetchMiAvatar()
                                     }
@@ -163,7 +164,7 @@ fun LoginScreen(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = AppColors.primary,
-                        disabledBackgroundColor = Color(0xFFA5D6A7)
+                        disabledBackgroundColor = AppColors.white
                     )
                 ) {
                     if (isLoading) {
@@ -182,7 +183,7 @@ fun LoginScreen(
 
                 Text(
                     text = "¿No tienes cuenta? Regístrate",
-                    color = Color(0xFF4CAF50),
+                    color = AppColors.primary,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier.clickable {
                         navController.navigateTo(AppRoutes.Registro)

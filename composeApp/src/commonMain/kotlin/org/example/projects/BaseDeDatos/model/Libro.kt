@@ -16,5 +16,4 @@ data class Libro(
     var categorias: List<String> = emptyList(),
     val valoracionMedia: Double? = 0.0,
     var stock: Stock
-){
-}
+)

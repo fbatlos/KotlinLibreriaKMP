@@ -1,4 +1,4 @@
-package org.example.projects.Screens
+package org.example.projects.Screens.AdminScreens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,21 +46,22 @@ import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.Screens.LibrosMostrar.ImagenDesdeUrl
 import org.example.projects.Utils.Utils
 import org.example.projects.ViewModel.*
+import org.example.projects.ViewModel.AdminViewModel.TicketCompraAdminViewModel
 
 @Composable
-fun TicketCompraScreen(
+fun CompraAdminScreen(
     navController: Navegator,
     carritoViewModel: CarritoViewModel,
     authViewModel:AuthViewModel,
     uiViewModel:UiStateViewModel,
     sharedViewModel: SharedViewModel,
-    librosViewModel: LibrosViewModel
+    librosViewModel: LibrosViewModel,
+    ticketCompraAdminViewModel: TicketCompraAdminViewModel
 ) {
-    val ticketsCompra by carritoViewModel.tickets.collectAsState()
-
+    val ticketsCompra by ticketCompraAdminViewModel.allCompra.collectAsState()
+    println(ticketsCompra)
     val showDialog by uiViewModel.showDialog.collectAsState()
     val textError by uiViewModel.textError.collectAsState()
-    val isLoading by uiViewModel.isLoading.collectAsState()
 
     val libros by librosViewModel.libros.collectAsState()
     val token = sharedViewModel.token.collectAsState().value
@@ -71,11 +72,11 @@ fun TicketCompraScreen(
         if (!navigated) {
             uiViewModel.setLoading(true)
 
-            carritoViewModel.getTicketsCompra()
-            authViewModel.fetchAllAvatares()
-            authViewModel.fetchMiAvatar()
+            ticketCompraAdminViewModel.gatAllCompra()
+            if (libros.isNullOrEmpty()){
+                librosViewModel.fetchLibros()
+            }
             navigated = true
-
             uiViewModel.setLoading(false)
         }
     }
@@ -97,9 +98,9 @@ fun TicketCompraScreen(
             MenuBurger(drawerState,navController, uiViewModel, authViewModel,sharedViewModel)
         }
     ) {
-        paddingValues ->
+            paddingValues ->
         when {
-            isLoading || ticketsCompra == null-> {
+             ticketsCompra == null-> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -218,8 +219,14 @@ fun TicketCard(compra: Compra, sumaCompra: Double,onClick: () -> Unit) {
                     color = AppColors.primary,
                     style = MaterialTheme.typography.h6
                 )
-
             }
+            Text(
+                modifier = Modifier.padding(start = 10.dp),
+                text = "Dirección: Provincia-${compra.direccion.provincia}  Municipio-${compra.direccion.municipio}\nCalle-${compra.direccion.calle}  Numero-${compra.direccion.num}",
+                color = AppColors.primary,
+                style = MaterialTheme.typography.h6
+            )
+
             Text("Fecha: ${Utils.formatearFecha(compra.fechaCompra)}", color = AppColors.grey, style = MaterialTheme.typography.body2)
             Spacer(modifier = Modifier.height(8.dp))
             Divider(color = AppColors.greyBlue, thickness = 1.dp)
