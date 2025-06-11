@@ -13,7 +13,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.Serializable
 
 import javax.net.ssl.SSLContext
-
+//Objeto api para usar en cualquier lugar
 object API {
     private const val BASE_URL = "https://api-tfg.onrender.com/"
 
@@ -23,6 +23,7 @@ object API {
         isLenient = true
     }
 
+    //Variable Criente para poder realizar peticiones seguras
     private val client: HttpClient by lazy {
         HttpClient() {
             install(ContentNegotiation) {
@@ -47,7 +48,7 @@ object API {
     val apiService: APIService by lazy {
         APIServiceImpl(client)
     }
-
+    //Parseo del Error
     suspend fun parseError(response: HttpResponse): ApiError {
         return try {
             response.body<ApiError>() ?: ApiError("Unknown error")

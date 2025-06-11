@@ -4,6 +4,7 @@ import org.example.projects.BaseDeDatos.model.Libro
 import org.example.projects.Utils.LibroSerializer.toJsonString
 import java.net.URLEncoder
 
+//Rutas donde debe navergar
 sealed class AppRoutes(val route: String) {
     object Login : AppRoutes("login")
     object MiPerfil:AppRoutes("miPerfil")
