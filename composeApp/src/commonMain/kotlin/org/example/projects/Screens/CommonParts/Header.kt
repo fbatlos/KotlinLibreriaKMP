@@ -40,6 +40,7 @@ import org.example.projects.Utils.Utils
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.*
 
+//Funcion para llamar en todas las pantallas
 @Composable
 fun LayoutPrincipal(
     headerContent: @Composable (DrawerState, CoroutineScope) -> Unit,
@@ -60,9 +61,11 @@ fun LayoutPrincipal(
     }
 }
 
+//Todos los componentes que requiere el Header
 @Composable
 fun HeaderConHamburguesa(
     onMenuClick: () -> Unit = {},
+    //Añadido para mejoras futuras
     onSearchClick: () -> Unit = {},
     onSearch: (String) -> Unit,
     navController: Navegator,
@@ -177,6 +180,7 @@ fun HeaderConHamburguesa(
     )
 }
 
+//Lógica del menú Burger
 @Composable
 fun MenuBurger(
     drawerState: DrawerState,

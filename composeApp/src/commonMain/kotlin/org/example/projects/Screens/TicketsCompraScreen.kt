@@ -47,6 +47,7 @@ import org.example.projects.Screens.LibrosMostrar.ImagenDesdeUrl
 import org.example.projects.Utils.Utils
 import org.example.projects.ViewModel.*
 
+//Pantalla para mostrar todos los tickets del usuario
 @Composable
 fun TicketCompraScreen(
     navController: Navegator,
@@ -194,6 +195,7 @@ fun TicketCompraScreen(
     }
 }
 
+//Carta que muestra Todos los datos de un ticket
 @Composable
 fun TicketCard(compra: Compra, sumaCompra: Double,onClick: () -> Unit) {
     Card(
@@ -231,6 +233,7 @@ fun TicketCard(compra: Compra, sumaCompra: Double,onClick: () -> Unit) {
     }
 }
 
+//Filtar libro según item compra
 @Composable
 fun LibroCompraItem(libro:Libro ,itemCompra: ItemCompra) {
 

@@ -19,7 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.example.projects.BaseDeDatos.model.Direccion
-
+//Forma de la dirección Probisional
 @Composable
 fun DireccionForm(
     onGuardar: (Direccion) -> Unit,

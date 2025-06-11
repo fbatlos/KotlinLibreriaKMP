@@ -41,6 +41,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.example.projects.BaseDeDatos.model.Direccion
 import org.example.projects.ViewModel.AuthViewModel
+
+//Formulario para direcciones
 @Composable
 fun FormularioDireccion(
     onSave: (Direccion) -> Unit,
@@ -136,6 +138,7 @@ fun FormularioDireccion(
     }
 }
 
+//Dialog de direcciones para añadir una o eliminar.
 @Composable
 fun DialogoDirecciones(
     authViewModel: AuthViewModel,

@@ -48,6 +48,7 @@ import org.example.projects.ViewModel.*
 import org.example.projects.Screens.componentes_login.CustomPasswordField
 import org.example.projects.Screens.componentes_login.CustomTextField
 
+//Pantalla de login
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,

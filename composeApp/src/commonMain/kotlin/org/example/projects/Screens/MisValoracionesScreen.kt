@@ -45,6 +45,7 @@ import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
 
+//Pantalla de valoraciones para que el usuario pueda verlas y eliminarlas
 @Composable
 fun MisValoracionesScreen(
     navController: Navegator,
@@ -147,6 +148,7 @@ fun MisValoracionesScreen(
     }
 }
 
+//Card con todo lo necesario para las valoraciones
 @Composable
 fun ResenaCard(
     valoracion: Valoracion,

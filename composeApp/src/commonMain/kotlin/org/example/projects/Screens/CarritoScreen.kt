@@ -50,10 +50,9 @@ import org.example.projects.Screens.DireccionFormulario.DialogoDirecciones
 import org.example.projects.Screens.DireccionFormulario.FormularioDireccion
 import org.example.projects.ViewModel.*
 import java.time.LocalDateTime
-
+//Obtenemos los libros por id
 fun obtenerLibro(idLibro:String? , libros:List<Libro>):Libro = libros.filter { it._id == idLibro }.first()
-
-
+//Pantalla donde está todo lo relacionado con la compra
 @Composable
 fun CarritoScreen(
     navController: Navegator,
@@ -120,7 +119,7 @@ fun CarritoScreen(
                 }
 
                 items.isEmpty() -> {
-                    EmptyCartView(navController)
+                    CarritoVacio(navController)
                 }
 
                 else -> {
@@ -129,7 +128,7 @@ fun CarritoScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         items(items.toList()) { (libroDto, cantidad) ->
-                            CartItem(
+                            CarritoItem(
                                 libro = libroDto,
                                 libros = libros,
                                 cantidad = cantidad,
@@ -250,6 +249,7 @@ fun CarritoScreen(
     }
 }
 
+//Manda a la api externa la solicitud del pago
 fun realizarCheckout(sharedViewModel: SharedViewModel,navController: Navegator,authViewModel: AuthViewModel,carritoViewModel: CarritoViewModel,items:List<ItemCompra>,direccionSeleccionada:Direccion,onShowDireccionDialog:(Boolean)->Unit){
     if (sharedViewModel.token.value.isNullOrBlank()) {
         navController.navigateTo(AppRoutes.Login)
@@ -275,7 +275,7 @@ fun realizarCheckout(sharedViewModel: SharedViewModel,navController: Navegator,a
     }
 }
 
-
+//Realiza el resumen de la compra
 @Composable
 private fun ResumenCompra(
     total: Double,
@@ -406,8 +406,10 @@ private fun ResumenCompra(
         }
     }
 }
+
+//Genera los items que van al carrito
 @Composable
-fun CartItem(
+fun CarritoItem(
     libro: LibroDTO,
     libros: List<Libro>,
     cantidad: Int,
@@ -467,7 +469,7 @@ fun CartItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            QuantitySelector(
+            SelectorDeCantidad(
                 cantidad = cantidad,
                 onIncrement = { onQuantityChange(cantidad + 1) },
                 onDecrement = { if (cantidad > 1) onQuantityChange(cantidad - 1) },
@@ -490,9 +492,9 @@ fun CartItem(
     }
 }
 
-
+//Aumenta o decrementa la contidad de libros en la cesta
 @Composable
-fun QuantitySelector(
+fun SelectorDeCantidad(
     cantidad: Int,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
@@ -508,7 +510,7 @@ fun QuantitySelector(
             onClick = onDecrement,
             modifier = Modifier.size(36.dp)
         ) {
-            Icon(Icons.Default.ArrowForward, contentDescription = "Decrementar")
+            Icon(Icons.Default.Delete, contentDescription = "Decrementar")
         }
 
         Text(
@@ -528,7 +530,7 @@ fun QuantitySelector(
 
 
 @Composable
-private fun EmptyCartView(navController: Navegator) {
+private fun CarritoVacio(navController: Navegator) {
     Column(
         modifier = Modifier
             .fillMaxSize()

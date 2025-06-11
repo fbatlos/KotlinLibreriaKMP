@@ -48,6 +48,7 @@ import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
 
+//Pantalla dedicada a administrar los diversos libros.
 @Composable
 fun LibrosAdminScreen(
     librosViewModel: LibrosViewModel,
@@ -103,6 +104,7 @@ fun LibrosAdminScreen(
             MenuBurger(drawerState, navController, uiViewModel, authViewModel, sharedViewModel)
         }
     ) { padding ->
+        //Comprobaciones.
         if (filteredLibros.isEmpty() && isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -123,6 +125,7 @@ fun LibrosAdminScreen(
                 )
             }
         }else {
+            //Llamada a los diferentes metodos
             Box(modifier = Modifier.fillMaxSize().background(AppColors.white)) {
                 LazyColumn(
                     modifier = Modifier
@@ -145,7 +148,7 @@ fun LibrosAdminScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-
+                //Añadir un nuevo libro
                 FloatingActionButton(
                     onClick = { showAddDialog = true },
                     modifier = Modifier
@@ -227,7 +230,7 @@ fun LibrosAdminScreen(
         )
     }
 }
-
+//Muestra el libro
 @Composable
 fun LibroCard(
     libro: Libro,
@@ -301,7 +304,7 @@ fun LibroCard(
                     }
                 }
 
-                // Botones de acción
+                // Botones de acciones
                 Column {
                     IconButton(
                         onClick = onEdit,
@@ -340,7 +343,7 @@ fun LibroCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Autores y categorías
+            // Autores , categorías y isbn
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -373,7 +376,7 @@ fun LibroCard(
         }
     }
 }
-
+//Editar todos los parametros de un libro
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun LibroEditDialog(
@@ -408,7 +411,6 @@ fun LibroEditDialog(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
-                // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -435,11 +437,11 @@ fun LibroEditDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Campos del formulario
+                // Título del libro
                 OutlinedTextField(
                     value = currentLibro.titulo ?: "",
                     onValueChange = { currentLibro = currentLibro.copy(titulo = it) },
-                    label = { Text("Título") },
+                    label = { Text("Título",color = AppColors.primary) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = AppColors.primary,
@@ -448,11 +450,11 @@ fun LibroEditDialog(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
-
+                //Descripción del libro
                 OutlinedTextField(
                     value = currentLibro.descripcion ?: "",
                     onValueChange = { currentLibro = currentLibro.copy(descripcion = it) },
-                    label = { Text("Descripción") },
+                    label = { Text("Descripción",color = AppColors.primary) },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -462,11 +464,11 @@ fun LibroEditDialog(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
-
+                //ISBN del libro
                 OutlinedTextField(
                     value = currentLibro.isbn13 ?: "",
                     onValueChange = { currentLibro = currentLibro.copy(isbn13 = it) },
-                    label = { Text("ISBN") },
+                    label = { Text("ISBN",color = AppColors.primary) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -476,7 +478,7 @@ fun LibroEditDialog(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
-
+                //Llamada autores
                 AutoresField(
                     autores = currentLibro.autores,
                     onAutoresChange = { currentLibro = currentLibro.copy(autores = it) }
@@ -488,12 +490,16 @@ fun LibroEditDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    //Añade el valor del libro
                     OutlinedTextField(
                         value = currentLibro.precio.toString(),
                         onValueChange = {
-                            currentLibro = currentLibro.copy(precio = it.toDoubleOrNull() ?: 0.0)
+                                if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d{0,2}\$"))) {
+                                    currentLibro =
+                                        currentLibro.copy(precio = it.toDouble())
+                                }
                         },
-                        label = { Text("Precio") },
+                        label = { Text("Precio",color = AppColors.primary) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -501,11 +507,11 @@ fun LibroEditDialog(
                             cursorColor = AppColors.primary
                         )
                     )
-
+                    //Añadir una moneda nueva si fuera el caso
                     OutlinedTextField(
                         value = currentLibro.moneda!!,
                         onValueChange = { currentLibro = currentLibro.copy(moneda = it) },
-                        label = { Text("Moneda") },
+                        label = { Text("Moneda",color = AppColors.primary) },
                         modifier = Modifier.width(80.dp),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = AppColors.primary,
@@ -525,7 +531,6 @@ fun LibroEditDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Chips de categorías seleccionadas
                 if (selectedCategorias.isNotEmpty()) {
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -673,7 +678,7 @@ fun LibroEditDialog(
                                 stockNumero = it
                             }
                         },
-                        label = { Text("Cantidad") },
+                        label = { Text("Cantidad",color = AppColors.primary) },
                         modifier = Modifier.width(100.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -836,6 +841,7 @@ fun LibroEditDialog(
         }
 }
 
+//Apartado para añadir autores a una obra
 @Composable
 fun AutoresField(
     autores: List<String>,
@@ -893,7 +899,7 @@ fun AutoresField(
             OutlinedTextField(
                 value = newAutor,
                 onValueChange = { newAutor = it },
-                label = { Text("Añadir autor") },
+                label = { Text("Añadir autor",color = AppColors.primary) },
                 modifier = Modifier.weight(1f),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = AppColors.primary,

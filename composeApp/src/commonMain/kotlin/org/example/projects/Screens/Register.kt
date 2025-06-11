@@ -41,6 +41,7 @@ import org.example.projects.ViewModel.*
 import org.example.projects.Screens.componentes_login.CustomPasswordField
 import org.example.projects.Screens.componentes_login.CustomTextField
 
+//Pantalla de formulario para registrar un usuario
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,

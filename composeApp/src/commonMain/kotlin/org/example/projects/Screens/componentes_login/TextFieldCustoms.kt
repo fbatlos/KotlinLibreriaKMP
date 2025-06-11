@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
+//Field normal
 @Composable
 fun CustomTextField(
     value: String,
@@ -65,7 +66,7 @@ fun CustomTextField(
     )
 }
 
-
+//Field Para contraseña
 @Composable
 fun CustomPasswordField(
     value: String,

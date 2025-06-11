@@ -39,10 +39,10 @@ import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.Utils.Utils
 import org.example.projects.ViewModel.*
 import java.time.LocalDateTime
-
+//Como mostrar una imagen en cada máquina
 @Composable
 expect fun ImagenLibroDetails(url: String?, contentDescription: String?, modifier: Modifier)
-
+//Pantalla con los detalles de un libro
 @Composable
 fun LibroDetailScreen(
     navController: Navegator,
@@ -287,7 +287,7 @@ fun LibroDetailScreen(
         }
     }
 }
-
+//Listado de libros sugeridos por su categoria
 @Composable
 fun LibroSugeridoItem(libro: Libro,librosViewModel:LibrosViewModel, onClick: () -> Unit) {
 
@@ -384,7 +384,7 @@ fun LibroSugeridoItem(libro: Libro,librosViewModel:LibrosViewModel, onClick: () 
         }
     }
 }
-
+//Valoración  del libro
 @Composable
 fun RatingComentario(
     libroSelected:Libro?,
@@ -520,7 +520,7 @@ fun RatingComentario(
         }
     }
 }
-
+//Forma de la valoración
 @Composable
 fun ValoracionesForm(
     valoracion: Valoracion

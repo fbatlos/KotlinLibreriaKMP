@@ -467,14 +467,14 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
     }
 
-    override suspend fun addLibro(libro: Libro, token: String): Boolean {
+    override suspend fun addLibro(libro: Libro, token: String): String {
         val response = client.post("/libros/admin/libro") {
             header(HttpHeaders.Authorization, "Bearer $token")
             setBody(libro)
         }
-        println(response.bodyAsText())
+println(response.bodyAsText())
         return when (response.status) {
-            HttpStatusCode.OK -> true
+            HttpStatusCode.Created-> response.bodyAsText()
             HttpStatusCode.Conflict -> throw ApiException("${response.body<ErrorResponse>().message}")
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")

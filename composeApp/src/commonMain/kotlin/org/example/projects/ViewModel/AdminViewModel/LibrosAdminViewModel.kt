@@ -20,8 +20,7 @@ class LibrosAdminViewModel  (
         viewModelScope.launch {
             uiViewModel.setLoading(true)
             try {
-                val add = API.apiService.addLibro(libro,sharedViewModel.token.value!!)
-                println("estoy en add libro $add")
+                API.apiService.addLibro(libro,sharedViewModel.token.value!!)
                 librosViewModel.fetchLibros()
             } catch (e: Exception) {
                 uiViewModel.setTextError("Error al añadir: ${e.message}")

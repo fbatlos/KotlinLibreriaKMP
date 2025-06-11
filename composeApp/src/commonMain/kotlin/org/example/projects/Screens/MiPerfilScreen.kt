@@ -63,9 +63,9 @@ import org.example.projects.ViewModel.UiStateViewModel
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
+//Mapea la imagen obtenia a un MapaDeBits
 expect fun convertByteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap
-
-
+//Pantalla de mi perfil sonde puedes cambiar direcciones o el avatar y cerrar sesión
 @Composable
 fun MiPerfilScreen(
     librosViewModel: LibrosViewModel,
@@ -291,6 +291,7 @@ fun MiPerfilScreen(
     }
 }
 
+//Seleccionar el avatar
 @Composable
 private fun AvatarSelectionDialog(
     avatares: List<Avatar>,

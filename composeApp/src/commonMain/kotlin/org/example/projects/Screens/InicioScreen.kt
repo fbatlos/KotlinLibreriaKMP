@@ -38,7 +38,7 @@ import org.example.projects.Screens.CommonParts.HeaderConHamburguesa
 import org.example.projects.Screens.CommonParts.LayoutPrincipal
 import org.example.projects.Screens.CommonParts.MenuBurger
 import org.example.projects.ViewModel.*
-
+//Pantalla de inicio, aparecen libros sugeridos por categorias aleatorias, una selecionada y valoraciones altas.
 @Composable
 fun InicioScreen(
     librosViewModel: LibrosViewModel,

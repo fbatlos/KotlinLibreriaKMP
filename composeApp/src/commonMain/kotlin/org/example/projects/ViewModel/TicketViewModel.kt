@@ -18,6 +18,9 @@ class TicketViewModel (
     private val _cuerpo = MutableStateFlow<String>("")
     val cuerpo: StateFlow<String> = _cuerpo
 
+    private val _showTicket = MutableStateFlow<Boolean>(true)
+    val showTicket: StateFlow<Boolean> = _showTicket
+
     fun onChangeTickt(titulo:String,cuerpo:String){
         _titulo.value = titulo
         _cuerpo.value = cuerpo
@@ -28,6 +31,7 @@ class TicketViewModel (
         viewModelScope.launch {
             try {
                 API.apiService.addTicketDuda(Ticket(userName = authViewModel.username.value!!, titulo = _titulo.value, email = authViewModel.email.value ,cuerpo = _cuerpo.value),sharedViewModel.token.value!!)
+                setShowTicket(false)
             }catch (e:Exception){
                 uiViewModel.setLoading(false)
                 uiViewModel.setTextError("Error: ${e.message}")
@@ -35,5 +39,9 @@ class TicketViewModel (
             }
         }
         uiViewModel.setLoading(false)
+    }
+
+    fun setShowTicket(show:Boolean){
+        _showTicket.value = show
     }
 }

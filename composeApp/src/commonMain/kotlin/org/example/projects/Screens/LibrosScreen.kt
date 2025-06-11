@@ -31,7 +31,7 @@ import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.AuthViewModel
 import org.example.projects.ViewModel.*
 
-//TODO LOS FILTROS NO SON DEL MISMO TAMAÑO
+//Pantalla de todos los libros con filtros si fue
 @Composable
 fun LibrosScreen(
     navController: Navegator,
@@ -147,7 +147,7 @@ fun LibrosScreen(
         }
     }
 }
-
+//Muestra todos los libros
 @Composable
 fun LibrosGrid(libros: List<Libro>,librosViewModel: LibrosViewModel,uiStateViewModel: UiStateViewModel,textError: String, navigator: Navegator) {
 
@@ -176,7 +176,7 @@ fun LibrosGrid(libros: List<Libro>,librosViewModel: LibrosViewModel,uiStateViewM
         uiStateViewModel.setLoading(false)
     }
 }
-
+//Apartados de filtros para los libros
 @Composable
 fun FiltrarLibros(
     tipoStockFiltro: TipoStock?,
@@ -214,7 +214,7 @@ fun FiltrarLibros(
             OutlinedTextField(
                 value = minPrecioText,
                 onValueChange = {
-                    if (it.all { c -> c.isDigit() || c == '.' }) {
+                    if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d{0,2}\$"))) {
                         minPrecioText = it
                         addPrecioMin(it)
                     }
@@ -240,7 +240,7 @@ fun FiltrarLibros(
             OutlinedTextField(
                 value = maxPrecioText,
                 onValueChange = {
-                    if (it.all { c -> c.isDigit() || c == '.' }) {
+                    if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d{0,2}\$"))) {
                         maxPrecioText = it
                         addPrecioMax(it)
                     }
@@ -272,10 +272,7 @@ fun FiltrarLibros(
 
 }
 
-
-
-
-
+//Filtro de los tipos de Stock
 @Composable
 fun FiltroTipoStock(selectedTipo: TipoStock?, onSelected:(TipoStock?) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
@@ -312,6 +309,7 @@ fun FiltroTipoStock(selectedTipo: TipoStock?, onSelected:(TipoStock?) -> Unit) {
     }
 }
 
+//Filtro de las categorias
 @Composable
 fun FiltroCategoria(
     selectedCategoria: String?,
@@ -353,7 +351,7 @@ fun FiltroCategoria(
     }
 }
 
-
+//Cambia la lista de favoritos
 fun cambiarListaFavoritos(add: Boolean, viewModel: LibrosViewModel, idLibro: String) {
     if (add) {
         viewModel.addLibroFavorito(idLibro)

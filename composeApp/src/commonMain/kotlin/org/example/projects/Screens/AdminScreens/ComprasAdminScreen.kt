@@ -48,6 +48,7 @@ import org.example.projects.Utils.Utils
 import org.example.projects.ViewModel.*
 import org.example.projects.ViewModel.AdminViewModel.TicketCompraAdminViewModel
 
+//Pantalla que muestra al administrador las compras
 @Composable
 fun CompraAdminScreen(
     navController: Navegator,
@@ -194,7 +195,7 @@ fun CompraAdminScreen(
         }
     }
 }
-
+//Forma del ticket de compra de todos los usuarios
 @Composable
 fun TicketCard(compra: Compra, sumaCompra: Double,onClick: () -> Unit) {
     Card(
@@ -237,7 +238,7 @@ fun TicketCard(compra: Compra, sumaCompra: Double,onClick: () -> Unit) {
         }
     }
 }
-
+//Se busca y asocia el libro
 @Composable
 fun LibroCompraItem(libro:Libro ,itemCompra: ItemCompra) {
 

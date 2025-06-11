@@ -49,6 +49,7 @@ import org.example.projects.ViewModel.LibrosViewModel
 import org.example.projects.ViewModel.SharedViewModel
 import org.example.projects.ViewModel.UiStateViewModel
 
+//Pantalla de Tickets admin
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TicketsDudaAdminScreen(
@@ -122,6 +123,7 @@ fun TicketsDudaAdminScreen(
     }
 }
 
+//Card para mostrar los tickets
 @Composable
 fun TicketCard(
     ticket: Ticket,
@@ -192,6 +194,7 @@ fun TicketCard(
     }
 }
 
+//Dialog para mostrar los detalles de un libro
 @Composable
 fun TicketDetailDialog(
     ticket: Ticket,

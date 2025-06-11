@@ -25,10 +25,11 @@ import org.example.projects.BaseDeDatos.model.TipoStock.PREVENTA
 import org.example.projects.NavController.AppRoutes
 import org.example.projects.NavController.Navegator
 import org.example.projects.ViewModel.*
-
+//Muestra la imagen desde la url
 @Composable
 expect fun ImagenDesdeUrl(libro: Libro, modifier: Modifier = Modifier)
 
+//Tarjeta de libro para mantener un formato
 @Composable
 fun TarjetaLibro(
     libro: Libro,

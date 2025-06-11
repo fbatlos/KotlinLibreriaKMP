@@ -22,47 +22,47 @@ import org.example.projects.BaseDeDatos.model.Ticket
 import org.example.projects.BaseDeDatos.model.Valoracion
 
 interface APIService {
-
+    //Usuario
     suspend fun postLogin(usuarioLoginDTO: UsuarioLoginDTO): HttpResponse
     suspend fun postRegister(usuario: UsuarioRegisterDTO): AuthResponse
     suspend fun getUsuario(token: String): UsuarioDTO
     suspend fun addDireccion(token: String, direccion: Direccion): String
     suspend fun deleteDireccion(token: String, direccion: Direccion)
-
+    //Avatar
     suspend fun getMiAvatar(idAvatar: String, token: String): Avatar
     suspend fun getAllAvatares(token: String): List<Avatar>
     suspend fun updateUsuarioAvatar(idNuevoAvatar:String,token: String):String
-
+    //libro
     suspend fun listarLibros(categoria:String?,autor: String?): List<Libro>
     suspend fun filtrarLibros(token: String,query:String): List<Libro>
 
     suspend fun addLibroFavorito(token: String,idLibro: String): HttpResponse
     suspend fun removeLibroFavorito(token: String,idLibro: String): HttpResponse
     suspend fun getLibrosfavoritos(token: String): MutableList<String>
-
+    //Valoracion
     suspend fun getValoraciones(idLibro: String):List<Valoracion>
     suspend fun addValoracion(valoracion: Valoracion, token: String):String
     suspend fun removeValoracion(valoracionId:String, token: String):String
     suspend fun getMisValoraciones(token: String):List<Valoracion>
-
+    //Cesta
     suspend fun getCesta(token: String):MutableList<ItemCompra>
     suspend fun addCesta(token: String, itemCompra: ItemCompra):String
     suspend fun updateCesta(token: String,itemsCompra:List<ItemCompra>):String
     suspend fun removeAllCesta(token: String): HttpResponse
     suspend fun removeLibroCesta(token: String, idLibro: String):HttpResponse
-
+    //Compra
     suspend fun checkout(compra: Compra,token: String) : Map<String, String>
     suspend fun actualizarStock(compra: Compra, token: String):String
     suspend fun obtenerEstadoPago(sessionId:String,token: String):Map<String, String>
-
     suspend fun addTicket(compra: Compra,token: String): Map<String, Boolean>
     suspend fun getTicketCompra(token:String):MutableList<Compra>
 
+    //Ticket Dudas
     suspend fun addTicketDuda(ticket: Ticket,token: String):Ticket
 
     //ADMIN
 
-    suspend fun addLibro(libro: Libro,token: String):Boolean
+    suspend fun addLibro(libro: Libro,token: String):String
     suspend fun putLibro(libroID:String,libro: Libro,token: String):Boolean
     suspend fun deleteLibro(libroID: String,token: String):Boolean
 
