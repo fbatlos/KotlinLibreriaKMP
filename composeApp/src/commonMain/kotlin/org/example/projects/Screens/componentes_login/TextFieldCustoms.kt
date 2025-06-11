@@ -45,7 +45,7 @@ fun CustomTextField(
         },
         singleLine = true,
         isError = isError,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         colors = TextFieldDefaults.textFieldColors(
             textColor = AppColors.black,
             backgroundColor = AppColors.silver,

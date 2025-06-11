@@ -71,13 +71,14 @@ fun HeaderConHamburguesa(
     mostrarCarrito: Boolean = true
 ) {
     var query by remember { mutableStateOf("") }
+    var ruta by remember {  mutableStateOf(navController.getCurrentRoute())}
     val cestaSize by carritoViewModel.cestaSize.collectAsState()
 
     //TODO AÑADIR CABEZERA DE TODAS LAS PESTAÑAS
     TopAppBar(
         title = {
-            when (navController.getCurrentRoute()) {
-                is AppRoutes.LibroLista -> {
+            when  {
+                (ruta is AppRoutes.LibroLista || ruta is AppRoutes.LibrosAdmin) -> {
                     TextField(
                         value = query,
                         onValueChange = {

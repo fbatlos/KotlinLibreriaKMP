@@ -222,7 +222,7 @@ fun TicketCard(compra: Compra, sumaCompra: Double,onClick: () -> Unit) {
             }
             Text(
                 modifier = Modifier.padding(start = 10.dp),
-                text = "Dirección: Provincia-${compra.direccion.provincia}  Municipio-${compra.direccion.municipio}\nCalle-${compra.direccion.calle}  Numero-${compra.direccion.num}",
+                text = "Dirección: Calle-${compra.direccion.calle}  Numero-${compra.direccion.num}\nMunicipio-${compra.direccion.municipio}Provincia-${compra.direccion.provincia}",
                 color = AppColors.primary,
                 style = MaterialTheme.typography.h6
             )

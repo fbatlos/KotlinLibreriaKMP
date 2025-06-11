@@ -20,7 +20,6 @@ class LibrosAdminViewModel  (
         viewModelScope.launch {
             uiViewModel.setLoading(true)
             try {
-                //TODO AÑADIR ENDPOINT
                 val add = API.apiService.addLibro(libro,sharedViewModel.token.value!!)
                 println("estoy en add libro $add")
                 librosViewModel.fetchLibros()
@@ -36,7 +35,6 @@ class LibrosAdminViewModel  (
         viewModelScope.launch {
             uiViewModel.setLoading(true)
             try {
-                //TODO AÑADIR ENDPOINT
                 API.apiService.putLibro(libroid,libro,sharedViewModel.token.value!!)
                 librosViewModel.fetchLibros()
             } catch (e: Exception) {

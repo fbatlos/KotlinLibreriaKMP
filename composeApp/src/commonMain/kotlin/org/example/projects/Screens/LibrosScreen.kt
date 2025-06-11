@@ -165,7 +165,7 @@ fun LibrosGrid(libros: List<Libro>,librosViewModel: LibrosViewModel,uiStateViewM
                 items(libros) { libro ->
                     TarjetaLibro(
                         libro = libro,
-                        onFavoritoClick = { add -> cambiarListaFavoritos(add, librosViewModel, libro._id) },
+                        onFavoritoClick = { add -> cambiarListaFavoritos(add, librosViewModel, libro._id!!) },
                         librosFavoritos = librosFavoritos,
                         librosViewModel = librosViewModel,
                         navController = navigator

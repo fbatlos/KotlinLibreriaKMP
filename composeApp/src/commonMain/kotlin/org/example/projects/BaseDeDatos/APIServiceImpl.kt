@@ -472,9 +472,9 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
             header(HttpHeaders.Authorization, "Bearer $token")
             setBody(libro)
         }
-
+        println(response.bodyAsText())
         return when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.OK -> true
             HttpStatusCode.Conflict -> throw ApiException("${response.body<ErrorResponse>().message}")
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")
@@ -507,7 +507,7 @@ class APIServiceImpl(private val client: HttpClient) : APIService {
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> response.body()
+            HttpStatusCode.NoContent -> true
             HttpStatusCode.Conflict -> throw ApiException("${response.body<ErrorResponse>().message}")
             HttpStatusCode.Unauthorized -> throw AuthException("Token inválido")
             HttpStatusCode.BadRequest -> throw ApiException("${response.body<ErrorResponse>().message}")

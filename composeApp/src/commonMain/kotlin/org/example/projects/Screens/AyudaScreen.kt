@@ -1,15 +1,18 @@
 package org.example.projects.Screens
 
 import AppColors
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -48,6 +51,10 @@ fun AyudaScreen(
     val titulo by ticketViewModel.tituloTicket.collectAsState()
     val cuerpo by ticketViewModel.cuerpo.collectAsState()
 
+    val isLoading by uiViewModel.isLoading.collectAsState()
+    val textError by uiViewModel.textError.collectAsState()
+    val showDialiog by uiViewModel.showDialog.collectAsState()
+
     LayoutPrincipal(
         headerContent = { drawerState,scope ->
             HeaderConHamburguesa(
@@ -63,6 +70,18 @@ fun AyudaScreen(
             MenuBurger(drawerState,navController, uiViewModel,authViewModel,sharedViewModel = sharedViewModel)
         }
     ) { paddingValues ->
+
+        if (isLoading){
+            Box (
+                modifier = Modifier.fillMaxSize()
+            ){
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = AppColors.primary,
+                    strokeWidth = 2.dp
+                )
+            }
+        }else{
 
         LazyColumn(
             modifier = Modifier
@@ -100,7 +119,7 @@ fun AyudaScreen(
 
                 OutlinedTextField(
                     value = titulo,
-                    onValueChange = { ticketViewModel.onChangeTickt(it,cuerpo) },
+                    onValueChange = { ticketViewModel.onChangeTickt(it, cuerpo) },
                     label = { Text("Título") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -115,7 +134,7 @@ fun AyudaScreen(
 
                 OutlinedTextField(
                     value = cuerpo,
-                    onValueChange = { ticketViewModel.onChangeTickt(titulo,it) },
+                    onValueChange = { ticketViewModel.onChangeTickt(titulo, it) },
                     label = { Text("Cuerpo del mensaje") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -134,7 +153,7 @@ fun AyudaScreen(
                     onClick = {
                         if (!sharedViewModel.token.value.isNullOrEmpty()) {
                             ticketViewModel.addTicketDuda()
-                        }else{
+                        } else {
                             uiViewModel.setTextError("Tienes que registrarte si quieres enviar un ticket.")
                             uiViewModel.setShowDialog(true)
                             navController.navigateTo(AppRoutes.Login)
@@ -174,6 +193,7 @@ fun AyudaScreen(
                     style = MaterialTheme.typography.body1
                 )
             }
+        }
         }
     }
 }

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Libro(
-    val _id : String,
+    val _id : String?,
     var titulo: String? = null,
     var descripcion: String? = null,
     var autores: List<String> = emptyList(),
@@ -13,7 +13,7 @@ data class Libro(
     var imagen: String? = null,
     var enlaceEbook: String? = null,
     var isbn13: String? = null,
-    var categorias: List<String> = emptyList(),
+    var categorias: MutableList<String> = mutableListOf(),
     val valoracionMedia: Double? = 0.0,
     var stock: Stock
 )
