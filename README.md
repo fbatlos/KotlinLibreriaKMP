@@ -120,7 +120,7 @@ Con **Git y GitHub**:
 ### Diagrama 
 **Diagrama de flujo**  
 
-//Imagen
+![Diagrama de flujo](composeApp/imagenes/Diagramly_2025-06-10T19_12_08.751Z.png)
 
 ---
 
@@ -144,7 +144,7 @@ Se puede ver en el repositorio del back-end mas adelante.
 
 **Pruebas de UI:** detección de mejoras en pantallas pequeñas.
 
-//Imagen
+![Pruebas UI](composeApp/imagenes/pruebaUI.png)
 
 ---
 
