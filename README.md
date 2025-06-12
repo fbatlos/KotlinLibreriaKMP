@@ -198,7 +198,7 @@ En lo personal, este proyecto no solo me sirvió para reforzar conocimientos té
 > - Clona los repositorios:
 >   - [API_TFG_Libreria](https://github.com/fbatlos/API_TFG_Libreria.git)
 >   - [KotlinLibreriaKMP](https://github.com/fbatlos/KotlinLibreriaKMP.git)
-> - Contacto para feedback: *franciscobatista.dev@gmail.com*
+> - Contacto para feedback: *franbati1705@gmail.com*
 
 ---
 
